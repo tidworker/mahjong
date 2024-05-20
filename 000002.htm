@@ -38,15 +38,12 @@
         #percentage {
             margin-top: 20px;
             font-size: 16px;
-            color: black;
+            color: white;
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <img src="logo.png">
-        <br>
-        <br>
         <div id="grid"></div>
         <div id="percentage">已塗色百分比：0%</div>
     </div>
@@ -204,7 +201,7 @@
             const rect = grid.getBoundingClientRect();
             const x = Math.floor((clientX - rect.left) / 4);
             const y = Math.floor((clientY - rect.top) / 4);
-            fillCircle(x, y, 6);
+            fillCircle(x, y, 5);
         }
 
         function fillCircle(cx, cy, radius) {

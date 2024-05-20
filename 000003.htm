@@ -38,15 +38,12 @@
         #percentage {
             margin-top: 20px;
             font-size: 16px;
-            color: black;
+            color: white;
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <img src="logo.png">
-        <br>
-        <br>
         <div id="grid"></div>
         <div id="percentage">已塗色百分比：0%</div>
     </div>
@@ -229,7 +226,7 @@
         function updatePercentage() {
             const percentageColored = (filledLetters / totalLetters) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 97) {
+            if (percentageColored >= 98) {
                 window.location.href = '000001.htm'; // 自動跳轉至000002.htm
             }
         }

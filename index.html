@@ -9,8 +9,7 @@
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            align-items: center; /* 垂直居中 */
             height: 100%;
             flex-direction: column;
             background-color: white;
@@ -19,14 +18,20 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%; /* 確保容器在水平方向上佔滿整個頁面 */
         }
         iframe {
-            width: 800px;
-            height: 600px;
+            width: 90vw;
+            height: 70vh;
+            max-width: 800px;
+            max-height: 520px;
             border: 0px solid #ccc;
+            margin-bottom: 20px;
         }
         .button-container {
-            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
         }
         button {
             padding: 10px 20px;
@@ -37,14 +42,29 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            flex: 1;
+            max-width: 150px;
         }
         button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
         }
+        @media (max-width: 600px) {
+            button {
+                margin: 5px;
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <img src="logo.png">
     <div id="container">
         <iframe id="content-frame" src="000001.htm"></iframe>
         <div class="button-container">
