@@ -204,7 +204,7 @@
             const rect = grid.getBoundingClientRect();
             const x = Math.floor((clientX - rect.left) / 4);
             const y = Math.floor((clientY - rect.top) / 4);
-            fillCircle(x, y, 7);
+            fillCircle(x, y, 6);
         }
 
         function fillCircle(cx, cy, radius) {
@@ -229,7 +229,7 @@
         function updatePercentage() {
             const percentageColored = (filledLetters / totalLetters) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 95) {
+            if (percentageColored >= 99) {
                 window.location.href = '000002.htm'; // 自動跳轉至000002.htm
             }
         }
