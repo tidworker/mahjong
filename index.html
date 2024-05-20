@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主頁</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            flex-direction: column;
+            background-color: white;
+        }
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        iframe {
+            width: 800px;
+            height: 600px;
+            border: 0px solid #ccc;
+        }
+        .button-container {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <iframe id="content-frame" src="000001.htm"></iframe>
+        <div class="button-container">
+            <button id="prev-btn" onclick="navigate(-1)">上一頁</button>
+            <button id="next-btn" onclick="navigate(1)">下一頁</button>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+
+        function navigate(direction) {
+            const newPage = currentPage + direction;
+            const newPageStr = newPage.toString().padStart(6, '0') + '.htm';
+            const iframe = document.getElementById('content-frame');
+
+            // 設定 iframe 的新 src
+            iframe.src = newPageStr;
+            currentPage = newPage;
+
+            // 更新按鈕狀態
+            updateButtons();
+        }
+
+        function updateButtons() {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            prevBtn.disabled = (currentPage === 1);
+        }
+
+        // 初始化按鈕狀態
+        updateButtons();
+    </script>
+</body>
+</html>
