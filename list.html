@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>紀錄顯示</title>
+</head>
+<body>
+<div>
+  <h1>詞彙紀錄</h1>
+  <ul id="wordsList"></ul>
+</div>
+<div>
+  <h1>數字紀錄</h1>
+  <ul id="numbersList"></ul>
+</div>
+
+<script>
+  function loadFromLocalStorage() {
+    const dictionaryData = JSON.parse(localStorage.getItem('dictionaryResults'));
+    const numericData = JSON.parse(localStorage.getItem('numericResults'));
+
+    if (dictionaryData) {
+      updateList('wordsList', dictionaryData.value);
+    }
+
+    if (numericData) {
+      updateList('numbersList', numericData.value);
+    }
+  }
+
+  function updateList(listId, items) {
+    const ul = document.getElementById(listId);
+    items.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item;
+      ul.appendChild(li);
+    });
+  }
+
+  loadFromLocalStorage();
+</script>
+</body>
+</html>
