@@ -14,6 +14,10 @@
   <ul id="numbersList"></ul>
 </div>
 
+<div>
+  <button onclick="clearData()">清除紀錄</button>
+</div>
+
 <script>
   function loadFromLocalStorage() {
     const dictionaryData = JSON.parse(localStorage.getItem('dictionaryResults'));
@@ -35,6 +39,25 @@
       li.textContent = item;
       ul.appendChild(li);
     });
+  }
+
+  function clearData() {
+    const dictionaryData = JSON.parse(localStorage.getItem('dictionaryResults'));
+    const numericData = JSON.parse(localStorage.getItem('numericResults'));
+
+    localStorage.removeItem('dictionaryResults');
+    localStorage.removeItem('numericResults');
+
+    document.getElementById('wordsList').innerHTML = '';
+    document.getElementById('numbersList').innerHTML = '';
+
+    if (dictionaryData) {
+      updateList('wordsList', dictionaryData.value);
+    }
+
+    if (numericData) {
+      updateList('numbersList', numericData.value);
+    }
   }
 
   loadFromLocalStorage();
