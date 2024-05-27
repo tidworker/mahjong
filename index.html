@@ -1,44 +1,152 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>主頁</title>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            align-items: center; /* 垂直居中 */
-            height: 100%;
-            flex-direction: column;
-            background-color: white;
-        }
-        #container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%; /* 確保容器在水平方向上佔滿整個頁面 */
-        }
-        iframe {
-            width: 90vw;
-            height: 60vh;
-            max-width: 800px;
-            max-height: 520px;
-            border: none; /* 移除邊框 */
-            margin-bottom: 20px;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>中文文字處理系統</title>
+<style>
+    ul {
+        list-style-type: none; /* Removes bullets */
+        padding: 0;
+    }
+    li {
+        margin: 5px 0;
+    }
+</style>
 </head>
 <body>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <div id="container">
-        <iframe id="content-frame" src="000001.htm"></iframe>
-        <!-- 點擊圖片彈出模態的部分已刪除 -->
-    </div>
+<div>
+  <h1>請輸入文字或數字：</h1>
+  <input type="text" id="inputText" placeholder="輸入中文文字或數字" oninput="processInput(this.value)">
+  <button onclick="toggleSpeechRecognition()">開始語音輸入</button>
+  <button onclick="clearInput()">清除</button>
+  <div>字典詞彙輸出：<span id="dictionaryOutput"></span></div>
+  <div>數字輸出：<span id="numericOutput"></span></div>
+</div>
+
+<ul id="wordsList">詞彙紀錄:</ul>
+<ul id="numbersList">數字紀錄:</ul>
+
+<script>
+  const dictionary = {
+    '蔥': 0, '油': 0, '餅': 0, '不': 2, '加': 1, '蛋': 1, '大': 2,
+    '腸': 3, '肉': 3, '羹': 3, '綜': 3, '合': 4, '清': 8, '純': 9, 
+    '湯': 4, '貢': 6, '丸': 6, '小': 9, '炒': 11,'草': 11, '麵': 50
+  };
+
+  let isListening = false;
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = 'zh-Hant-TW';
+  recognition.interimResults = false;
+  recognition.continuous = false;
+
+  recognition.onresult = function(event) {
+    const input = event.results[0][0].transcript;
+    document.getElementById('inputText').value = input;
+    processInput(input);
+  };
+
+  function toggleSpeechRecognition() {
+    if (!isListening) {
+      recognition.start();
+      isListening = true;
+    } else {
+      recognition.stop();
+      isListening = false;
+    }
+  }
+
+  function clearInput() {
+    document.getElementById('inputText').value = '';
+    document.getElementById('dictionaryOutput').textContent = '';
+    document.getElementById('numericOutput').textContent = '';
+  }
+
+  function processInput(input) {
+    input = input.trim();
+    const segments = input.split(/(\d+)/).filter(Boolean); // Split input into text and numbers, and filter out empty strings
+
+    let dictionaryResults = [];
+    let numericResults = [];
+
+    segments.forEach(segment => {
+      if (/^\d+$/.test(segment)) { // If segment is purely numeric
+        numericResults.push(segment);
+        updateList('numbersList', segment);
+      } else { // Process text segment according to the dictionary
+        let sum = 0;
+        Array.from(segment).forEach(char => {
+          if (dictionary.hasOwnProperty(char)) {
+            sum += dictionary[char];
+          }
+        });
+
+        let result = '';
+        if (sum === 1 || sum === 2) {
+          result = '蔥油餅加蛋';
+        } else if (sum === 4 || sum === 3 || sum === 0) {
+          result = '芝麻蔥油餅';
+        } else if (sum === 5 || sum === 55) {
+          result = '大腸麵線';
+        } else if (sum === 6 || sum === 56) {
+          result = '肉羹麵線';
+        } else if (sum === 7 || sum === 57) {
+          result = '綜合麵線';
+        } else if (sum === 8 || sum === 58) {
+          result = '清麵線';
+        } else if (sum === 9 || sum === 59) {
+          result = '純麵線';
+        } else if (sum === 10 || sum === 60) {
+          result = '肉羹湯';
+        } else if (sum === 11) {
+          result = '綜合湯';
+        } else if (sum === 12) {
+          result = '貢丸湯';
+        } else if (sum === 13 || sum === 21 || sum === 63) {
+          result = '炒麵大份';
+        } else if (sum === 20 || sum === 70) {
+          result = '炒麵小份';
+        } else if (sum > 0) {
+          result = '未知組合';
+        }
+
+        if (result) {
+          dictionaryResults.push(result);
+          updateList('wordsList', result);
+        }
+      }
+    });
+
+    document.getElementById('dictionaryOutput').textContent = dictionaryResults.join('，');
+    document.getElementById('numericOutput').textContent = numericResults.join('，');
+
+    saveToLocalStorage('dictionaryResults', dictionaryResults);
+    saveToLocalStorage('numericResults', numericResults);
+  }
+
+  function updateList(listId, text) {
+    const ul = document.getElementById(listId);
+    const li = document.createElement('li');
+    li.textContent = text;
+    ul.appendChild(li);
+  }
+
+  function saveToLocalStorage(key, value) {
+    const expirationTime = new Date().getTime() + 10 * 60 * 1000; // 10 minutes from now
+    const data = { value, expirationTime };
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+
+  function clearExpiredStorage() {
+    const now = new Date().getTime();
+    Object.keys(localStorage).forEach(key => {
+      const data = JSON.parse(localStorage.getItem(key));
+      if (data.expirationTime < now) {
+        localStorage.removeItem(key);
+      }
+    });
+  }
+
+  setInterval(clearExpiredStorage, 60000); // Clear expired items every minute
+</script>
 </body>
 </html>
