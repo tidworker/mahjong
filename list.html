@@ -2,65 +2,84 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>紀錄顯示</title>
+<title>語音點餐紀錄</title>
 </head>
 <body>
 <div>
-  <h1>詞彙紀錄</h1>
-  <ul id="wordsList"></ul>
-</div>
-<div>
-  <h1>數字紀錄</h1>
-  <ul id="numbersList"></ul>
+  <h1>語音點餐系統</h1>
+  <input type="text" id="inputText" placeholder="輸入中文文字或數字" oninput="processInput(this.value)">
+  <button onclick="toggleSpeechRecognition()">開始語音輸入</button>
+  <button onclick="clearInput()">清除</button>
+  <div>點餐輸出：<span id="orderOutput"></span></div>
+  <div>總金額：<span id="totalAmount"></span>元</div>
 </div>
 
-<div>
-  <button onclick="clearData()">清除紀錄</button>
-</div>
+<ul id="orderList">點餐紀錄:</ul>
 
 <script>
-  function loadFromLocalStorage() {
-    const dictionaryData = JSON.parse(localStorage.getItem('dictionaryResults'));
-    const numericData = JSON.parse(localStorage.getItem('numericResults'));
+  const menu = {
+    '蔥油餅加蛋': 30
+  };
 
-    if (dictionaryData) {
-      updateList('wordsList', dictionaryData.value);
-    }
+  let isListening = false;
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = 'zh-Hant-TW';
+  recognition.interimResults = false;
+  recognition.continuous = false;
 
-    if (numericData) {
-      updateList('numbersList', numericData.value);
+  recognition.onresult = function(event) {
+    const input = event.results[0][0].transcript;
+    document.getElementById('inputText').value = input;
+    processInput(input);
+  };
+
+  function toggleSpeechRecognition() {
+    if (!isListening) {
+      recognition.start();
+      isListening = true;
+    } else {
+      recognition.stop();
+      isListening = false;
     }
   }
 
-  function updateList(listId, items) {
+  function clearInput() {
+    document.getElementById('inputText').value = '';
+    document.getElementById('orderOutput').textContent = '';
+    document.getElementById('totalAmount').textContent = '';
+    document.getElementById('orderList').innerHTML = '';
+  }
+
+  function processInput(input) {
+    input = input.trim();
+    const orderMatch = input.match(/([蔥油餅加蛋]+)\s*和\s*(\d+)/);
+
+    if (orderMatch) {
+      const itemName = orderMatch[1];
+      const itemQuantity = parseInt(orderMatch[2]);
+
+      if (menu.hasOwnProperty(itemName)) {
+        const itemPrice = menu[itemName];
+        const totalPrice = itemPrice * itemQuantity;
+
+        document.getElementById('orderOutput').textContent = `${itemName} x ${itemQuantity}`;
+        document.getElementById('totalAmount').textContent = totalPrice;
+
+        updateList('orderList', `${itemName} x ${itemQuantity} - ${totalPrice}元`);
+      } else {
+        document.getElementById('orderOutput').textContent = '未知的菜單項目';
+      }
+    } else {
+      document.getElementById('orderOutput').textContent = '無效的輸入格式';
+    }
+  }
+
+  function updateList(listId, text) {
     const ul = document.getElementById(listId);
-    items.forEach(item => {
-      const li = document.createElement('li');
-      li.textContent = item;
-      ul.appendChild(li);
-    });
+    const li = document.createElement('li');
+    li.textContent = text;
+    ul.appendChild(li);
   }
-
-  function clearData() {
-    const dictionaryData = JSON.parse(localStorage.getItem('dictionaryResults'));
-    const numericData = JSON.parse(localStorage.getItem('numericResults'));
-
-    localStorage.removeItem('dictionaryResults');
-    localStorage.removeItem('numericResults');
-
-    document.getElementById('wordsList').innerHTML = '';
-    document.getElementById('numbersList').innerHTML = '';
-
-    if (dictionaryData) {
-      updateList('wordsList', dictionaryData.value);
-    }
-
-    if (numericData) {
-      updateList('numbersList', numericData.value);
-    }
-  }
-
-  loadFromLocalStorage();
 </script>
 </body>
 </html>
