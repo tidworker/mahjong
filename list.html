@@ -46,7 +46,7 @@
   }
 
   function parseOrder(order) {
-    const orderMatch = order.match(/([蔥油餅加蛋]+)\s*x\s*(\d+)/);
+    const orderMatch = order.match(/([^\s]+)\s*x\s*(\d+)/);
     if (orderMatch) {
       const itemName = orderMatch[1];
       const itemQuantity = parseInt(orderMatch[2]);
@@ -56,11 +56,9 @@
   }
 
   function clearData() {
-    const orderData = JSON.parse(localStorage.getItem('orderList')) || [];
     localStorage.removeItem('orderList');
     document.getElementById('orderList').innerHTML = '';
-
-    orderData.forEach(order => updateList('orderList', order));
+    document.getElementById('totalAmount').textContent = '0';
   }
 
   loadFromLocalStorage();
