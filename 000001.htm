@@ -255,7 +255,9 @@
             if (percentageColored >= 95 && !completedLetters.has(currentLetter)) {
                 completedLetters.add(currentLetter);
                 if (currentLetter === 8) {
-                    window.location.href = '000002.htm'; // 自動跳轉至000002.htm
+            setTimeout(() => {
+                window.location.href = `000002.htm`;
+            }, 1000); // 1秒後跳轉頁面
                 } else {
                     document.addEventListener('mousedown', nextLetterHandler, { once: true });
                     document.addEventListener('touchstart', nextLetterHandler, { once: true });
