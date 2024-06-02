@@ -45,7 +45,7 @@
 <body>
     <div id="container">
         <div id="grid"></div>
-        <div id="percentage">ver1.02 已塗色百分比：0%</div>
+        <div id="percentage">ver1.03已塗色百分比：0%</div>
     </div>
     <script>
         const grid = document.getElementById('grid');
@@ -159,6 +159,7 @@
         let filledLetters = Array(10).fill(0);
         let currentLetter = 1;
         let canPaint = true;
+        let completedLetters = new Set();
 
         function initializeGrid() {
             grid.innerHTML = '';
@@ -195,7 +196,7 @@
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
             if (canPaint) {
-                fillCircle(x, y, 9); // 將半徑設置為3，增加筆刷大小
+                fillCircle(x, y, 9); // 將半徑設置為9，增加筆刷大小
             }
         }
 
@@ -204,7 +205,7 @@
             const x = Math.floor((e.clientX - rect.left) / 4);
             const y = Math.floor((e.clientY - rect.top) / 4);
             if (canPaint) {
-                fillCircle(x, y, 9); // 將半徑設置為3，增加筆刷大小
+                fillCircle(x, y, 9); // 將半徑設置為9，增加筆刷大小
             }
         }
 
@@ -217,10 +218,12 @@
                         const ny = cy + i;
                         if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
                             const targetCell = cells[ny][nx];
-                            if (targetCell.classList.contains(`letter${currentLetter}`) && !targetCell.style.backgroundColor) {
+                            if ((targetCell.classList.contains(`letter${currentLetter}`) || completedLetters.has(Number(targetCell.className.slice(-1)))) && !targetCell.style.backgroundColor) {
                                 targetCell.style.backgroundColor = '#000000';
-                                filledLetters[currentLetter]++;
-                                painted = true;
+                                if (targetCell.classList.contains(`letter${currentLetter}`)) {
+                                    filledLetters[currentLetter]++;
+                                    painted = true;
+                                }
                             }
                         }
                     }
@@ -233,20 +236,22 @@
 
         function updatePercentage() {
             const percentageColored = (filledLetters[currentLetter] / totalLetters[currentLetter]) * 100;
-            percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 100) {
-                canPaint = false;
-                document.addEventListener('mousedown', nextLetterHandler, { once: true });
-                document.addEventListener('touchstart', nextLetterHandler, { once: true });
+            percentageDisplay.textContent = `ver1.03已塗色百分比：${percentageColored.toFixed(2)}%`;
+            if (percentageColored >= 95 && !completedLetters.has(currentLetter)) {
+                completedLetters.add(currentLetter);
+                if (currentLetter === 8) {
+                    localStorage.setItem('record', '金');
+                    window.location.href = '000002.htm'; // 自動跳轉至000002.htm
+                } else {
+                    document.addEventListener('mousedown', nextLetterHandler, { once: true });
+                    document.addEventListener('touchstart', nextLetterHandler, { once: true });
+                }
             }
         }
 
         function nextLetterHandler() {
             if (currentLetter < 9) {
                 currentLetter++;
-            } else {
-                localStorage.setItem('record', '金');
-                window.location.href = '000002.htm'; // 自動跳轉至000002.htm
             }
             canPaint = true;
         }
