@@ -45,14 +45,29 @@
 <body>
     <div id="container">
         <div id="grid"></div>
-        <div id="percentage">ver1.03已塗色百分比：0%</div>
+        <div id="percentage"></div>
     </div>
+
+    <div class="image-row">
+        <img src="jin.png" style="opacity: 0.3;">
+        <img src="gon.png" style="opacity: 0.3;">
+        <img src="ban.png" style="opacity: 0.3;">
+        <img src="row.png" style="opacity: 0.3;">
+        <img src="po.png" style="opacity: 0.3;">
+        <img src="ro.png" style="opacity: 0.3;">
+        <img src="mi.png" style="opacity: 0.3;">
+        <img src="jinn.png" style="opacity: 0.3;">
+    </div>
+    
+    <br>
+    ver1.05/筆劃95%/換頁100%
+
     <script>
         const grid = document.getElementById('grid');
         const percentageDisplay = document.getElementById('percentage');
         const cells = [];
         const patternA = [
-            // 添加完整的100x100的模式，此處僅示範幾行
+            // 添加完整的100x100的模式
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
@@ -236,11 +251,10 @@
 
         function updatePercentage() {
             const percentageColored = (filledLetters[currentLetter] / totalLetters[currentLetter]) * 100;
-            percentageDisplay.textContent = `ver1.03已塗色百分比：${percentageColored.toFixed(2)}%`;
+            percentageDisplay.textContent = ``;
             if (percentageColored >= 95 && !completedLetters.has(currentLetter)) {
                 completedLetters.add(currentLetter);
                 if (currentLetter === 8) {
-                    localStorage.setItem('record', '金');
                     window.location.href = '000002.htm'; // 自動跳轉至000002.htm
                 } else {
                     document.addEventListener('mousedown', nextLetterHandler, { once: true });
