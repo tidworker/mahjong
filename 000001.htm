@@ -45,7 +45,7 @@
 <body>
     <div id="container">
         <div id="grid"></div>
-        <div id="percentage">已塗色百分比：0%</div>
+        <div id="percentage">ver1.0 已塗色百分比：0%</div>
     </div>
     <script>
         const grid = document.getElementById('grid');
@@ -184,11 +184,23 @@
             }
         });
 
+        grid.addEventListener('touchstart', handleTouch, { passive: false });
+        grid.addEventListener('touchmove', handleTouch, { passive: false });
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = grid.getBoundingClientRect();
+            const x = Math.floor((touch.clientX - rect.left) / 4);
+            const y = Math.floor((touch.clientY - rect.top) / 4);
+            fillCircle(x, y, 9); // 將半徑設置為9，增加筆刷大小
+        }
+
         function handleMouse(e) {
             const rect = grid.getBoundingClientRect();
             const x = Math.floor((e.clientX - rect.left) / 4);
             const y = Math.floor((e.clientY - rect.top) / 4);
-            fillCircle(x, y, 9); // 將半徑設置為3，增加筆刷大小
+            fillCircle(x, y, 9); // 將半徑設置為9，增加筆刷大小
         }
 
         function fillCircle(cx, cy, radius) {
@@ -218,10 +230,15 @@
                     currentLetter++;
                 } else {
                     localStorage.setItem('record', '金');
-                    window.location.href = '000001.htm'; // 自動跳轉至000002.htm
+                    window.location.href = '000002.htm'; // 自動跳轉至000002.htm
                 }
             }
         }
+
+        // 禁止滾動刷新頁面
+        document.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
 
         // 初始化遊戲
         initializeGrid();
