@@ -280,13 +280,13 @@
         function updatePercentage() {
             const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 100 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex + 1))) {
+            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex + 1))) {
                 const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
                 document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
                     cell.classList.add('current');
                 });
             }
-            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
+            if (percentageColored >= 100 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
                 canPaint = false;
                 if (currentLetterIndex === 7) { // 當前字母為 'h'
