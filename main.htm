@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letter Galaxy</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: white;
+            height: 100vh;
+        }
+        .iframe-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        iframe {
+            width: 390px;
+            height: 780px;
+            border: none;
+        }
+        .clickable {
+            position: relative;
+        }
+        .clickable img:hover, .clickable img:active {
+            opacity: 0.6;
+        }
+        #buttons img {
+            cursor: pointer;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="iframe-container">
+        <iframe src="000001.htm" title="內嵌頁框" id="menuFrame"></iframe>
+    </div>
+</body>
+</html>
