@@ -68,7 +68,7 @@
     </div>
     
     <br>
-    ver1.06/筆劃95%/換頁100%
+    ver1.07/筆劃95%/換頁100%
 
     <script>
         const grid = document.getElementById('grid');
@@ -238,7 +238,7 @@
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
             if (canPaint) {
-                fillCircle(x, y, 9); // 將半徑設置為9，增加筆刷大小
+                fillCircle(x, y, 10); // 將半徑設置為9，增加筆刷大小
             }
         }
 
@@ -278,7 +278,7 @@
         }
 
         function updatePercentage() {
-            const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 95;
+            const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
             if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex + 1))) {
                 const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
