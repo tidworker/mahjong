@@ -286,7 +286,7 @@
                     cell.classList.add('current');
                 });
             }
-            if (percentageColored >= 100 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
+            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
                 canPaint = false;
                 if (currentLetterIndex === 7) { // 當前字母為 'h'
