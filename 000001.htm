@@ -68,14 +68,13 @@
     </div>
     
     <br>
-    ver1.10/筆劃100%/換頁100%
+    ver1.12/筆劃95%/換頁95%
 
     <script>
         const grid = document.getElementById('grid');
         const percentageDisplay = document.getElementById('percentage');
         const cells = [];
         const patternA = [
-            // 簡化示範矩陣，僅顯示頭尾兩行
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
@@ -238,7 +237,7 @@
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
             if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為9，增加筆刷大小
+                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
             }
         }
 
@@ -247,7 +246,7 @@
             const x = Math.floor((e.clientX - rect.left) / 4);
             const y = Math.floor((e.clientY - rect.top) / 4);
             if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為9，增加筆刷大小
+                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
             }
         }
 
@@ -280,20 +279,19 @@
         function updatePercentage() {
             const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 100 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex + 1))) {
-                const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
-                document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
-                    cell.classList.add('current');
-                });
-            }
-            if (percentageColored >= 100 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
+            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-                canPaint = false;
                 if (currentLetterIndex === 7) { // 當前字母為 'h'
                     setTimeout(() => {
                         window.location.href = '000002.htm';
                     }, 1000); // 1秒後跳轉頁面
-                } else {
+                }
+                canPaint = true;
+                const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
+                document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
+                    cell.classList.add('current');
+                });
+                if (currentLetterIndex < 25) {
                     document.addEventListener('mousedown', nextLetterHandler, { once: true });
                     document.addEventListener('touchstart', nextLetterHandler, { once: true });
                 }
