@@ -290,7 +290,7 @@
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
             if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-                if (currentLetterIndex === 18) { // 當前字母為 'h'
+                if (currentLetterIndex === 12) { // 當前字母為 'h'
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 1000); // 1秒後跳轉頁面
