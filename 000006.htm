@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Let's Write</title>
     <style>
-
         body, html {
             flex-direction: column;
             background-color: #F2F2F2;
@@ -16,7 +15,6 @@
             justify-content: center;
             align-items: center;
             height: 100%;
-
         }
         #container {
             display: flex;
@@ -49,12 +47,10 @@
             margin-top: 0px;
             font-size: 5px;
             color: #F2F2F2;
-
         }
         #buttons img {
             cursor: pointer;
             margin: 12px;
-
         }
     </style>
 </head>
@@ -275,12 +271,10 @@
                         if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
                             const targetCell = cells[ny][nx];
                             const letter = String.fromCharCode(97 + currentLetterIndex);
-                            if ((targetCell.classList.contains(`letter${letter}`) || completedLetters.has(targetCell.className.slice(-1))) && !targetCell.style.backgroundColor) {
+                            if (targetCell.classList.contains(`letter${letter}`) && !targetCell.style.backgroundColor) {
                                 targetCell.style.backgroundColor = '#000000';
-                                if (targetCell.classList.contains(`letter${letter}`)) {
-                                    filledLetters[currentLetterIndex]++;
-                                    painted = true;
-                                }
+                                filledLetters[currentLetterIndex]++;
+                                painted = true;
                             }
                         }
                     }
@@ -298,7 +292,7 @@
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
                 if (currentLetterIndex === 18) { // 當前字母為 'h'
                     setTimeout(() => {
-                        window.location.href = '000006.htm';
+                        window.location.href = '000007.htm';
                     }, 1000); // 1秒後跳轉頁面
                 }
                 canPaint = true;
