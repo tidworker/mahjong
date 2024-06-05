@@ -25,12 +25,12 @@
         }
         #grid {
             display: grid;
-            grid-template-columns: repeat(100, 3px);
-            grid-template-rows: repeat(100, 3px);
+            grid-template-columns: repeat(100, 4px);
+            grid-template-rows: repeat(100, 4px);
         }
         .cell {
-            width: 3px;
-            height: 3px;
+            width: 4px;
+            height: 4px;
             background-color: transparent;
             box-sizing: border-box;
         }
@@ -249,8 +249,8 @@
             e.preventDefault();
             const touch = e.touches[0];
             const rect = grid.getBoundingClientRect();
-            const x = Math.floor((touch.clientX - rect.left) / 3);
-            const y = Math.floor((touch.clientY - rect.top) / 3);
+            const x = Math.floor((touch.clientX - rect.left) / 4);
+            const y = Math.floor((touch.clientY - rect.top) / 4);
             if (canPaint) {
                 fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
             }
@@ -258,8 +258,8 @@
 
         function handleMouse(e) {
             const rect = grid.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / 3);
-            const y = Math.floor((e.clientY - rect.top) / 3);
+            const x = Math.floor((e.clientX - rect.left) / 4);
+            const y = Math.floor((e.clientY - rect.top) / 4);
             if (canPaint) {
                 fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
             }
