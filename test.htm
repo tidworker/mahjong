@@ -1,46 +1,125 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrix Display</title>
+    <title>圖像編輯與導出</title>
     <style>
-        #grid {
-            display: grid;
-            grid-template-columns: repeat(5, 50px);
-            grid-template-rows: repeat(5, 50px);
-        }
-        .cell {
-            width: 50px;
-            height: 50px;
-            border: 1px solid black;
+        body, html {
+            flex-direction: column;
+            background-color: #F2F2F2;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100%;
+        }
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(100, 3px);
+            grid-template-rows: repeat(100, 3px);
+        }
+        .cell {
+            width: 3px;
+            height: 3px;
+            background-color: transparent;
+            box-sizing: border-box;
+        }
+        .lettera, .letterb, .letterc, .letterd, .lettere, .letterf, .letterg, .letterh, .letteri, .letterj,
+        .letterk, .letterl, .letterm, .lettern, .lettero, .letterp, .letterq, .letterr, .letters, .lettert,
+        .letteru, .letterv, .letterw, .letterx, .lettery {
+            background-color: #d3d3d3;
+        }
+        .letterz {
+            background-color: #191919;
+        }
+        .current {
+            background-color: #808080;
+        }
+        #percentage {
+            margin-top: 0px;
+            font-size: 5px;
+            color: #F2F2F2;
+        }
+        #buttons img {
+            cursor: pointer;
+            margin: 12px;
         }
     </style>
 </head>
 <body>
-    <div id="grid"></div>
+    <div id="container">
+        <div id="grid"></div>
+        <div id="percentage">已塗色百分比：0%</div>
+    </div>
+
+    <div id="buttons">
+        <img src="back.png" onclick="history.back()">
+        <img src="re.png" onclick="location.reload()">
+        <img src="next.png" onclick="window.location.href='000002.htm'">
+    </div>
+    <br>
+    <img src="logo2.png">
 
     <script>
-        async function loadMatrix() {
-            const response = await fetch('matrix.json');
-            const data = await response.json();
-            const matrix = data.matrix;
+        const grid = document.getElementById('grid');
+        const percentageDisplay = document.getElementById('percentage');
+        const cells = [];
+        const colorMap = {
+            '0,0,0': 'a',
+            '127,127,127': 'b',
+            '136,0,21': 'c',
+            '237,28,36': 'd',
+            '255,127,39': 'e',
+            '255,242,0': 'f',
+            '34,177,76': 'g',
+            '0,162,232': 'h',
+            '63,72,204': 'i'
+        };
 
-            const grid = document.getElementById('grid');
-            matrix.forEach(row => {
-                row.forEach(cellValue => {
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    cell.textContent = cellValue;
-                    grid.appendChild(cell);
-                });
-            });
+        function loadImage() {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 100;
+                canvas.height = 100;
+                ctx.drawImage(img, 0, 0, 100, 100);
+                const imageData = ctx.getImageData(0, 0, 100, 100);
+                createEditableGrid(imageData.data);
+            };
+            img.src = 'test.bmp'; // 指定圖像文件的名稱
         }
 
-        loadMatrix();
+        function createEditableGrid(data) {
+            grid.innerHTML = '';
+            for (let i = 0; i < 100; i++) {
+                cells[i] = [];
+                for (let j = 0; j < 100; j++) {
+                    const index = 4 * (i * 100 + j);
+                    const colorKey = `${data[index]},${data[index + 1]},${data[index + 2]}`;
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.style.backgroundColor = `rgb(${data[index]}, ${data[index + 1]}, ${data[index + 2]})`;
+                    cell.dataset.color = colorKey;
+                    cell.dataset.number = colorMap[colorKey] || '0';
+                    cell.onclick = function() {
+                        this.style.backgroundColor = this.style.backgroundColor === 'black' ? 'white' : 'black';
+                    };
+                    cells[i][j] = cell;
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        // 初始化時加載圖像
+        window.onload = loadImage;
     </script>
 </body>
 </html>
