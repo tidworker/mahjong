@@ -109,14 +109,59 @@
                     cell.style.backgroundColor = `rgb(${data[index]}, ${data[index + 1]}, ${data[index + 2]})`;
                     cell.dataset.color = colorKey;
                     cell.dataset.number = colorMap[colorKey] || '0';
-                    cell.onclick = function() {
-                        this.style.backgroundColor = this.style.backgroundColor === 'black' ? 'white' : 'black';
-                    };
                     cells[i][j] = cell;
                     grid.appendChild(cell);
                 }
             }
         }
+
+        function handleMouse(e) {
+            const rect = grid.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / 3);
+            const y = Math.floor((e.clientY - rect.top) / 3);
+            fillCircle(x, y, 10); // 增加筆刷大小
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = grid.getBoundingClientRect();
+            const x = Math.floor((touch.clientX - rect.left) / 3);
+            const y = Math.floor((touch.clientY - rect.top) / 3);
+            fillCircle(x, y, 10); // 增加筆刷大小
+        }
+
+        function fillCircle(cx, cy, radius) {
+            for (let i = -radius; i <= radius; i++) {
+                for (let j = -radius; j <= radius; j++) {
+                    if (i * i + j * j <= radius * radius) {
+                        const nx = cx + j;
+                        const ny = cy + i;
+                        if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
+                            const targetCell = cells[ny][nx];
+                            if (targetCell) {
+                                targetCell.style.backgroundColor = '#000000';
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        grid.addEventListener('mousedown', handleMouse);
+        grid.addEventListener('mousemove', function(e) {
+            if (e.buttons === 1) {
+                handleMouse(e);
+            }
+        });
+
+        grid.addEventListener('touchstart', handleTouch, { passive: false });
+        grid.addEventListener('touchmove', handleTouch, { passive: false });
+
+        // 禁止滾動刷新頁面
+        document.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
 
         // 初始化時加載圖像
         window.onload = loadImage;
