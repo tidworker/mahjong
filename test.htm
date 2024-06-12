@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>圖像編輯與導出</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's Write</title>
     <style>
         body, html {
             flex-direction: column;
@@ -59,13 +60,26 @@
         <div id="percentage">已塗色百分比：0%</div>
     </div>
 
+    <div class="image-row">
+        <img src="jin.png" style="opacity: 0.3;">
+        <img src="gon.png" style="opacity: 0.3;">
+        <img src="ban.png" style="opacity: 0.3;">
+        <img src="row.png" style="opacity: 0.3;">
+        <img src="po.png" style="opacity: 0.3;">
+        <img src="ro.png" style="opacity: 0.3;">
+        <img src="mi.png" style="opacity: 0.3;">
+        <img src="jinn.png" style="opacity: 0.3;">
+    </div>
+    <br>
+    <br>
     <div id="buttons">
         <img src="back.png" onclick="history.back()">
         <img src="re.png" onclick="location.reload()">
         <img src="next.png" onclick="window.location.href='000002.htm'">
     </div>
     <br>
-    <img src="logo2.png">
+    <br>
+    <img src="logo2.png">   
 
     <script>
         const grid = document.getElementById('grid');
@@ -123,6 +137,8 @@
                         cell.classList.add(`letter${letter}`);
                         if (letter === 'z') {
                             cell.style.backgroundColor = '#191919';
+                        } else {
+                            totalLetters[letter.charCodeAt(0) - 97]++; // 計算每個字母的總數
                         }
                     }
                     cells[i][j] = cell;
@@ -232,18 +248,18 @@
             }
         }
 
-        // 禁止滾動刷新頁面
-        document.addEventListener('touchmove', function(event) {
-            event.preventDefault();
-        }, { passive: false });
-
         let currentLetterIndex = 0;
         let totalLetters = Array(26).fill(0);
         let filledLetters = Array(26).fill(0);
         let canPaint = true;
         let completedLetters = new Set();
 
-        // 初始化時加載圖像
+        // 禁止滾動刷新頁面
+        document.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+        // 初始化遊戲
         window.onload = loadImage;
     </script>
 </body>
