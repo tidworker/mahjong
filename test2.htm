@@ -248,28 +248,4 @@
                 setTimeout(() => {
                     currentLetterIndex = 0;
                     completedLetters.clear();
-                    if (currentBlock < 99) {
-                        currentBlock++;
-                        initializeGrid(patternList[currentBlock]);
-                    } else {
-                        alert('所有矩陣已完成');
-                    }
-                    filledLetters = Array(26).fill(0);
-                    totalLetters = Array(26).fill(0);
-                    updateCurrentLetterColor();
-                }, 1000);
-            }
-        }
-
-        function startNextLetter() {
-            canPaint = true;
-        }
-
-        document.addEventListener('touchmove', function(event) {
-            event.preventDefault();
-        }, { passive: false });
-
-        window.onload = loadImage;
-    </script>
-</body>
-</html>
+                    if (current
