@@ -75,7 +75,6 @@
     <div id="buttons">
         <img src="back.png" onclick="history.back()">
         <img src="re.png" onclick="location.reload()">
-        <img src="next.png" onclick="window.location.href='000002.htm'">
     </div>
     <br>
     <br>
@@ -144,7 +143,9 @@
 
         function initializeGrid(pattern) {
             gridContainer.innerHTML = '';
+            const cells = [];
             for (let i = 0; i < 100; i++) {
+                cells[i] = [];
                 for (let j = 0; j < 100; j++) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
@@ -157,6 +158,7 @@
                             totalLetters[getIndex(letter)]++;
                         }
                     }
+                    cells[i][j] = cell;
                     gridContainer.appendChild(cell);
                 }
             }
@@ -232,7 +234,7 @@
                             const targetCell = gridContainer.querySelectorAll('.cell')[ny * 100 + nx];
                             const letter = String.fromCharCode(currentLetterIndex < 26 ? 65 + currentLetterIndex : 97 + currentLetterIndex - 26);
                             if (checkOnly) {
-                                if (targetCell.classList.contains(`letter${letter}`)) {
+                                if (targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toLowerCase()}`)) {
                                     canPaint = true;
                                     return;
                                 }
@@ -265,7 +267,7 @@
 
             percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;
 
-            if (totalPercentageColored >= 95 && !completedLetters.has(currentLetter)) {
+            if (totalPercentageColored >= 97 && !completedLetters.has(currentLetter)) {
                 completedLetters.add(currentLetter);
                 if (currentLetterIndex < 51) {
                     currentLetterIndex++;
@@ -286,7 +288,7 @@
             }
         }
 
-        // 禁止滾動刷新頁面
+        // 禁止滚动刷新页面
         document.addEventListener('touchmove', function(event) {
             event.preventDefault();
         }, { passive: false });
