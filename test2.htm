@@ -45,10 +45,6 @@
             font-size: 5px;
             color: #F2F2F2;
         }
-        #buttons img {
-            cursor: pointer;
-            margin: 12px;
-        }
     </style>
 </head>
 <body>
@@ -56,26 +52,6 @@
         <div id="grid" class="grid"></div>
         <div id="percentage">已塗色百分比：0%</div>
     </div>
-
-    <div class="image-row">
-        <img src="jin.png" style="opacity: 0.3;">
-        <img src="gon.png" style="opacity: 0.3;">
-        <img src="ban.png" style="opacity: 0.3;">
-        <img src="row.png" style="opacity: 0.3;">
-        <img src="po.png" style="opacity: 0.3;">
-        <img src="ro.png" style="opacity: 0.3;">
-        <img src="mi.png" style="opacity: 0.3;">
-        <img src="jinn.png" style="opacity: 0.3;">
-    </div>
-    <br>
-    <br>
-    <div id="buttons">
-        <img src="back.png" onclick="history.back()">
-        <img src="re.png" onclick="location.reload()">
-    </div>
-    <br>
-    <br>
-    <img src="logo2.png">
 
     <script>
         const gridContainer = document.getElementById('grid');
@@ -237,6 +213,8 @@
                 completedLetters.add(currentLetter);
                 canPaint = false;
                 document.addEventListener('click', nextLetterHandler, { once: true });
+            } else {
+                canPaint = true;
             }
 
             if (totalPercentageColored >= 97 && currentLetterIndex === 25) {
@@ -249,9 +227,6 @@
                 }
                 filledLetters = Array(26).fill(0);
                 totalLetters = Array(26).fill(0);
-                canPaint = true;
-            } else {
-                canPaint = true;
             }
         }
 
