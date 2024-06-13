@@ -231,8 +231,9 @@
         function updatePercentage() {
             const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 30 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
-                completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
+            if (percentageColored >= 30) {
+                filledLetters = Array(26).fill(0); // 重置填色進度
+                totalLetters = Array(26).fill(0); // 重置總字母數量
                 if (currentBlock < 24) {
                     currentBlock++;
                     initializeGrid(patternList[currentBlock]);
@@ -240,8 +241,6 @@
                     alert('所有矩陣已完成');
                 }
                 canPaint = true;
-                filledLetters = Array(26).fill(0); // 重置填色進度
-                totalLetters = Array(26).fill(0); // 重置總字母數量
             }
         }
 
