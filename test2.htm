@@ -75,7 +75,7 @@
         let completedLetters = new Set();
         let currentBlock = 0;
         let patternList = [];
-        let lastLetterIndex = 25;  // Assuming 'z' is the last letter in the set
+        let mouseDown = false;
 
         function loadImage() {
             const img = new Image();
@@ -146,15 +146,47 @@
             });
         }
 
-        gridContainer.addEventListener('mousedown', handleMouse);
+        gridContainer.addEventListener('mousedown', handleMouseDown);
+        gridContainer.addEventListener('mouseup', handleMouseUp);
         gridContainer.addEventListener('mousemove', function(e) {
-            if (e.buttons === 1) {
+            if (mouseDown && canPaint) {
                 handleMouse(e);
             }
         });
 
-        gridContainer.addEventListener('touchstart', handleTouch, { passive: false });
-        gridContainer.addEventListener('touchmove', handleTouch, { passive: false });
+        gridContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+        gridContainer.addEventListener('touchend', handleTouchEnd, { passive: false });
+        gridContainer.addEventListener('touchmove', function(e) {
+            if (canPaint) {
+                handleTouch(e);
+            }
+        }, { passive: false });
+
+        function handleMouseDown(e) {
+            mouseDown = true;
+            handleMouse(e);
+        }
+
+        function handleMouseUp() {
+            mouseDown = false;
+            canPaint = false;
+        }
+
+        function handleMouse(e) {
+            const rect = gridContainer.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / 4);
+            const y = Math.floor((e.clientY - rect.top) / 4);
+            handlePainting(x, y);
+        }
+
+        function handleTouchStart(e) {
+            canPaint = true;
+            handleTouch(e);
+        }
+
+        function handleTouchEnd() {
+            canPaint = false;
+        }
 
         function handleTouch(e) {
             e.preventDefault();
@@ -165,17 +197,8 @@
             handlePainting(x, y);
         }
 
-        function handleMouse(e) {
-            const rect = gridContainer.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / 4);
-            const y = Math.floor((e.clientY - rect.top) / 4);
-            handlePainting(x, y);
-        }
-
         function handlePainting(x, y) {
-            if (canPaint) {
-                fillCircle(x, y, 10);
-            }
+            fillCircle(x, y, 10);
         }
 
         function fillCircle(cx, cy, radius) {
@@ -212,30 +235,22 @@
 
             if (totalPercentageColored >= 95 && !completedLetters.has(currentLetter)) {
                 completedLetters.add(currentLetter);
-                canPaint = false;
-                if (currentLetterIndex < lastLetterIndex) {
-                    document.addEventListener('click', nextLetterHandler, { once: true });
-                } else {
-                    document.addEventListener('click', () => {
-                        currentLetterIndex = 0;
-                        if (currentBlock < 99) {
-                            currentBlock++;
-                            initializeGrid(patternList[currentBlock]);
-                        } else {
-                            alert('所有矩陣已完成');
-                        }
-                        filledLetters = Array(26).fill(0);
-                        totalLetters = Array(26).fill(0);
-                        updateCurrentLetterColor();
-                    }, { once: true });
+                if (currentLetterIndex < 25) {
+                    currentLetterIndex++;
+                    updateCurrentLetterColor();
+                } else if (totalPercentageColored >= 97) {
+                    currentLetterIndex = 0;
+                    if (currentBlock < 99) {
+                        currentBlock++;
+                        initializeGrid(patternList[currentBlock]);
+                    } else {
+                        alert('所有矩陣已完成');
+                    }
+                    filledLetters = Array(26).fill(0);
+                    totalLetters = Array(26).fill(0);
+                    updateCurrentLetterColor();
                 }
             }
-        }
-
-        function nextLetterHandler() {
-            currentLetterIndex++;
-            updateCurrentLetterColor();
-            canPaint = true;
         }
 
         document.addEventListener('touchmove', function(event) {
