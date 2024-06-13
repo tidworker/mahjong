@@ -256,7 +256,7 @@
             const totalToFill = totalLetters.reduce((a, b) => a + b, 0);
             const overallPercentageColored = (totalColored / totalToFill) * 100;
 
-            if (overallPercentageColored >= 30) {
+            if (overallPercentageColored >= 95) {
                 setTimeout(() => {
                     switchToNextBlock();
                 }, 1000);
