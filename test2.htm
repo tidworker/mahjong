@@ -88,7 +88,7 @@
             '255,127,39': 'e',
             '255,242,0': 'f',
             '34,177,76': 'g',
-            '0,162,232': 'h',
+            '0,162,232': 'y',
             '63,72,204': 'i'
         };
 
@@ -239,7 +239,7 @@
                 document.addEventListener('click', nextLetterHandler, { once: true });
             }
 
-            if (currentLetterIndex === 25 && totalPercentageColored >= 97) {
+            if (totalPercentageColored >= 97 && currentLetterIndex === 25) {
                 currentLetterIndex = 0;
                 if (currentBlock < 99) {
                     currentBlock++;
@@ -249,6 +249,8 @@
                 }
                 filledLetters = Array(26).fill(0);
                 totalLetters = Array(26).fill(0);
+                canPaint = true;
+            } else {
                 canPaint = true;
             }
         }
