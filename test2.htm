@@ -32,12 +32,9 @@
             background-color: transparent;
             box-sizing: border-box;
         }
-        .lettera, .letterA, .letterb, .letterB, .letterc, .letterC, .letterd, .letterD, .lettere, .letterE,
-        .letterf, .letterF, .letterg, .letterG, .letterh, .letterH, .letteri, .letterI, .letterj, .letterJ,
-        .letterk, .letterK, .letterl, .letterL, .letterm, .letterM, .lettern, .letterN, .lettero, .letterO,
-        .letterp, .letterP, .letterq, .letterQ, .letterr, .letterR, .letters, .letterS, .lettert, .letterT,
-        .letteru, .letterU, .letterv, .letterV, .letterw, .letterW, .letterx, .letterX, .lettery, .letterY,
-        .letterz, .letterZ {
+        .lettera, .letterb, .letterc, .letterd, .lettere, .letterf, .letterg, .letterh, .letteri, .letterj,
+        .letterk, .letterl, .letterm, .lettern, .lettero, .letterp, .letterq, .letterr, .letters, .lettert,
+        .letteru, .letterv, .letterw, .letterx, .lettery, .letterz {
             background-color: #d3d3d3;
         }
         .current {
@@ -95,8 +92,8 @@
             '63,72,204': 'i'
         };
 
-        let totalLetters = Array(52).fill(0);
-        let filledLetters = Array(52).fill(0);
+        let totalLetters = Array(26).fill(0);
+        let filledLetters = Array(26).fill(0);
         let currentLetterIndex = 0;
         let canPaint = false;
         let completedLetters = new Set();
@@ -143,9 +140,7 @@
 
         function initializeGrid(pattern) {
             gridContainer.innerHTML = '';
-            const cells = [];
             for (let i = 0; i < 100; i++) {
-                cells[i] = [];
                 for (let j = 0; j < 100; j++) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
@@ -158,7 +153,6 @@
                             totalLetters[getIndex(letter)]++;
                         }
                     }
-                    cells[i][j] = cell;
                     gridContainer.appendChild(cell);
                 }
             }
@@ -166,24 +160,19 @@
         }
 
         function getIndex(letter) {
-            const code = letter.charCodeAt(0);
-            if (code >= 65 && code <= 90) {
-                return code - 65;
-            } else {
-                return code - 71;
-            }
+            return letter.charCodeAt(0) - 97;
         }
 
         function updateCurrentLetterColor() {
-            const currentLetter = String.fromCharCode(currentLetterIndex < 26 ? 65 + currentLetterIndex : 97 + currentLetterIndex - 26);
-            document.querySelectorAll(`.letter${currentLetter}, .letter${currentLetter.toLowerCase()}`).forEach(cell => {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
                 cell.classList.add('current');
             });
         }
 
         function removeCurrentLetterColor() {
-            const currentLetter = String.fromCharCode(currentLetterIndex < 26 ? 65 + currentLetterIndex : 97 + currentLetterIndex - 26);
-            document.querySelectorAll(`.letter${currentLetter}, .letter${currentLetter.toLowerCase()}`).forEach(cell => {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
                 cell.classList.remove('current');
             });
         }
@@ -216,10 +205,10 @@
 
         function handlePainting(x, y) {
             if (!canPaint) {
-                fillCircle(x, y, 10, true); // 检查是否能够涂色
+                fillCircle(x, y, 10, true);
             }
             if (canPaint) {
-                fillCircle(x, y, 10); // 开始涂色
+                fillCircle(x, y, 10);
             }
         }
 
@@ -232,19 +221,17 @@
                         const ny = cy + i;
                         if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
                             const targetCell = gridContainer.querySelectorAll('.cell')[ny * 100 + nx];
-                            const letter = String.fromCharCode(currentLetterIndex < 26 ? 65 + currentLetterIndex : 97 + currentLetterIndex - 26);
+                            const letter = String.fromCharCode(97 + currentLetterIndex);
                             if (checkOnly) {
-                                if (targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toLowerCase()}`)) {
+                                if (targetCell.classList.contains(`letter${letter}`)) {
                                     canPaint = true;
                                     return;
                                 }
                             } else {
-                                if ((targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toLowerCase()}`)) && !targetCell.style.backgroundColor) {
+                                if (targetCell.classList.contains(`letter${letter}`) && !targetCell.style.backgroundColor) {
                                     targetCell.style.backgroundColor = '#000000';
-                                    if (targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toLowerCase()}`)) {
-                                        filledLetters[getIndex(letter)]++;
-                                        painted = true;
-                                    }
+                                    filledLetters[getIndex(letter)]++;
+                                    painted = true;
                                 }
                             }
                         }
@@ -252,24 +239,22 @@
                 }
             }
             if (painted) {
-                isPainting = true; // 开始涂色
+                isPainting = true;
                 updatePercentage();
             }
         }
 
         function updatePercentage() {
-            const currentLetter = String.fromCharCode(currentLetterIndex < 26 ? 65 + currentLetterIndex : 97 + currentLetterIndex - 26);
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
             const totalCurrentLetter = totalLetters[getIndex(currentLetter)];
-            const totalLowercaseLetter = totalLetters[getIndex(currentLetter.toLowerCase())];
             const totalCurrentFilled = filledLetters[getIndex(currentLetter)];
-            const totalLowercaseFilled = filledLetters[getIndex(currentLetter.toLowerCase())];
-            const totalPercentageColored = ((totalCurrentFilled + totalLowercaseFilled) / (totalCurrentLetter + totalLowercaseLetter)) * 100;
+            const totalPercentageColored = (totalCurrentFilled / totalCurrentLetter) * 100;
 
             percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;
 
             if (totalPercentageColored >= 97 && !completedLetters.has(currentLetter)) {
                 completedLetters.add(currentLetter);
-                if (currentLetterIndex < 51) {
+                if (currentLetterIndex < 25) {
                     currentLetterIndex++;
                 } else {
                     currentLetterIndex = 0;
@@ -283,17 +268,15 @@
                 updateCurrentLetterColor();
                 canPaint = false;
                 isPainting = false;
-                filledLetters = Array(52).fill(0);
-                totalLetters = Array(52).fill(0);
+                filledLetters = Array(26).fill(0);
+                totalLetters = Array(26).fill(0);
             }
         }
 
-        // 禁止滚动刷新页面
         document.addEventListener('touchmove', function(event) {
             event.preventDefault();
         }, { passive: false });
 
-        // 初始化游戏
         window.onload = loadImage;
     </script>
 </body>
