@@ -12,7 +12,7 @@
             padding: 0;
             overflow: hidden;
             display: flex;
-            justify-content: flex-start; /* 水平方向置顶 */
+            justify-content: center;
             align-items: center;
             height: 100%;
         }
@@ -21,11 +21,10 @@
             flex-direction: column;
             align-items: center;
         }
-        .grid {
+        #grid {
             display: grid;
             grid-template-columns: repeat(100, 4px);
             grid-template-rows: repeat(100, 4px);
-            margin-bottom: 20px;
         }
         .cell {
             width: 4px;
@@ -33,13 +32,13 @@
             background-color: transparent;
             box-sizing: border-box;
         }
-        .lettera, .letterb, .letterc, .letterd, .lettere, .letterf, .letterg, .letterh, .letteri, .letterj,
-        .letterk, .letterl, .letterm, .lettern, .lettero, .letterp, .letterq, .letterr, .letters, .lettert,
-        .letteru, .letterv, .letterw, .letterx, .lettery {
+        .lettera, .letterA, .letterb, .letterB, .letterc, .letterC, .letterd, .letterD, .lettere, .letterE,
+        .letterf, .letterF, .letterg, .letterG, .letterh, .letterH, .letteri, .letterI, .letterj, .letterJ,
+        .letterk, .letterK, .letterl, .letterL, .letterm, .letterM, .lettern, .letterN, .lettero, .letterO,
+        .letterp, .letterP, .letterq, .letterQ, .letterr, .letterR, .letters, .letterS, .lettert, .letterT,
+        .letteru, .letterU, .letterv, .letterV, .letterw, .letterW, .letterx, .letterX, .lettery, .letterY,
+        .letterz, .letterZ {
             background-color: #d3d3d3;
-        }
-        .letterz {
-            background-color: #191919;
         }
         .current {
             background-color: #808080;
@@ -76,10 +75,11 @@
     <div id="buttons">
         <img src="back.png" onclick="history.back()">
         <img src="re.png" onclick="location.reload()">
+        <img src="next.png" onclick="window.location.href='000002.htm'">
     </div>
     <br>
     <br>
-    <img src="logo2.png">   
+    <img src="logo2.png">
 
     <script>
         const gridContainer = document.getElementById('grid');
@@ -96,11 +96,12 @@
             '63,72,204': 'i'
         };
 
-        let totalLetters = Array(26).fill(0);
-        let filledLetters = Array(26).fill(0);
+        let totalLetters = Array(52).fill(0);
+        let filledLetters = Array(52).fill(0);
         let currentLetterIndex = 0;
-        let canPaint = true;
+        let canPaint = false;
         let completedLetters = new Set();
+        let isPainting = false;
         let currentBlock = 0;
         let patternList = [];
 
@@ -115,7 +116,7 @@
                 const imageData = ctx.getImageData(0, 0, 1000, 1000);
                 processImage(imageData.data);
             };
-            img.src = 'test3.bmp'; // 指定圖像文件的名稱
+            img.src = 'test3.bmp';
         }
 
         function processImage(data) {
@@ -143,9 +144,7 @@
 
         function initializeGrid(pattern) {
             gridContainer.innerHTML = '';
-            const cells = [];
             for (let i = 0; i < 100; i++) {
-                cells[i] = [];
                 for (let j = 0; j < 100; j++) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
@@ -155,20 +154,35 @@
                         if (letter === 'z') {
                             cell.style.backgroundColor = '#191919';
                         } else {
-                            totalLetters[letter.charCodeAt(0) - 97]++;
+                            totalLetters[getIndex(letter)]++;
                         }
                     }
-                    cells[i][j] = cell;
                     gridContainer.appendChild(cell);
                 }
             }
             updateCurrentLetterColor();
         }
 
+        function getIndex(letter) {
+            const code = letter.charCodeAt(0);
+            if (code >= 65 && code <= 90) {
+                return code - 65;
+            } else {
+                return code - 71;
+            }
+        }
+
         function updateCurrentLetterColor() {
-            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
-            gridContainer.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
+            const currentLetter = String.fromCharCode(currentLetterIndex < 26 ? 65 + currentLetterIndex : 97 + currentLetterIndex - 26);
+            document.querySelectorAll(`.letter${currentLetter}, .letter${currentLetter.toLowerCase()}`).forEach(cell => {
                 cell.classList.add('current');
+            });
+        }
+
+        function removeCurrentLetterColor() {
+            const currentLetter = String.fromCharCode(currentLetterIndex < 26 ? 65 + currentLetterIndex : 97 + currentLetterIndex - 26);
+            document.querySelectorAll(`.letter${currentLetter}, .letter${currentLetter.toLowerCase()}`).forEach(cell => {
+                cell.classList.remove('current');
             });
         }
 
@@ -188,21 +202,26 @@
             const rect = gridContainer.getBoundingClientRect();
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
-            if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
-            }
+            handlePainting(x, y);
         }
 
         function handleMouse(e) {
             const rect = gridContainer.getBoundingClientRect();
             const x = Math.floor((e.clientX - rect.left) / 4);
             const y = Math.floor((e.clientY - rect.top) / 4);
+            handlePainting(x, y);
+        }
+
+        function handlePainting(x, y) {
+            if (!canPaint) {
+                fillCircle(x, y, 10, true); // 检查是否能够涂色
+            }
             if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+                fillCircle(x, y, 10); // 开始涂色
             }
         }
 
-        function fillCircle(cx, cy, radius) {
+        function fillCircle(cx, cy, radius, checkOnly = false) {
             let painted = false;
             for (let i = -radius; i <= radius; i++) {
                 for (let j = -radius; j <= radius; j++) {
@@ -211,12 +230,19 @@
                         const ny = cy + i;
                         if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
                             const targetCell = gridContainer.querySelectorAll('.cell')[ny * 100 + nx];
-                            const letter = String.fromCharCode(97 + currentLetterIndex);
-                            if ((targetCell.classList.contains(`letter${letter}`) || completedLetters.has(targetCell.className.slice(-1))) && !targetCell.style.backgroundColor) {
-                                targetCell.style.backgroundColor = '#000000';
+                            const letter = String.fromCharCode(currentLetterIndex < 26 ? 65 + currentLetterIndex : 97 + currentLetterIndex - 26);
+                            if (checkOnly) {
                                 if (targetCell.classList.contains(`letter${letter}`)) {
-                                    filledLetters[currentLetterIndex]++;
-                                    painted = true;
+                                    canPaint = true;
+                                    return;
+                                }
+                            } else {
+                                if ((targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toLowerCase()}`)) && !targetCell.style.backgroundColor) {
+                                    targetCell.style.backgroundColor = '#000000';
+                                    if (targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toLowerCase()}`)) {
+                                        filledLetters[getIndex(letter)]++;
+                                        painted = true;
+                                    }
                                 }
                             }
                         }
@@ -224,16 +250,26 @@
                 }
             }
             if (painted) {
+                isPainting = true; // 开始涂色
                 updatePercentage();
             }
         }
 
         function updatePercentage() {
-            const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
-            percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (currentLetterIndex === 25 || (currentLetterIndex < 25 && percentageColored >= 97)) {
-                currentLetterIndex++;
-                if (currentLetterIndex === 26) {
+            const currentLetter = String.fromCharCode(currentLetterIndex < 26 ? 65 + currentLetterIndex : 97 + currentLetterIndex - 26);
+            const totalCurrentLetter = totalLetters[getIndex(currentLetter)];
+            const totalLowercaseLetter = totalLetters[getIndex(currentLetter.toLowerCase())];
+            const totalCurrentFilled = filledLetters[getIndex(currentLetter)];
+            const totalLowercaseFilled = filledLetters[getIndex(currentLetter.toLowerCase())];
+            const totalPercentageColored = ((totalCurrentFilled + totalLowercaseFilled) / (totalCurrentLetter + totalLowercaseLetter)) * 100;
+
+            percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;
+
+            if (totalPercentageColored >= 95 && !completedLetters.has(currentLetter)) {
+                completedLetters.add(currentLetter);
+                if (currentLetterIndex < 51) {
+                    currentLetterIndex++;
+                } else {
                     currentLetterIndex = 0;
                     if (currentBlock < 99) {
                         currentBlock++;
@@ -241,12 +277,12 @@
                     } else {
                         alert('所有矩陣已完成');
                     }
-                } else {
-                    updateCurrentLetterColor();
                 }
-                filledLetters = Array(26).fill(0); // 重置填色進度
-                totalLetters = Array(26).fill(0); // 重置總字母數量
-                canPaint = true;
+                updateCurrentLetterColor();
+                canPaint = false;
+                isPainting = false;
+                filledLetters = Array(52).fill(0);
+                totalLetters = Array(52).fill(0);
             }
         }
 
@@ -255,7 +291,7 @@
             event.preventDefault();
         }, { passive: false });
 
-        // 初始化遊戲
+        // 初始化游戏
         window.onload = loadImage;
     </script>
 </body>
