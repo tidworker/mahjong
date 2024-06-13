@@ -76,7 +76,7 @@
     <br>
     <br>
     <img src="logo2.png">
-    ver1.0
+
     <script>
         const gridContainer = document.getElementById('grid');
         const percentageDisplay = document.getElementById('percentage');
@@ -95,7 +95,7 @@
         let totalLetters = Array(26).fill(0);
         let filledLetters = Array(26).fill(0);
         let currentLetterIndex = 0;
-        let canPaint = false;
+        let canPaint = true;
         let completedLetters = new Set();
         let currentBlock = 0;
         let patternList = [];
@@ -196,7 +196,9 @@
         }
 
         function handlePainting(x, y) {
-            fillCircle(x, y, 10);
+            if (canPaint) {
+                fillCircle(x, y, 10);
+            }
         }
 
         function fillCircle(cx, cy, radius) {
@@ -234,10 +236,9 @@
             if (totalPercentageColored >= 95 && !completedLetters.has(currentLetter)) {
                 completedLetters.add(currentLetter);
                 if (currentLetterIndex < 25) {
-                    canPaint = false;
-                    document.addEventListener('click', nextLetterHandler, { once: true });
+                    currentLetterIndex++;
+                    updateCurrentLetterColor();
                 } else if (totalPercentageColored >= 97) {
-                    canPaint = false;
                     currentLetterIndex = 0;
                     if (currentBlock < 99) {
                         currentBlock++;
@@ -248,15 +249,7 @@
                     filledLetters = Array(26).fill(0);
                     totalLetters = Array(26).fill(0);
                 }
-            } else {
-                canPaint = true;
             }
-        }
-
-        function nextLetterHandler() {
-            currentLetterIndex++;
-            updateCurrentLetterColor();
-            canPaint = true;
         }
 
         document.addEventListener('touchmove', function(event) {
