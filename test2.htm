@@ -249,7 +249,7 @@
             const totalCurrentFilled = filledLetters[getIndex(currentLetter)];
             const totalPercentageColored = (totalCurrentFilled / totalCurrentLetter) * 100;
 
-            percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;
+            percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)%`;
 
             if (totalPercentageColored >= 97 && currentLetter === 'h') {
                 nextButton.click();
