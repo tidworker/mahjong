@@ -45,8 +45,12 @@
             font-size: 5px;
             color: #F2F2F2;
         }
-        #nextButton {
+        #controls {
             margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        button {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
@@ -57,13 +61,17 @@
     <div id="container">
         <div id="grid" class="grid"></div>
         <div id="percentage">已塗色百分比：0%</div>
-        <button id="nextButton">Next</button>
+        <div id="controls">
+            <button id="prevButton">Prev</button>
+            <button id="nextButton">Next</button>
+        </div>
     </div>
 
     <script>
         const gridContainer = document.getElementById('grid');
         const percentageDisplay = document.getElementById('percentage');
         const nextButton = document.getElementById('nextButton');
+        const prevButton = document.getElementById('prevButton');
         const colorMap = {
             '0,0,0': 'a',
             '127,127,127': 'b',
@@ -256,7 +264,7 @@
             const totalToFill = totalLetters.reduce((a, b) => a + b, 0);
             const overallPercentageColored = (totalColored / totalToFill) * 100;
 
-            if (overallPercentageColored >= 95) {
+            if (overallPercentageColored >= 30) {
                 setTimeout(() => {
                     switchToNextBlock();
                 }, 1000);
@@ -268,20 +276,33 @@
         }
 
         function switchToNextBlock() {
-            currentLetterIndex = 0;
-            completedLetters.clear();
             if (currentBlock < 99) {
                 currentBlock++;
                 initializeGrid(patternList[currentBlock]);
             } else {
                 alert('所有矩陣已完成');
             }
+            resetPaintingState();
+        }
+
+        function switchToPrevBlock() {
+            if (currentBlock > 0) {
+                currentBlock--;
+                initializeGrid(patternList[currentBlock]);
+            }
+            resetPaintingState();
+        }
+
+        function resetPaintingState() {
+            currentLetterIndex = 0;
+            completedLetters.clear();
             filledLetters = Array(26).fill(0);
             totalLetters = Array(26).fill(0);
             updateCurrentLetterColor();
         }
 
         nextButton.addEventListener('click', switchToNextBlock);
+        prevButton.addEventListener('click', switchToPrevBlock);
 
         document.addEventListener('touchmove', function(event) {
             event.preventDefault();
