@@ -196,15 +196,10 @@
         }
 
         function handlePainting(x, y) {
-            if (!canPaint) {
-                fillCircle(x, y, 10, true); // 检查是否能够涂色
-            }
-            if (canPaint) {
-                fillCircle(x, y, 10); // 开始涂色
-            }
+            fillCircle(x, y, 10);
         }
 
-        function fillCircle(cx, cy, radius, checkOnly = false) {
+        function fillCircle(cx, cy, radius) {
             let painted = false;
             for (let i = -radius; i <= radius; i++) {
                 for (let j = -radius; j <= radius; j++) {
@@ -214,17 +209,10 @@
                         if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
                             const targetCell = gridContainer.querySelectorAll('.cell')[ny * 100 + nx];
                             const letter = String.fromCharCode(97 + currentLetterIndex);
-                            if (checkOnly) {
-                                if (targetCell.classList.contains(`letter${letter}`)) {
-                                    canPaint = true;
-                                    return;
-                                }
-                            } else {
-                                if (targetCell.classList.contains(`letter${letter}`) && !targetCell.style.backgroundColor) {
-                                    targetCell.style.backgroundColor = '#000000';
-                                    filledLetters[getIndex(letter)]++;
-                                    painted = true;
-                                }
+                            if (targetCell.classList.contains(`letter${letter}`) && !targetCell.style.backgroundColor) {
+                                targetCell.style.backgroundColor = '#000000';
+                                filledLetters[getIndex(letter)]++;
+                                painted = true;
                             }
                         }
                     }
@@ -243,26 +231,32 @@
 
             percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;
 
-            if (currentLetterIndex < 25) {
-                if (totalPercentageColored >= 95 && !completedLetters.has(currentLetter)) {
-                    completedLetters.add(currentLetter);
-                    currentLetterIndex++;
-                    updateCurrentLetterColor();
-                    canPaint = false;
-                }
-            } else if (totalPercentageColored >= 97 && !completedLetters.has(currentLetter)) {
+            if (totalPercentageColored >= 95 && !completedLetters.has(currentLetter)) {
                 completedLetters.add(currentLetter);
-                currentLetterIndex = 0;
-                if (currentBlock < 99) {
-                    currentBlock++;
-                    initializeGrid(patternList[currentBlock]);
-                } else {
-                    alert('所有矩陣已完成');
+                if (currentLetterIndex < 25) {
+                    canPaint = false;
+                    document.addEventListener('click', nextLetterHandler, { once: true });
+                } else if (totalPercentageColored >= 97) {
+                    canPaint = false;
+                    currentLetterIndex = 0;
+                    if (currentBlock < 99) {
+                        currentBlock++;
+                        initializeGrid(patternList[currentBlock]);
+                    } else {
+                        alert('所有矩陣已完成');
+                    }
+                    filledLetters = Array(26).fill(0);
+                    totalLetters = Array(26).fill(0);
                 }
-                canPaint = false;
-                filledLetters = Array(26).fill(0);
-                totalLetters = Array(26).fill(0);
+            } else {
+                canPaint = true;
             }
+        }
+
+        function nextLetterHandler() {
+            currentLetterIndex++;
+            updateCurrentLetterColor();
+            canPaint = true;
         }
 
         document.addEventListener('touchmove', function(event) {
