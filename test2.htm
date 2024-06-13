@@ -150,6 +150,7 @@
                     gridContainer.appendChild(cell);
                 }
             }
+            currentLetterIndex = 0;
             updateCurrentLetterColor();
         }
 
@@ -250,7 +251,8 @@
             const totalPercentageColored = (totalCurrentFilled / totalCurrentLetter) * 100;
 
             percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;
-if (totalPercentageColored >= 97 && currentLetter === 'h') {
+
+            if (totalPercentageColored >= 97 && currentLetter ==='h') {
                 nextButton.click();
             }
 
