@@ -88,7 +88,7 @@
             '255,127,39': 'e',
             '255,242,0': 'f',
             '34,177,76': 'g',
-            '0,162,232': 'z',
+            '0,162,232': 'h',
             '63,72,204': 'i'
         };
 
@@ -235,21 +235,28 @@
 
             if (totalPercentageColored >= 95 && !completedLetters.has(currentLetter)) {
                 completedLetters.add(currentLetter);
-                if (currentLetterIndex < 25) {
-                    currentLetterIndex++;
-                    updateCurrentLetterColor();
-                } else if (totalPercentageColored >= 97) {
-                    currentLetterIndex = 0;
-                    if (currentBlock < 99) {
-                        currentBlock++;
-                        initializeGrid(patternList[currentBlock]);
-                    } else {
-                        alert('所有矩陣已完成');
-                    }
-                    filledLetters = Array(26).fill(0);
-                    totalLetters = Array(26).fill(0);
-                }
+                canPaint = false;
+                document.addEventListener('click', nextLetterHandler, { once: true });
             }
+
+            if (currentLetterIndex === 25 && totalPercentageColored >= 97) {
+                currentLetterIndex = 0;
+                if (currentBlock < 99) {
+                    currentBlock++;
+                    initializeGrid(patternList[currentBlock]);
+                } else {
+                    alert('所有矩陣已完成');
+                }
+                filledLetters = Array(26).fill(0);
+                totalLetters = Array(26).fill(0);
+                canPaint = true;
+            }
+        }
+
+        function nextLetterHandler() {
+            currentLetterIndex++;
+            updateCurrentLetterColor();
+            canPaint = true;
         }
 
         document.addEventListener('touchmove', function(event) {
