@@ -45,17 +45,25 @@
             font-size: 5px;
             color: #F2F2F2;
         }
+        #nextButton {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div id="container">
         <div id="grid" class="grid"></div>
         <div id="percentage">已塗色百分比：0%</div>
+        <button id="nextButton">Next</button>
     </div>
 
     <script>
         const gridContainer = document.getElementById('grid');
         const percentageDisplay = document.getElementById('percentage');
+        const nextButton = document.getElementById('nextButton');
         const colorMap = {
             '0,0,0': 'a',
             '127,127,127': 'b',
@@ -244,19 +252,13 @@
                 }
             }
 
-            if (completedLetters.size === 26) {
+            const totalColored = filledLetters.reduce((a, b) => a + b, 0);
+            const totalToFill = totalLetters.reduce((a, b) => a + b, 0);
+            const overallPercentageColored = (totalColored / totalToFill) * 100;
+
+            if (overallPercentageColored >= 30) {
                 setTimeout(() => {
-                    currentLetterIndex = 0;
-                    completedLetters.clear();
-                    if (currentBlock < 99) {
-                        currentBlock++;
-                        initializeGrid(patternList[currentBlock]);
-                    } else {
-                        alert('所有矩陣已完成');
-                    }
-                    filledLetters = Array(26).fill(0);
-                    totalLetters = Array(26).fill(0);
-                    updateCurrentLetterColor();
+                    switchToNextBlock();
                 }, 1000);
             }
         }
@@ -264,6 +266,22 @@
         function startNextLetter() {
             canPaint = true;
         }
+
+        function switchToNextBlock() {
+            currentLetterIndex = 0;
+            completedLetters.clear();
+            if (currentBlock < 99) {
+                currentBlock++;
+                initializeGrid(patternList[currentBlock]);
+            } else {
+                alert('所有矩陣已完成');
+            }
+            filledLetters = Array(26).fill(0);
+            totalLetters = Array(26).fill(0);
+            updateCurrentLetterColor();
+        }
+
+        nextButton.addEventListener('click', switchToNextBlock);
 
         document.addEventListener('touchmove', function(event) {
             event.preventDefault();
