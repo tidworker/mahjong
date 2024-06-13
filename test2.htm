@@ -231,15 +231,21 @@
         function updatePercentage() {
             const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 95) {
+            if (currentLetterIndex === 25 || (currentLetterIndex < 25 && percentageColored >= 97)) {
+                currentLetterIndex++;
+                if (currentLetterIndex === 26) {
+                    currentLetterIndex = 0;
+                    if (currentBlock < 99) {
+                        currentBlock++;
+                        initializeGrid(patternList[currentBlock]);
+                    } else {
+                        alert('所有矩陣已完成');
+                    }
+                } else {
+                    updateCurrentLetterColor();
+                }
                 filledLetters = Array(26).fill(0); // 重置填色進度
                 totalLetters = Array(26).fill(0); // 重置總字母數量
-                if (currentBlock < 99) {
-                    currentBlock++;
-                    initializeGrid(patternList[currentBlock]);
-                } else {
-                    alert('所有矩陣已完成');
-                }
                 canPaint = true;
             }
         }
