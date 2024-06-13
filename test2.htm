@@ -239,71 +239,14 @@
             });
         }
 
-        grid.addEventListener('mousedown', handleMouse);
-        grid.addEventListener('mousemove', function(e) {
-            if (e.buttons === 1) {
-                handleMouse(e);
-            }
-        });
-
-        grid.addEventListener('touchstart', handleTouch, { passive: false });
-        grid.addEventListener('touchmove', handleTouch, { passive: false });
-
-        function handleTouch(e) {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const rect = grid.getBoundingClientRect();
-            const x = Math.floor((touch.clientX - rect.left) / 3);
-            const y = Math.floor((touch.clientY - rect.top) / 3);
-            handlePainting(x, y);
-        }
-
-        function handleMouse(e) {
-            const rect = grid.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / 3);
-            const y = Math.floor((e.clientY - rect.top) / 3);
-            handlePainting(x, y);
-        }
-
-        function handlePainting(x, y) {
-            if (!canPaint) {
-                fillCircle(x, y, 10, true); // 檢查是否能夠塗色
-            }
-            if (canPaint) {
-                fillCircle(x, y, 10); // 開始塗色
-            }
-        }
-
-        function fillCircle(cx, cy, radius, checkOnly = false) {
-            let painted = false;
-            for (let i = -radius; i <= radius; i++) {
-                for (let j = -radius; j <= radius; j++) {
-                    if (i * i + j * j <= radius * radius) {
-                        const nx = cx + j;
-                        const ny = cy + i;
-                        if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
-                            const targetCell = cells[ny][nx];
-                            const letter = String.fromCharCode(currentLetterIndex < 26 ? 65 + currentLetterIndex : 97 + currentLetterIndex - 26);
-                            if (checkOnly) {
-                                if (targetCell.classList.contains(`letter${letter}`)) {
-                                    canPaint = true;
-                                    return;
-                                }
-                            } else {
-                                if ((targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toLowerCase()}`)) && !targetCell.style.backgroundColor) {
-                                    targetCell.style.backgroundColor = '#000000';
-                                    if (targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toLowerCase()}`)) {
-                                        filledLetters[getIndex(letter)]++;
-                                        painted = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
+        function fillCell(x, y) {
+            const letter = String.fromCharCode(currentLetterIndex < 26 ? 65 + currentLetterIndex : 97 + currentLetterIndex - 26);
+            const targetCell = cells[y][x];
+            if ((targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toLowerCase()}`)) && !targetCell.style.backgroundColor) {
+                targetCell.style.backgroundColor = '#000000';
+                if (targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toLowerCase()}`)) {
+                    filledLetters[getIndex(letter)]++;
                 }
-            }
-            if (painted) {
-                isPainting = true; // 開始塗色
                 updatePercentage();
             }
         }
@@ -318,8 +261,14 @@
 
             percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;
 
-            if (totalPercentageColored >= 95 && !completedLetters.has(currentLetter)) {
+            if (totalPercentageColored >= 100 && !completedLetters.has(currentLetter)) {
                 completedLetters.add(currentLetter);
+                if (currentLetterIndex === 25) { // 當前字母為 'Z'
+                    setTimeout(() => {
+                        window.location.href = '000002.htm';
+                    }, 1000); // 1秒後跳轉頁面
+                }
+                canPaint = false;
                 const nextLetter = String.fromCharCode(currentLetterIndex < 25 ? 65 + currentLetterIndex + 1 : 97 + currentLetterIndex - 25);
                 document.querySelectorAll(`.letter${nextLetter}, .letter${nextLetter.toLowerCase()}`).forEach(cell => {
                     cell.classList.add('current');
@@ -329,24 +278,16 @@
                     document.addEventListener('touchstart', nextLetterHandler, { once: true });
                 }
             }
-            if (!isPainting) { // 只有在不塗色時才更新到下一個字母
-                canPaint = false;
-            }
         }
 
         function nextLetterHandler() {
             if (currentLetterIndex < 51) {
                 currentLetterIndex++;
                 updateCurrentLetterColor();
-                canPaint = false;
-                isPainting = false; // 重置塗色狀態
+                canPaint = true;
+                isPainting = false;
             }
         }
-
-        // 禁止滾動刷新頁面
-        document.addEventListener('touchmove', function(event) {
-            event.preventDefault();
-        }, { passive: false });
 
         // 初始化遊戲
         initializeGrid();
@@ -356,12 +297,24 @@
                 const gamma = event.gamma; // 左右翻轉，範圍 [-90, 90]
                 const beta = event.beta;   // 前後翻轉，範圍 [-180, 180]
 
-                // 檢查是否超過20度
-                if (Math.abs(gamma) > 20 || Math.abs(beta) > 20) {
+                if (!isPainting && (Math.abs(gamma) > 20 || Math.abs(beta) > 20)) {
+                    isPainting = true;
+                    const currentLetter = String.fromCharCode(65 + currentLetterIndex);
+                    const startCell = document.querySelector(`.letter${currentLetter}`);
+                    if (startCell) {
+                        const rect = grid.getBoundingClientRect();
+                        const cellRect = startCell.getBoundingClientRect();
+                        const startX = Math.floor((cellRect.left - rect.left) / 3);
+                        const startY = Math.floor((cellRect.top - rect.top) / 3);
+                        fillCell(startX, startY);
+                    }
+                }
+
+                if (isPainting) {
                     const rect = grid.getBoundingClientRect();
                     const x = (gamma + 90) / 180 * rect.width;
                     const y = (beta + 90) / 180 * rect.height;
-                    handlePainting(Math.floor(x / 3), Math.floor(y / 3));
+                    fillCell(Math.floor(x / 3), Math.floor(y / 3));
                 }
             }, true);
         } else {
