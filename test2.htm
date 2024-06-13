@@ -233,7 +233,7 @@
 
             percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;
 
-            if (totalPercentageColored >= 95 && !completedLetters.has(currentLetter)) {
+            if (totalPercentageColored >= 100 && !completedLetters.has(currentLetter)) {
                 completedLetters.add(currentLetter);
                 if (currentLetterIndex < 25) {
                     currentLetterIndex++;
@@ -244,8 +244,9 @@
                 }
             }
 
-            if (totalPercentageColored >= 97 && currentLetterIndex === 25) {
+            if (completedLetters.size === 26) {
                 currentLetterIndex = 0;
+                completedLetters.clear();
                 if (currentBlock < 99) {
                     currentBlock++;
                     initializeGrid(patternList[currentBlock]);
