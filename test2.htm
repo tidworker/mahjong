@@ -80,7 +80,7 @@
     <br>
     <br>
     <img src="logo2.png">
-
+VER1.0
     <script>
         const grid = document.getElementById('grid');
         const percentageDisplay = document.getElementById('percentage');
@@ -197,20 +197,25 @@
 
         function initializeGrid() {
             grid.innerHTML = '';
-            for (let i = 0; i < 100; i++) {
-                cells[i] = [];
-                for (let j = 0; j < 100; j++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    const letter = patternA[i % patternA.length][j];
-                    if (letter !== '0' && letter !== '.') {
-                        cell.classList.add(`letter${letter}`);
-                        if (letter.match(/[A-Za-z]/)) {
-                            totalLetters[getIndex(letter)]++; // 計算每個字母的總數
+            const numRows = patternA.length;
+            const headRows = 2;  // 顯示頭兩行
+            const tailRows = 2;  // 顯示尾兩行
+            for (let i = 0; i < numRows; i++) {
+                if (i < headRows || i >= numRows - tailRows) {
+                    cells[i] = [];
+                    for (let j = 0; j < 100; j++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        const letter = patternA[i][j];
+                        if (letter !== '0' && letter !== '.') {
+                            cell.classList.add(`letter${letter}`);
+                            if (letter.match(/[A-Za-z]/)) {
+                                totalLetters[getIndex(letter)]++; // 計算每個字母的總數
+                            }
                         }
+                        cells[i][j] = cell;
+                        grid.appendChild(cell);
                     }
-                    cells[i][j] = cell;
-                    grid.appendChild(cell);
                 }
             }
             updateCurrentLetterColor();
