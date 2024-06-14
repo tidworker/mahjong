@@ -97,6 +97,9 @@
             '63,72,204': 'i'
         };
 
+        const textSequence = ['金', '剛', '經']; // 文字序列
+        let currentTextIndex = 0;
+
         function loadImage() {
             const img = new Image();
             img.onload = function() {
@@ -108,7 +111,11 @@
                 const imageData = ctx.getImageData(0, 0, 100, 100);
                 convertToPattern(imageData.data);
             };
-            img.src = 'test.bmp'; // 指定圖像文件的名稱
+            img.onerror = function() {
+                console.error("Failed to load image:", `${textSequence[currentTextIndex]}.bmp`);
+            };
+            img.src = `${textSequence[currentTextIndex]}.bmp`; // 指定圖像文件的名稱
+            console.log("Loading image:", img.src);
         }
 
         function convertToPattern(data) {
@@ -219,32 +226,24 @@
         }
 
         function updatePercentage() {
-            const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
+            const totalFilled = filledLetters.reduce((a, b) => a + b, 0);
+            const totalToFill = totalLetters.reduce((a, b) => a + b, 0);
+            const percentageColored = (totalFilled / totalToFill) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
-                completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-                if (currentLetterIndex === 7) { // 當前字母為 'h'
-                    setTimeout(() => {
-                        window.location.href = '000002.htm';
-                    }, 1000); // 1秒後跳轉頁面
-                }
-                canPaint = true;
-                const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
-                document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
-                    cell.classList.add('current');
-                });
-                if (currentLetterIndex < 25) {
-                    document.addEventListener('mousedown', nextLetterHandler, { once: true });
-                    document.addEventListener('touchstart', nextLetterHandler, { once: true });
-                }
+            if (percentageColored >= 90 && !completedLetters.has(textSequence[currentTextIndex])) {
+                completedLetters.add(textSequence[currentTextIndex]);
+                setTimeout(nextLetter, 3000); // 延迟3秒切换到下一个字
             }
         }
 
-        function nextLetterHandler() {
-            if (currentLetterIndex < 25) {
-                currentLetterIndex++;
-                updateCurrentLetterColor();
-                canPaint = true;
+        function nextLetter() {
+            if (currentTextIndex < textSequence.length - 1) {
+                currentTextIndex++;
+                currentLetterIndex = 0;
+                totalLetters = Array(26).fill(0);
+                filledLetters = Array(26).fill(0);
+                completedLetters.clear();
+                loadImage();
             }
         }
 
@@ -253,6 +252,7 @@
         let filledLetters = Array(26).fill(0);
         let canPaint = true;
         let completedLetters = new Set();
+        let mouseDown = false;
 
         // 禁止滾動刷新頁面
         document.addEventListener('touchmove', function(event) {
