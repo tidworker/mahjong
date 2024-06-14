@@ -134,6 +134,8 @@
             gridContainer.innerHTML = '';
             totalLetters.fill(0);
             filledLetters.fill(0);
+            completedLetters.clear();
+            currentLetterIndex = 0;
             for (let i = 0; i < 100; i++) {
                 for (let j = 0; j < 100; j++) {
                     const cell = document.createElement('div');
@@ -150,7 +152,6 @@
                     gridContainer.appendChild(cell);
                 }
             }
-            currentLetterIndex = 0;
             updateCurrentLetterColor();
         }
 
@@ -250,9 +251,7 @@
             const totalCurrentFilled = filledLetters[getIndex(currentLetter)];
             const totalPercentageColored = (totalCurrentFilled / totalCurrentLetter) * 100;
 
-            percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;
-
-            if (totalPercentageColored >= 97 && currentLetter ==='h') {
+            percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;if (totalPercentageColored >= 97 && currentLetter === 'h') {
                 nextButton.click();
             }
 
