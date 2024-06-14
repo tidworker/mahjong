@@ -75,7 +75,7 @@
     <div id="buttons">
         <img src="back.png" onclick="history.back()">
         <img src="re.png" onclick="location.reload()">
-        <img src="next.png" id="nextButton">
+        <img src="next.png" id="nextButton" onclick="nextWord()">
     </div>
     <br>
     <br>
@@ -230,14 +230,13 @@
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
             if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-                canPaint = false;
-                const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
-                document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
-                    cell.classList.add('current');
-                });
                 if (currentLetterIndex < 25) {
                     document.addEventListener('mousedown', nextLetterHandler, { once: true });
                     document.addEventListener('touchstart', nextLetterHandler, { once: true });
+                }
+                if (currentLetterIndex === 25) { // 当最后一个字母达到95%时触发
+                    canPaint = false;
+                    setTimeout(nextWord, 1000); // 延迟1秒后切换到下一个字
                 }
             }
         }
