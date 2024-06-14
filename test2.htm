@@ -223,29 +223,26 @@
             const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
             console.log("Current percentage:", percentageColored);
-            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
+            if (percentageColored >= 90 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-                if (currentLetterIndex < 25) {
-                    document.addEventListener('mousedown', nextLetterHandler, { once: true });
-                    document.addEventListener('touchstart', nextLetterHandler, { once: true });
-                } else {
-                    if (currentTextIndex < textSequence.length - 1) {
-                        currentTextIndex++;
-                        currentLetterIndex = 0;
-                        totalLetters = Array(26).fill(0);
-                        filledLetters = Array(26).fill(0);
-                        completedLetters.clear();
-                        loadImage();
-                    }
-                }
+                setTimeout(nextLetter, 3000); // 延迟3秒切换到下一个字母
             }
         }
 
-        function nextLetterHandler() {
+        function nextLetter() {
             if (currentLetterIndex < 25) {
                 currentLetterIndex++;
                 updateCurrentLetterColor();
                 canPaint = true;
+            } else {
+                if (currentTextIndex < textSequence.length - 1) {
+                    currentTextIndex++;
+                    currentLetterIndex = 0;
+                    totalLetters = Array(26).fill(0);
+                    filledLetters = Array(26).fill(0);
+                    completedLetters.clear();
+                    loadImage();
+                }
             }
         }
 
