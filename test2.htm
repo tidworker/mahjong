@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write</title>
+    <title>Let's Write ver1.1</title>
     <style>
         body, html {
             flex-direction: column;
@@ -75,7 +75,6 @@
     <div id="buttons">
         <img src="back.png" onclick="history.back()">
         <img src="re.png" onclick="location.reload()">
-        <img src="next.png" onclick="window.location.href='000002.htm'">
     </div>
     <br>
     <br>
@@ -96,6 +95,9 @@
             '0,162,232': 'h',
             '63,72,204': 'i'
         };
+        
+        const textSequence = ['金', '剛', '經']; // 文字序列
+        let currentTextIndex = 0;
 
         function loadImage() {
             const img = new Image();
@@ -108,7 +110,7 @@
                 const imageData = ctx.getImageData(0, 0, 100, 100);
                 convertToPattern(imageData.data);
             };
-            img.src = 'test.bmp'; // 指定圖像文件的名稱
+            img.src = `${textSequence[currentTextIndex]}.bmp`; // 指定圖像文件的名稱
         }
 
         function convertToPattern(data) {
@@ -126,6 +128,7 @@
         }
 
         function initializeGrid(pattern) {
+            console.log("Initializing grid with new pattern");
             grid.innerHTML = '';
             for (let i = 0; i < 100; i++) {
                 cells[i] = [];
@@ -146,6 +149,13 @@
                 }
             }
             updateCurrentLetterColor();
+            canPaint = true;
+            mouseDown = false;
+            console.log("Grid initialized, canPaint:", canPaint, "mouseDown:", mouseDown);
+        }
+
+        function getIndex(letter) {
+            return letter.charCodeAt(0) - 97;
         }
 
         function updateCurrentLetterColor() {
@@ -155,22 +165,32 @@
             });
         }
 
-        function removeCurrentLetterColor() {
-            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
-            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
-                cell.classList.remove('current');
-            });
+        function handleMouseDown(e) {
+            mouseDown = true;
+            handleMouse(e);
         }
 
-        grid.addEventListener('mousedown', handleMouse);
-        grid.addEventListener('mousemove', function(e) {
-            if (e.buttons === 1) {
-                handleMouse(e);
-            }
-        });
+        function handleMouseUp() {
+            mouseDown = false;
+            canPaint = false;
+        }
 
-        grid.addEventListener('touchstart', handleTouch, { passive: false });
-        grid.addEventListener('touchmove', handleTouch, { passive: false });
+        function handleMouse(e) {
+            const rect = grid.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / 4);
+            const y = Math.floor((e.clientY - rect.top) / 4);
+            console.log("Mouse position:", x, y);
+            handlePainting(x, y);
+        }
+
+        function handleTouchStart(e) {
+            canPaint = true;
+            handleTouch(e);
+        }
+
+        function handleTouchEnd() {
+            canPaint = false;
+        }
 
         function handleTouch(e) {
             e.preventDefault();
@@ -178,18 +198,12 @@
             const rect = grid.getBoundingClientRect();
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
-            if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
-            }
+            console.log("Touch position:", x, y);
+            handlePainting(x, y);
         }
 
-        function handleMouse(e) {
-            const rect = grid.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / 4);
-            const y = Math.floor((e.clientY - rect.top) / 4);
-            if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
-            }
+        function handlePainting(x, y) {
+            fillCircle(x, y, 10);
         }
 
         function fillCircle(cx, cy, radius) {
@@ -223,11 +237,6 @@
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
             if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-                if (currentLetterIndex === 7) { // 當前字母為 'h'
-                    setTimeout(() => {
-                        window.location.href = '000002.htm';
-                    }, 1000); // 1秒後跳轉頁面
-                }
                 canPaint = true;
                 const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
                 document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
@@ -236,6 +245,12 @@
                 if (currentLetterIndex < 25) {
                     document.addEventListener('mousedown', nextLetterHandler, { once: true });
                     document.addEventListener('touchstart', nextLetterHandler, { once: true });
+                }
+                if (currentLetterIndex === 7) {
+                    currentTextIndex++;
+                    if (currentTextIndex < textSequence.length) {
+                        loadImage();
+                    }
                 }
             }
         }
