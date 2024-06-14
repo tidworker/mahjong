@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write ver1.9</title>
+    <title>Let's Write ver2.0</title>
     <style>
         body, html {
             flex-direction: column;
@@ -75,7 +75,7 @@
             '0,162,232': 'h',
             '63,72,204': 'i',
             '163,73,164': 'j',
-            '195,195,195': 'k'
+            '195,195,195': 'k'            
         };
 
         const textSequence = ['金', '剛', '經']; // 文字序列
@@ -206,7 +206,7 @@
                             const letter = String.fromCharCode(97 + currentLetterIndex);
                             if (targetCell.classList.contains(`letter${letter}`) && !targetCell.style.backgroundColor) {
                                 targetCell.style.backgroundColor = '#000000';
-                                filledLetters[currentLetterIndex]++;
+                                filledLetters[getIndex(letter)]++;
                                 painted = true;
                             }
                         }
@@ -214,13 +214,15 @@
                 }
             }
             if (painted) {
-                console.log(`Filled cells for letter ${String.fromCharCode(97 + currentLetterIndex)}: ${filledLetters[currentLetterIndex]}`);
+                console.log(`Filled cells for letter ${String.fromCharCode(97 + currentLetterIndex)}: ${filledLetters[getIndex(String.fromCharCode(97 + currentLetterIndex))]}`);
                 updatePercentage();
             }
         }
 
         function updatePercentage() {
-            const percentageColored = (filledLetters.reduce((a, b) => a + b, 0) / totalLetters.reduce((a, b) => a + b, 0)) * 100;
+            const totalFilled = filledLetters.reduce((a, b) => a + b, 0);
+            const totalToFill = totalLetters.reduce((a, b) => a + b, 0);
+            const percentageColored = (totalFilled / totalToFill) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
             console.log("Current percentage:", percentageColored);
             if (percentageColored >= 90 && !completedLetters.has(textSequence[currentTextIndex])) {
