@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write ver2.0</title>
+    <title>Let's Write</title>
     <style>
         body, html {
             flex-direction: column;
@@ -60,6 +60,27 @@
         <div id="percentage">已塗色百分比：0%</div>
     </div>
 
+    <div class="image-row">
+        <img src="jin.png" style="opacity: 0.3;">
+        <img src="gon.png" style="opacity: 0.3;">
+        <img src="ban.png" style="opacity: 0.3;">
+        <img src="row.png" style="opacity: 0.3;">
+        <img src="po.png" style="opacity: 0.3;">
+        <img src="ro.png" style="opacity: 0.3;">
+        <img src="mi.png" style="opacity: 0.3;">
+        <img src="jinn.png" style="opacity: 0.3;">
+    </div>
+    <br>
+    <br>
+    <div id="buttons">
+        <img src="back.png" onclick="history.back()">
+        <img src="re.png" onclick="location.reload()">
+        <img src="next.png" onclick="window.location.href='000002.htm'">
+    </div>
+    <br>
+    <br>
+    <img src="logo2.png">   
+
     <script>
         const grid = document.getElementById('grid');
         const percentageDisplay = document.getElementById('percentage');
@@ -73,13 +94,8 @@
             '255,242,0': 'f',
             '34,177,76': 'g',
             '0,162,232': 'h',
-            '63,72,204': 'i',
-            '163,73,164': 'j',
-            '195,195,195': 'k'            
+            '63,72,204': 'i'
         };
-
-        const textSequence = ['金', '剛', '經']; // 文字序列
-        let currentTextIndex = 0;
 
         function loadImage() {
             const img = new Image();
@@ -90,14 +106,9 @@
                 canvas.height = 100;
                 ctx.drawImage(img, 0, 0, 100, 100);
                 const imageData = ctx.getImageData(0, 0, 100, 100);
-                console.log("Image loaded and processed.");
                 convertToPattern(imageData.data);
             };
-            img.onerror = function() {
-                console.error("Failed to load image:", `${textSequence[currentTextIndex]}.bmp`);
-            };
-            img.src = `${textSequence[currentTextIndex]}.bmp`; // 指定圖像文件的名稱
-            console.log("Loading image:", img.src);
+            img.src = 'test.bmp'; // 指定圖像文件的名稱
         }
 
         function convertToPattern(data) {
@@ -111,12 +122,10 @@
                 }
                 pattern.push(line);
             }
-            console.log("Pattern created.");
             initializeGrid(pattern);
         }
 
         function initializeGrid(pattern) {
-            console.log("Initializing grid with new pattern.");
             grid.innerHTML = '';
             for (let i = 0; i < 100; i++) {
                 cells[i] = [];
@@ -137,13 +146,6 @@
                 }
             }
             updateCurrentLetterColor();
-            canPaint = true;
-            mouseDown = false;
-            console.log("Grid initialized, canPaint:", canPaint, "mouseDown:", mouseDown);
-        }
-
-        function getIndex(letter) {
-            return letter.charCodeAt(0) - 97;
         }
 
         function updateCurrentLetterColor() {
@@ -153,32 +155,22 @@
             });
         }
 
-        function handleMouseDown(e) {
-            mouseDown = true;
-            handleMouse(e);
+        function removeCurrentLetterColor() {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
+                cell.classList.remove('current');
+            });
         }
 
-        function handleMouseUp() {
-            mouseDown = false;
-            canPaint = false;
-        }
+        grid.addEventListener('mousedown', handleMouse);
+        grid.addEventListener('mousemove', function(e) {
+            if (e.buttons === 1) {
+                handleMouse(e);
+            }
+        });
 
-        function handleMouse(e) {
-            const rect = grid.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / 4);
-            const y = Math.floor((e.clientY - rect.top) / 4);
-            console.log("Mouse position:", x, y);
-            handlePainting(x, y);
-        }
-
-        function handleTouchStart(e) {
-            canPaint = true;
-            handleTouch(e);
-        }
-
-        function handleTouchEnd() {
-            canPaint = false;
-        }
+        grid.addEventListener('touchstart', handleTouch, { passive: false });
+        grid.addEventListener('touchmove', handleTouch, { passive: false });
 
         function handleTouch(e) {
             e.preventDefault();
@@ -186,12 +178,18 @@
             const rect = grid.getBoundingClientRect();
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
-            console.log("Touch position:", x, y);
-            handlePainting(x, y);
+            if (canPaint) {
+                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+            }
         }
 
-        function handlePainting(x, y) {
-            fillCircle(x, y, 10);
+        function handleMouse(e) {
+            const rect = grid.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / 4);
+            const y = Math.floor((e.clientY - rect.top) / 4);
+            if (canPaint) {
+                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+            }
         }
 
         function fillCircle(cx, cy, radius) {
@@ -204,41 +202,49 @@
                         if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
                             const targetCell = cells[ny][nx];
                             const letter = String.fromCharCode(97 + currentLetterIndex);
-                            if (targetCell.classList.contains(`letter${letter}`) && !targetCell.style.backgroundColor) {
+                            if ((targetCell.classList.contains(`letter${letter}`) || completedLetters.has(targetCell.className.slice(-1))) && !targetCell.style.backgroundColor) {
                                 targetCell.style.backgroundColor = '#000000';
-                                filledLetters[getIndex(letter)]++;
-                                painted = true;
+                                if (targetCell.classList.contains(`letter${letter}`)) {
+                                    filledLetters[currentLetterIndex]++;
+                                    painted = true;
+                                }
                             }
                         }
                     }
                 }
             }
             if (painted) {
-                console.log(`Filled cells for letter ${String.fromCharCode(97 + currentLetterIndex)}: ${filledLetters[getIndex(String.fromCharCode(97 + currentLetterIndex))]}`);
                 updatePercentage();
             }
         }
 
         function updatePercentage() {
-            const totalFilled = filledLetters.reduce((a, b) => a + b, 0);
-            const totalToFill = totalLetters.reduce((a, b) => a + b, 0);
-            const percentageColored = (totalFilled / totalToFill) * 100;
+            const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            console.log("Current percentage:", percentageColored);
-            if (percentageColored >= 90 && !completedLetters.has(textSequence[currentTextIndex])) {
-                completedLetters.add(textSequence[currentTextIndex]);
-                setTimeout(nextLetter, 3000); // 延迟3秒切换到下一个字
+            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
+                completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
+                if (currentLetterIndex === 7) { // 當前字母為 'h'
+                    setTimeout(() => {
+                        window.location.href = '000002.htm';
+                    }, 1000); // 1秒後跳轉頁面
+                }
+                canPaint = true;
+                const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
+                document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
+                    cell.classList.add('current');
+                });
+                if (currentLetterIndex < 25) {
+                    document.addEventListener('mousedown', nextLetterHandler, { once: true });
+                    document.addEventListener('touchstart', nextLetterHandler, { once: true });
+                }
             }
         }
 
-        function nextLetter() {
-            if (currentTextIndex < textSequence.length - 1) {
-                currentTextIndex++;
-                currentLetterIndex = 0;
-                totalLetters = Array(26).fill(0);
-                filledLetters = Array(26).fill(0);
-                completedLetters.clear();
-                loadImage();
+        function nextLetterHandler() {
+            if (currentLetterIndex < 25) {
+                currentLetterIndex++;
+                updateCurrentLetterColor();
+                canPaint = true;
             }
         }
 
@@ -247,7 +253,6 @@
         let filledLetters = Array(26).fill(0);
         let canPaint = true;
         let completedLetters = new Set();
-        let mouseDown = false;
 
         // 禁止滾動刷新頁面
         document.addEventListener('touchmove', function(event) {
@@ -256,23 +261,6 @@
 
         // 初始化遊戲
         window.onload = loadImage;
-
-        // 添加鼠标和触摸事件监听器
-        grid.addEventListener('mousedown', handleMouseDown);
-        grid.addEventListener('mouseup', handleMouseUp);
-        grid.addEventListener('mousemove', function(e) {
-            if (mouseDown && canPaint) {
-                handleMouse(e);
-            }
-        });
-
-        grid.addEventListener('touchstart', handleTouchStart, { passive: false });
-        grid.addEventListener('touchend', handleTouchEnd, { passive: false });
-        grid.addEventListener('touchmove', function(e) {
-            if (canPaint) {
-                handleTouch(e);
-            }
-        }, { passive: false });
     </script>
 </body>
 </html>
