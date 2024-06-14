@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write ver1.3</title>
+    <title>Let's Write ver1.4</title>
     <style>
         body, html {
             flex-direction: column;
@@ -222,12 +222,10 @@
                         if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
                             const targetCell = cells[ny][nx];
                             const letter = String.fromCharCode(97 + currentLetterIndex);
-                            if ((targetCell.classList.contains(`letter${letter}`) || completedLetters.has(targetCell.className.slice(-1))) && !targetCell.style.backgroundColor) {
+                            if (targetCell.classList.contains(`letter${letter}`) && !targetCell.style.backgroundColor) {
                                 targetCell.style.backgroundColor = '#000000';
-                                if (targetCell.classList.contains(`letter${letter}`)) {
-                                    filledLetters[currentLetterIndex]++;
-                                    painted = true;
-                                }
+                                filledLetters[currentLetterIndex]++;
+                                painted = true;
                             }
                         }
                     }
@@ -279,6 +277,7 @@
         let filledLetters = Array(26).fill(0);
         let canPaint = true;
         let completedLetters = new Set();
+        let mouseDown = false;
 
         // 禁止滾動刷新頁面
         document.addEventListener('touchmove', function(event) {
@@ -287,6 +286,23 @@
 
         // 初始化遊戲
         window.onload = loadImage;
+
+        // 添加鼠标和触摸事件监听器
+        grid.addEventListener('mousedown', handleMouseDown);
+        grid.addEventListener('mouseup', handleMouseUp);
+        grid.addEventListener('mousemove', function(e) {
+            if (mouseDown && canPaint) {
+                handleMouse(e);
+            }
+        });
+
+        grid.addEventListener('touchstart', handleTouchStart, { passive: false });
+        grid.addEventListener('touchend', handleTouchEnd, { passive: false });
+        grid.addEventListener('touchmove', function(e) {
+            if (canPaint) {
+                handleTouch(e);
+            }
+        }, { passive: false });
     </script>
 </body>
 </html>
