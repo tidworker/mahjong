@@ -153,6 +153,8 @@
                 }
             }
             updateCurrentLetterColor();
+            canPaint = true;
+            mouseDown = false;
         }
 
         function getIndex(letter) {
@@ -249,7 +251,9 @@
             const currentLetter = String.fromCharCode(97 + currentLetterIndex);
             const totalCurrentLetter = totalLetters[getIndex(currentLetter)];
             const totalCurrentFilled = filledLetters[getIndex(currentLetter)];
-            const totalPercentageColored = (totalCurrentFilled / totalCurrentLetter) * 100;percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;
+            const totalPercentageColored = (totalCurrentFilled / totalCurrentLetter) *100;
+
+            percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;
 
             if (totalPercentageColored >= 97 && currentLetter === 'h') {
                 nextButton.click();
@@ -295,6 +299,8 @@
             filledLetters = Array(26).fill(0);
             totalLetters = Array(26).fill(0);
             updateCurrentLetterColor();
+            canPaint = true;
+            mouseDown = false;
         }
 
         nextButton.addEventListener('click', switchToNextBlock);
