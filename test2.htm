@@ -225,23 +225,15 @@
             console.log("Current percentage:", percentageColored);
             if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-                canPaint = true;
-                const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
-                document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
-                    cell.classList.add('current');
-                });
                 if (currentLetterIndex < 25) {
                     document.addEventListener('mousedown', nextLetterHandler, { once: true });
                     document.addEventListener('touchstart', nextLetterHandler, { once: true });
-                }
-                if (currentLetterIndex === 7) {
+                } else if (currentTextIndex < textSequence.length - 1) {
                     currentTextIndex++;
-                    if (currentTextIndex < textSequence.length) {
-                        currentLetterIndex = 0;
-                        totalLetters = Array(26).fill(0);
-                        filledLetters = Array(26).fill(0);
-                        loadImage();
-                    }
+                    currentLetterIndex = 0;
+                    totalLetters = Array(26).fill(0);
+                    filledLetters = Array(26).fill(0);
+                    loadImage();
                 }
             }
         }
