@@ -75,7 +75,7 @@
     <div id="buttons">
         <img src="back.png" onclick="history.back()">
         <img src="re.png" onclick="location.reload()">
-        <img src="next.png" onclick="window.location.href='000002.htm'">
+        <img src="next.png" id="nextButton">
     </div>
     <br>
     <br>
@@ -226,17 +226,31 @@
         }
 
         function updatePercentage() {
-            const totalFilled = filledLetters.reduce((a, b) => a + b, 0);
-            const totalToFill = totalLetters.reduce((a, b) => a + b, 0);
-            const percentageColored = (totalFilled / totalToFill) * 100;
+            const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 90 && !completedLetters.has(textSequence[currentTextIndex])) {
-                completedLetters.add(textSequence[currentTextIndex]);
-                setTimeout(nextLetter, 3000); // 延迟3秒切换到下一个字
+            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
+                completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
+                canPaint = false;
+                const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
+                document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
+                    cell.classList.add('current');
+                });
+                if (currentLetterIndex < 25) {
+                    document.addEventListener('mousedown', nextLetterHandler, { once: true });
+                    document.addEventListener('touchstart', nextLetterHandler, { once: true });
+                }
             }
         }
 
-        function nextLetter() {
+        function nextLetterHandler() {
+            if (currentLetterIndex < 25) {
+                currentLetterIndex++;
+                updateCurrentLetterColor();
+                canPaint = true;
+            }
+        }
+
+        function nextWord() {
             if (currentTextIndex < textSequence.length - 1) {
                 currentTextIndex++;
                 currentLetterIndex = 0;
@@ -247,12 +261,13 @@
             }
         }
 
+        document.getElementById('nextButton').addEventListener('click', nextWord);
+
         let currentLetterIndex = 0;
         let totalLetters = Array(26).fill(0);
         let filledLetters = Array(26).fill(0);
         let canPaint = true;
         let completedLetters = new Set();
-        let mouseDown = false;
 
         // 禁止滾動刷新頁面
         document.addEventListener('touchmove', function(event) {
