@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write ver1.2</title>
+    <title>Let's Write ver1.3</title>
     <style>
         body, html {
             flex-direction: column;
@@ -234,6 +234,7 @@
                 }
             }
             if (painted) {
+                console.log(`Filled cells for letter ${String.fromCharCode(97 + currentLetterIndex)}: ${filledLetters[currentLetterIndex]}`);
                 updatePercentage();
             }
         }
@@ -256,6 +257,9 @@
                 if (currentLetterIndex === 7) {
                     currentTextIndex++;
                     if (currentTextIndex < textSequence.length) {
+                        currentLetterIndex = 0;
+                        totalLetters = Array(26).fill(0);
+                        filledLetters = Array(26).fill(0);
                         loadImage();
                     }
                 }
