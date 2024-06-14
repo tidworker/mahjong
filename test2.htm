@@ -131,6 +131,7 @@
         }
 
         function initializeGrid(pattern) {
+            console.log("Initializing grid with new pattern");
             gridContainer.innerHTML = '';
             totalLetters.fill(0);
             filledLetters.fill(0);
@@ -155,6 +156,7 @@
             updateCurrentLetterColor();
             canPaint = true;
             mouseDown = false;
+            console.log("Grid initialized, canPaint:", canPaint, "mouseDown:", mouseDown);
         }
 
         function getIndex(letter) {
@@ -182,6 +184,7 @@
             const rect = gridContainer.getBoundingClientRect();
             const x = Math.floor((e.clientX - rect.left) / 4);
             const y = Math.floor((e.clientY - rect.top) / 4);
+            console.log("Mouse position:", x, y);
             handlePainting(x, y);
         }
 
@@ -200,6 +203,7 @@
             const rect = gridContainer.getBoundingClientRect();
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
+            console.log("Touch position:", x, y);
             handlePainting(x, y);
         }
 
@@ -238,6 +242,7 @@
             const totalPercentageColored = (totalCurrentFilled / totalCurrentLetter) * 100;
 
             percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;
+            console.log("Current percentage:", totalPercentageColored);
 
             if (totalPercentageColored >= 97 && currentLetter === 'h') {
                 nextButton.click();
@@ -250,9 +255,7 @@
                     updateCurrentLetterColor();
                     canPaint = false;
                     document.addEventListener('mousedown', startNextLetter, { once: true });
-                    document.addEventListener('touchstart', startNextLetter, { once: true
-
-});
+                    document.addEventListener('touchstart', startNextLetter, { once: true });
                 }
             }
         }
@@ -287,6 +290,7 @@
             updateCurrentLetterColor();
             canPaint = true;
             mouseDown = false;
+            console.log("Painting state reset");
         }
 
         nextButton.addEventListener('click', switchToNextBlock);
