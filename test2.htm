@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write ver1.6</title>
+    <title>Let's Write ver1.7</title>
     <style>
         body, html {
             flex-direction: column;
@@ -228,12 +228,15 @@
                 if (currentLetterIndex < 25) {
                     document.addEventListener('mousedown', nextLetterHandler, { once: true });
                     document.addEventListener('touchstart', nextLetterHandler, { once: true });
-                } else if (currentTextIndex < textSequence.length - 1) {
-                    currentTextIndex++;
-                    currentLetterIndex = 0;
-                    totalLetters = Array(26).fill(0);
-                    filledLetters = Array(26).fill(0);
-                    loadImage();
+                } else {
+                    if (currentTextIndex < textSequence.length - 1) {
+                        currentTextIndex++;
+                        currentLetterIndex = 0;
+                        totalLetters = Array(26).fill(0);
+                        filledLetters = Array(26).fill(0);
+                        completedLetters.clear();
+                        loadImage();
+                    }
                 }
             }
         }
