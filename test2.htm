@@ -34,8 +34,11 @@
         }
         .lettera, .letterb, .letterc, .letterd, .lettere, .letterf, .letterg, .letterh, .letteri, .letterj,
         .letterk, .letterl, .letterm, .lettern, .lettero, .letterp, .letterq, .letterr, .letters, .lettert,
-        .letteru, .letterv, .letterw, .letterx, .lettery, .letterz {
+        .letteru, .letterv, .letterw, .letterx, .lettery {
             background-color: #d3d3d3;
+        }
+        .letterz {
+            background-color: #191919;
         }
         .current {
             background-color: #808080;
@@ -72,7 +75,7 @@
     <div id="buttons">
         <img src="back.png" onclick="history.back()">
         <img src="re.png" onclick="location.reload()">
-        <img src="next.png" id="nextButton" onclick="nextWord()">
+        <img src="next.png" onclick="window.location.href='000002.htm'">
     </div>
     <br>
     <br>
@@ -91,17 +94,8 @@
             '255,242,0': 'f',
             '34,177,76': 'g',
             '0,162,232': 'h',
-            '63,72,204': 'i',
-            '200,191,231': 'z'
+            '63,72,204': 'i'
         };
-
-        const textSequence = ['金', '剛', '經']; // 文字序列
-        let currentTextIndex = 0;
-        let currentLetterIndex = 0;
-        let totalLetters = Array(26).fill(0);
-        let filledLetters = Array(26).fill(0);
-        let canPaint = false;
-        let completedLetters = new Set();
 
         function loadImage() {
             const img = new Image();
@@ -114,11 +108,7 @@
                 const imageData = ctx.getImageData(0, 0, 100, 100);
                 convertToPattern(imageData.data);
             };
-            img.onerror = function() {
-                console.error("Failed to load image:", `${textSequence[currentTextIndex]}.bmp`);
-            };
-            img.src = `${textSequence[currentTextIndex]}.bmp`; // 指定圖像文件的名稱
-            console.log("Loading image:", img.src);
+            img.src = 'test.bmp'; // 指定圖像文件的名稱
         }
 
         function convertToPattern(data) {
@@ -165,37 +155,22 @@
             });
         }
 
-        grid.addEventListener('mousedown', handleMouseDown);
-        grid.addEventListener('mouseup', handleMouseUp);
+        function removeCurrentLetterColor() {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
+                cell.classList.remove('current');
+            });
+        }
+
+        grid.addEventListener('mousedown', handleMouse);
         grid.addEventListener('mousemove', function(e) {
             if (e.buttons === 1) {
                 handleMouse(e);
             }
         });
 
-        grid.addEventListener('touchstart', handleTouchStart, { passive: false });
-        grid.addEventListener('touchend', handleTouchEnd, { passive: false });
+        grid.addEventListener('touchstart', handleTouch, { passive: false });
         grid.addEventListener('touchmove', handleTouch, { passive: false });
-
-        function handleMouseDown(e) {
-            if (canPaint) {
-                handleMouse(e);
-            }
-        }
-
-        function handleMouseUp() {
-            canPaint = false;
-        }
-
-        function handleTouchStart(e) {
-            if (canPaint) {
-                handleTouch(e);
-            }
-        }
-
-        function handleTouchEnd() {
-            canPaint = false;
-        }
 
         function handleTouch(e) {
             e.preventDefault();
@@ -203,14 +178,18 @@
             const rect = grid.getBoundingClientRect();
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
-            fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+            if (canPaint) {
+                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+            }
         }
 
         function handleMouse(e) {
             const rect = grid.getBoundingClientRect();
             const x = Math.floor((e.clientX - rect.left) / 4);
             const y = Math.floor((e.clientY - rect.top) / 4);
-            fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+            if (canPaint) {
+                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+            }
         }
 
         function fillCircle(cx, cy, radius) {
@@ -223,12 +202,12 @@
                         if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
                             const targetCell = cells[ny][nx];
                             const letter = String.fromCharCode(97 + currentLetterIndex);
-                            if (targetCell.classList.contains(`letter${letter}`) && !targetCell.style.backgroundColor) {
+                            if ((targetCell.classList.contains(`letter${letter}`) || completedLetters.has(targetCell.className.slice(-1))) && !targetCell.style.backgroundColor) {
                                 targetCell.style.backgroundColor = '#000000';
-                                filledLetters[currentLetterIndex]++;
-                                painted = true;
-                            } else if (completedLetters.has(targetCell.className.slice(-1)) && !targetCell.style.backgroundColor) {
-                                targetCell.style.backgroundColor = '#000000';
+                                if (targetCell.classList.contains(`letter${letter}`)) {
+                                    filledLetters[currentLetterIndex]++;
+                                    painted = true;
+                                }
                             }
                         }
                     }
@@ -242,39 +221,38 @@
         function updatePercentage() {
             const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 100 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
+            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
+                if (currentLetterIndex === 7) { // 當前字母為 'h'
+                    setTimeout(() => {
+                        window.location.href = '000002.htm';
+                    }, 1000); // 1秒後跳轉頁面
+                }
+                canPaint = true;
+                const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
+                document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
+                    cell.classList.add('current');
+                });
                 if (currentLetterIndex < 25) {
-                    currentLetterIndex++;
-                    updateCurrentLetterColor();
-                    canPaint = false;
-                    document.addEventListener('mousedown', enablePaint, { once: true });
-                    document.addEventListener('touchstart', enablePaint, { once: true });
+                    document.addEventListener('mousedown', nextLetterHandler, { once: true });
+                    document.addEventListener('touchstart', nextLetterHandler, { once: true });
                 }
             }
-            if (completedLetters.has('z') && percentageColored >= 100) {
-                setTimeout(() => {
-                    document.getElementById('nextButton').click();
-                }, 1000); // 延遲1秒後觸發next
+        }
+
+        function nextLetterHandler() {
+            if (currentLetterIndex < 25) {
+                currentLetterIndex++;
+                updateCurrentLetterColor();
+                canPaint = true;
             }
         }
 
-        function enablePaint() {
-            canPaint = true;
-        }
-
-        function nextWord() {
-            if (currentTextIndex < textSequence.length - 1) {
-                currentTextIndex++;
-                currentLetterIndex = 0;
-                totalLetters = Array(26).fill(0);
-                filledLetters = Array(26).fill(0);
-                completedLetters.clear();
-                loadImage();
-            }
-        }
-
-        document.getElementById('nextButton').addEventListener('click', nextWord);
+        let currentLetterIndex = 0;
+        let totalLetters = Array(26).fill(0);
+        let filledLetters = Array(26).fill(0);
+        let canPaint = true;
+        let completedLetters = new Set();
 
         // 禁止滾動刷新頁面
         document.addEventListener('touchmove', function(event) {
