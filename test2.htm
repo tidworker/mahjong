@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write 1.0</title>
+    <title>Let's Write1.1</title>
     <style>
         body, html {
             flex-direction: column;
@@ -34,11 +34,8 @@
         }
         .lettera, .letterb, .letterc, .letterd, .lettere, .letterf, .letterg, .letterh, .letteri, .letterj,
         .letterk, .letterl, .letterm, .lettern, .lettero, .letterp, .letterq, .letterr, .letters, .lettert,
-        .letteru, .letterv, .letterw, .letterx, .lettery {
+        .letteru, .letterv, .letterw, .letterx, .lettery, .letterz {
             background-color: #d3d3d3;
-        }
-        .letterz {
-            background-color: #191919;
         }
         .current {
             background-color: #808080;
@@ -168,13 +165,6 @@
             });
         }
 
-        function removeCurrentLetterColor() {
-            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
-            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
-                cell.classList.remove('current');
-            });
-        }
-
         grid.addEventListener('mousedown', handleMouse);
         grid.addEventListener('mousemove', function(e) {
             if (e.buttons === 1) {
@@ -240,11 +230,17 @@
                     currentLetterIndex++;
                     updateCurrentLetterColor();
                 }
+                if (currentLetterIndex === 25) { // 如果当前字母是 'z'
+                    const percentageZ = (filledLetters[getLetterIndex('z')] / totalLetters[getLetterIndex('z')]) * 100;
+                    if (percentageZ >= 97) {
+                        document.getElementById('nextButton').click();
+                    }
+                }
             }
         }
 
-        function enablePaint() {
-            canPaint = true;
+        function getLetterIndex(letter) {
+            return letter.charCodeAt(0) - 97;
         }
 
         function nextWord() {
