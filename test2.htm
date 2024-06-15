@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write1.0</title>
+    <title>Let's Write</title>
     <style>
         body, html {
             flex-direction: column;
@@ -230,7 +230,6 @@
                     currentLetterIndex++;
                     updateCurrentLetterColor();
                 }
-                canPaint = false;
                 document.addEventListener('mousedown', enablePaint, { once: true });
                 document.addEventListener('touchstart', enablePaint, { once: true });
             }
@@ -256,12 +255,12 @@
 
         document.getElementById('nextButton').addEventListener('click', nextWord);
 
-        // 禁止滚动刷新页面
+        // 禁止滾動刷新頁面
         document.addEventListener('touchmove', function(event) {
             event.preventDefault();
         }, { passive: false });
 
-        // 初始化游戏
+        // 初始化遊戲
         window.onload = loadImage;
     </script>
 </body>
