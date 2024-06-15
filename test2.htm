@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write1.0</title>
+    <title>Let's Write</title>
     <style>
         body, html {
             flex-direction: column;
@@ -12,7 +12,7 @@
             padding: 0;
             overflow: hidden;
             display: flex;
-            justify-content: flex-start; /* 水平方向置頂 */
+            justify-content: flex-start; /* 水平方向置顶 */
             align-items: center;
             height: 100%;
         }
@@ -100,7 +100,7 @@
         let currentLetterIndex = 0;
         let totalLetters = Array(26).fill(0);
         let filledLetters = Array(26).fill(0);
-        let canPaint = true;
+        let canPaint = false;
         let completedLetters = new Set();
 
         function loadImage() {
@@ -247,6 +247,7 @@
                 if (currentLetterIndex < 25) {
                     currentLetterIndex++;
                     updateCurrentLetterColor();
+                    canPaint = false;
                     document.addEventListener('mousedown', enablePaint, { once: true });
                     document.addEventListener('touchstart', enablePaint, { once: true });
                 }
