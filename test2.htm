@@ -12,7 +12,7 @@
             padding: 0;
             overflow: hidden;
             display: flex;
-            justify-content: flex-start; /* 水平方向置顶 */
+            justify-content: flex-start; /* 水平方向置頂 */
             align-items: center;
             height: 100%;
         }
@@ -247,12 +247,14 @@
                 if (currentLetterIndex < 25) {
                     currentLetterIndex++;
                     updateCurrentLetterColor();
+                    document.addEventListener('mousedown', enablePaint, { once: true });
+                    document.addEventListener('touchstart', enablePaint, { once: true });
                 }
-                document.addEventListener('mousedown', enablePaint, { once: true });
-                document.addEventListener('touchstart', enablePaint, { once: true });
             }
             if (completedLetters.has('z') && percentageColored >= 100) {
-                document.getElementById('nextButton').click();
+                setTimeout(() => {
+                    document.getElementById('nextButton').click();
+                }, 1000); // 延遲1秒後觸發next
             }
         }
 
