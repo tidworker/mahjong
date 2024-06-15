@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write1.0</title>
+    <title>Let's Write</title>
     <style>
         body, html {
             flex-direction: column;
@@ -21,10 +21,11 @@
             flex-direction: column;
             align-items: center;
         }
-        #grid {
+        .grid {
             display: grid;
             grid-template-columns: repeat(100, 4px);
             grid-template-rows: repeat(100, 4px);
+            margin-bottom: 20px;
         }
         .cell {
             width: 4px;
@@ -34,8 +35,11 @@
         }
         .lettera, .letterb, .letterc, .letterd, .lettere, .letterf, .letterg, .letterh, .letteri, .letterj,
         .letterk, .letterl, .letterm, .lettern, .lettero, .letterp, .letterq, .letterr, .letters, .lettert,
-        .letteru, .letterv, .letterw, .letterx, .lettery, .letterz {
+        .letteru, .letterv, .letterw, .letterx, .lettery {
             background-color: #d3d3d3;
+        }
+        .letterz {
+            background-color: #191919;
         }
         .current {
             background-color: #808080;
@@ -53,7 +57,7 @@
 </head>
 <body>
     <div id="container">
-        <div id="grid"></div>
+        <div id="grid" class="grid"></div>
         <div id="percentage">已塗色百分比：0%</div>
     </div>
 
@@ -72,16 +76,14 @@
     <div id="buttons">
         <img src="back.png" onclick="history.back()">
         <img src="re.png" onclick="location.reload()">
-        <img src="next.png" id="nextButton" onclick="nextWord()">
     </div>
     <br>
     <br>
     <img src="logo2.png">   
 
     <script>
-        const grid = document.getElementById('grid');
+        const gridContainer = document.getElementById('grid');
         const percentageDisplay = document.getElementById('percentage');
-        const cells = [];
         const colorMap = {
             '0,0,0': 'a',
             '127,127,127': 'b',
@@ -91,52 +93,57 @@
             '255,242,0': 'f',
             '34,177,76': 'g',
             '0,162,232': 'h',
-            '63,72,204': 'i',
-            '200,191,231': 'z'
+            '63,72,204': 'i'
         };
 
-        const textSequence = ['金', '剛', '經']; // 文字序列
-        let currentTextIndex = 0;
-        let currentLetterIndex = 0;
         let totalLetters = Array(26).fill(0);
         let filledLetters = Array(26).fill(0);
+        let currentLetterIndex = 0;
         let canPaint = true;
         let completedLetters = new Set();
+        let currentBlock = 0;
+        let patternList = [];
 
         function loadImage() {
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                canvas.width = 100;
-                canvas.height = 100;
-                ctx.drawImage(img, 0, 0, 100, 100);
-                const imageData = ctx.getImageData(0, 0, 100, 100);
-                convertToPattern(imageData.data);
+                canvas.width = 1000;
+                canvas.height = 1000;
+                ctx.drawImage(img, 0, 0, 1000, 1000);
+                const imageData = ctx.getImageData(0, 0, 1000, 1000);
+                processImage(imageData.data);
             };
-            img.onerror = function() {
-                console.error("Failed to load image:", `${textSequence[currentTextIndex]}.bmp`);
-            };
-            img.src = `${textSequence[currentTextIndex]}.bmp`; // 指定圖像文件的名稱
-            console.log("Loading image:", img.src);
+            img.src = 'test3.bmp'; // 指定圖像文件的名稱
         }
 
-        function convertToPattern(data) {
+        function processImage(data) {
+            for (let block = 0; block < 100; block++) {
+                const startX = (block % 10) * 100;
+                const startY = Math.floor(block / 10) * 100;
+                patternList.push(createPattern(data, startX, startY));
+            }
+            initializeGrid(patternList[0]);
+        }
+
+        function createPattern(data, startX, startY) {
             const pattern = [];
             for (let i = 0; i < 100; i++) {
                 let line = '';
                 for (let j = 0; j < 100; j++) {
-                    const index = 4 * (i * 100 + j);
+                    const index = 4 * ((startY + i) * 1000 + (startX + j));
                     const colorKey = `${data[index]},${data[index + 1]},${data[index + 2]}`;
                     line += colorMap[colorKey] || '0';
                 }
                 pattern.push(line);
             }
-            initializeGrid(pattern);
+            return pattern;
         }
 
         function initializeGrid(pattern) {
-            grid.innerHTML = '';
+            gridContainer.innerHTML = '';
+            const cells = [];
             for (let i = 0; i < 100; i++) {
                 cells[i] = [];
                 for (let j = 0; j < 100; j++) {
@@ -148,66 +155,51 @@
                         if (letter === 'z') {
                             cell.style.backgroundColor = '#191919';
                         } else {
-                            totalLetters[letter.charCodeAt(0) - 97]++; // 計算每個字母的總數
+                            totalLetters[letter.charCodeAt(0) - 97]++;
                         }
                     }
                     cells[i][j] = cell;
-                    grid.appendChild(cell);
+                    gridContainer.appendChild(cell);
                 }
             }
             updateCurrentLetterColor();
-            canPaint = true;
-            mouseDown = false;
-        }
-
-        function getIndex(letter) {
-            return letter.charCodeAt(0) - 97;
         }
 
         function updateCurrentLetterColor() {
             const currentLetter = String.fromCharCode(97 + currentLetterIndex);
-            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
+            gridContainer.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
                 cell.classList.add('current');
             });
         }
 
-        function handleMouseDown(e) {
-            mouseDown = true;
-            handleMouse(e);
-        }
+        gridContainer.addEventListener('mousedown', handleMouse);
+        gridContainer.addEventListener('mousemove', function(e) {
+            if (e.buttons === 1) {
+                handleMouse(e);
+            }
+        });
 
-        function handleMouseUp() {
-            mouseDown = false;
-            canPaint = false;
-        }
-
-        function handleMouse(e) {
-            const rect = grid.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / 4);
-            const y = Math.floor((e.clientY - rect.top) / 4);
-            handlePainting(x, y);
-        }
-
-        function handleTouchStart(e) {
-            canPaint = true;
-            handleTouch(e);
-        }
-
-        function handleTouchEnd() {
-            canPaint = false;
-        }
+        gridContainer.addEventListener('touchstart', handleTouch, { passive: false });
+        gridContainer.addEventListener('touchmove', handleTouch, { passive: false });
 
         function handleTouch(e) {
             e.preventDefault();
             const touch = e.touches[0];
-            const rect = grid.getBoundingClientRect();
+            const rect = gridContainer.getBoundingClientRect();
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
-            handlePainting(x, y);
+            if (canPaint) {
+                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+            }
         }
 
-        function handlePainting(x, y) {
-            fillCircle(x, y, 10);
+        function handleMouse(e) {
+            const rect = gridContainer.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / 4);
+            const y = Math.floor((e.clientY - rect.top) / 4);
+            if (canPaint) {
+                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+            }
         }
 
         function fillCircle(cx, cy, radius) {
@@ -218,14 +210,14 @@
                         const nx = cx + j;
                         const ny = cy + i;
                         if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
-                            const targetCell = cells[ny][nx];
+                            const targetCell = gridContainer.querySelectorAll('.cell')[ny * 100 + nx];
                             const letter = String.fromCharCode(97 + currentLetterIndex);
-                            if (targetCell.classList.contains(`letter${letter}`) && !targetCell.style.backgroundColor) {
+                            if ((targetCell.classList.contains(`letter${letter}`) || completedLetters.has(targetCell.className.slice(-1))) && !targetCell.style.backgroundColor) {
                                 targetCell.style.backgroundColor = '#000000';
-                                filledLetters[currentLetterIndex]++;
-                                painted = true;
-                            } else if (completedLetters.has(targetCell.className.slice(-1)) && !targetCell.style.backgroundColor) {
-                                targetCell.style.backgroundColor = '#000000';
+                                if (targetCell.classList.contains(`letter${letter}`)) {
+                                    filledLetters[currentLetterIndex]++;
+                                    painted = true;
+                                }
                             }
                         }
                     }
@@ -239,39 +231,24 @@
         function updatePercentage() {
             const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 100 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
-                completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-                if (currentLetterIndex < 25) {
-                    currentLetterIndex++;
+            if (currentLetterIndex === 25 || (currentLetterIndex < 25 && percentageColored >= 97)) {
+                currentLetterIndex++;
+                if (currentLetterIndex === 26) {
+                    currentLetterIndex = 0;
+                    if (currentBlock < 99) {
+                        currentBlock++;
+                        initializeGrid(patternList[currentBlock]);
+                    } else {
+                        alert('所有矩陣已完成');
+                    }
+                } else {
                     updateCurrentLetterColor();
-                    canPaint = false;
-                    document.addEventListener('mousedown', enablePaint, { once: true });
-                    document.addEventListener('touchstart', enablePaint, { once: true });
                 }
-            }
-            if (completedLetters.has('z') && percentageColored >= 100) {
-                setTimeout(() => {
-                    document.getElementById('nextButton').click();
-                }, 1000); // 延遲1秒後觸發next
+                filledLetters = Array(26).fill(0); // 重置填色進度
+                totalLetters = Array(26).fill(0); // 重置總字母數量
+                canPaint = true;
             }
         }
-
-        function enablePaint() {
-            canPaint = true;
-        }
-
-        function nextWord() {
-            if (currentTextIndex < textSequence.length - 1) {
-                currentTextIndex++;
-                currentLetterIndex = 0;
-                totalLetters = Array(26).fill(0);
-                filledLetters = Array(26).fill(0);
-                completedLetters.clear();
-                loadImage();
-            }
-        }
-
-        document.getElementById('nextButton').addEventListener('click', nextWord);
 
         // 禁止滾動刷新頁面
         document.addEventListener('touchmove', function(event) {
@@ -280,23 +257,6 @@
 
         // 初始化遊戲
         window.onload = loadImage;
-
-        // 添加鼠标和触摸事件监听器
-        grid.addEventListener('mousedown', handleMouseDown);
-        grid.addEventListener('mouseup', handleMouseUp);
-        grid.addEventListener('mousemove', function(e) {
-            if (mouseDown && canPaint) {
-                handleMouse(e);
-            }
-        });
-
-        grid.addEventListener('touchstart', handleTouchStart, { passive: false });
-        grid.addEventListener('touchend', handleTouchEnd, { passive: false });
-        grid.addEventListener('touchmove', function(e) {
-            if (canPaint) {
-                handleTouch(e);
-            }
-        }, { passive: false });
     </script>
 </body>
 </html>
