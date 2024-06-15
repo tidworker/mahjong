@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write1.0</title>
+    <title>Let's Write</title>
     <style>
         body, html {
             flex-direction: column;
@@ -165,15 +165,37 @@
             });
         }
 
-        grid.addEventListener('mousedown', handleMouse);
+        grid.addEventListener('mousedown', handleMouseDown);
+        grid.addEventListener('mouseup', handleMouseUp);
         grid.addEventListener('mousemove', function(e) {
             if (e.buttons === 1) {
                 handleMouse(e);
             }
         });
 
-        grid.addEventListener('touchstart', handleTouch, { passive: false });
+        grid.addEventListener('touchstart', handleTouchStart, { passive: false });
+        grid.addEventListener('touchend', handleTouchEnd, { passive: false });
         grid.addEventListener('touchmove', handleTouch, { passive: false });
+
+        function handleMouseDown(e) {
+            if (canPaint) {
+                handleMouse(e);
+            }
+        }
+
+        function handleMouseUp() {
+            canPaint = false;
+        }
+
+        function handleTouchStart(e) {
+            if (canPaint) {
+                handleTouch(e);
+            }
+        }
+
+        function handleTouchEnd() {
+            canPaint = false;
+        }
 
         function handleTouch(e) {
             e.preventDefault();
@@ -181,18 +203,14 @@
             const rect = grid.getBoundingClientRect();
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
-            if (canPaint || completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
-            }
+            fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
         }
 
         function handleMouse(e) {
             const rect = grid.getBoundingClientRect();
             const x = Math.floor((e.clientX - rect.left) / 4);
             const y = Math.floor((e.clientY - rect.top) / 4);
-            if (canPaint || completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
-            }
+            fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
         }
 
         function fillCircle(cx, cy, radius) {
@@ -234,9 +252,7 @@
                 document.addEventListener('touchstart', enablePaint, { once: true });
             }
             if (completedLetters.has('z') && percentageColored >= 100) {
-                setTimeout(() => {
-                    document.getElementById('nextButton').click();
-                }, 1000); // 延迟1秒钟后触发next
+                document.getElementById('nextButton').click();
             }
         }
 
