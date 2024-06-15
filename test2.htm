@@ -126,14 +126,14 @@
                     line += colorMap[colorKey] || '0';
                 }
                 pattern.push(line);
-                                }
-                pattern.push(line);
             }
             return pattern;
         }
 
         function initializeGrid(pattern) {
             gridContainer.innerHTML = '';
+            totalLetters.fill(0);
+            filledLetters.fill(0);
             for (let i = 0; i < 100; i++) {
                 for (let j = 0; j < 100; j++) {
                     const cell = document.createElement('div');
@@ -251,6 +251,10 @@
 
             percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;
 
+                        if (totalPercentageColored >= 97 && currentLetter === 'h') {
+                nextButton.click();
+            }
+
             if (totalPercentageColored >= 99 && !completedLetters.has(currentLetter)) {
                 completedLetters.add(currentLetter);
                 if (currentLetterIndex < 25) {
@@ -260,16 +264,6 @@
                     document.addEventListener('mousedown', startNextLetter, { once: true });
                     document.addEventListener('touchstart', startNextLetter, { once: true });
                 }
-            }
-
-            const totalColored = filledLetters.reduce((a, b) => a + b, 0);
-            const totalToFill = totalLetters.reduce((a, b) => a + b, 0);
-            const overallPercentageColored = (totalColored / totalToFill) * 100;
-
-            if (overallPercentageColored >= 30) {
-                setTimeout(() => {
-                    switchToNextBlock();
-                }, 1000);
             }
         }
 
