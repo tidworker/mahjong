@@ -99,6 +99,11 @@
 
         const textSequence = ['金', '剛', '經']; // 文字序列
         let currentTextIndex = 0;
+        let currentLetterIndex = 0;
+        let totalLetters = Array(26).fill(0);
+        let filledLetters = Array(26).fill(0);
+        let canPaint = true;
+        let completedLetters = new Set();
 
         function loadImage() {
             const img = new Image();
@@ -228,26 +233,28 @@
         function updatePercentage() {
             const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 95 && !
-completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
+            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
                 if (currentLetterIndex < 25) {
-                    document.addEventListener('mousedown', nextLetterHandler, { once: true });
-                    document.addEventListener('touchstart', nextLetterHandler, { once: true });
+                    currentLetterIndex++;
+                    updateCurrentLetterColor();
                 }
-                if (currentLetterIndex === 25) { // 当最后一个字母达到95%时触发
-                    canPaint = false;
-                    setTimeout(nextWord, 1000); // 延迟1秒后切换到下一个字
+                if (currentLetterIndex === 25 && currentTextIndex < textSequence.length - 1) {
+                    currentTextIndex++;
+                    currentLetterIndex = 0;
+                    totalLetters = Array(26).fill(0);
+                    filledLetters = Array(26).fill(0);
+                    completedLetters.clear();
+                    loadImage();
                 }
+                canPaint = false;
+                document.addEventListener('mousedown', enablePaint, { once: true });
+                document.addEventListener('touchstart', enablePaint, { once: true });
             }
         }
 
-        function nextLetterHandler() {
-            if (currentLetterIndex < 25) {
-                currentLetterIndex++;
-                updateCurrentLetterColor();
-                canPaint = true;
-            }
+        function enablePaint() {
+            canPaint = true;
         }
 
         function nextWord() {
@@ -262,12 +269,6 @@ completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
         }
 
         document.getElementById('nextButton').addEventListener('click', nextWord);
-
-        let currentLetterIndex = 0;
-        let totalLetters = Array(26).fill(0);
-        let filledLetters = Array(26).fill(0);
-        let canPaint = true;
-        let completedLetters = new Set();
 
         // 禁止滾動刷新頁面
         document.addEventListener('touchmove', function(event) {
