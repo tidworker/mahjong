@@ -191,7 +191,7 @@
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
             if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+                fillCircle(x, y                , 10); // 将半径设置为10，增加笔刷大小
             }
         }
 
@@ -200,7 +200,7 @@
             const x = Math.floor((e.clientX - rect.left) / 4);
             const y = Math.floor((e.clientY - rect.top) / 4);
             if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+                fillCircle(x, y, 10); // 将半径设置为10，增加笔刷大小
             }
         }
 
@@ -239,14 +239,6 @@
                     currentLetterIndex++;
                     updateCurrentLetterColor();
                 }
-                if (currentLetterIndex === 25 && currentTextIndex < textSequence.length - 1) {
-                    currentTextIndex++;
-                    currentLetterIndex = 0;
-                    totalLetters = Array(26).fill(0);
-                    filledLetters = Array(26).fill(0);
-                    completedLetters.clear();
-                    loadImage();
-                }
                 canPaint = false;
                 document.addEventListener('mousedown', enablePaint, { once: true });
                 document.addEventListener('touchstart', enablePaint, { once: true });
@@ -270,13 +262,14 @@
 
         document.getElementById('nextButton').addEventListener('click', nextWord);
 
-        // 禁止滾動刷新頁面
+        // 禁止滚动刷新页面
         document.addEventListener('touchmove', function(event) {
             event.preventDefault();
         }, { passive: false });
 
-        // 初始化遊戲
+        // 初始化游戏
         window.onload = loadImage;
     </script>
 </body>
 </html>
+
