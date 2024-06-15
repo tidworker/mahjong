@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write</title>
+    <title>Let's Write1.0</title>
     <style>
         body, html {
             flex-direction: column;
@@ -233,8 +233,10 @@
                 document.addEventListener('mousedown', enablePaint, { once: true });
                 document.addEventListener('touchstart', enablePaint, { once: true });
             }
-            if (currentLetterIndex === 25 && percentageColored >= 100) {
-                document.getElementById('nextButton').click();
+            if (completedLetters.has('z') && percentageColored >= 100) {
+                setTimeout(() => {
+                    document.getElementById('nextButton').click();
+                }, 1000); // 延迟1秒钟后触发next
             }
         }
 
