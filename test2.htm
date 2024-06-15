@@ -95,6 +95,7 @@
             '34,177,76': 'g',
             '0,162,232': 'h',
             '63,72,204': 'i'
+            '200,191,231': 'z'
         };
 
         const textSequence = ['金', '剛', '經']; // 文字序列
@@ -191,7 +192,7 @@
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
             if (canPaint) {
-                fillCircle(x, y                , 10); // 将半径设置为10，增加笔刷大小
+                fillCircle(x, y, 10); // 将半径设置为10，增加笔刷大小
             }
         }
 
@@ -239,9 +240,6 @@
                     currentLetterIndex++;
                     updateCurrentLetterColor();
                 }
-                canPaint = false;
-                document.addEventListener('mousedown', enablePaint, { once: true });
-                document.addEventListener('touchstart', enablePaint, { once: true });
             }
         }
 
@@ -272,4 +270,3 @@
     </script>
 </body>
 </html>
-
