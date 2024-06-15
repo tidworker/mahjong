@@ -135,11 +135,12 @@
             gridContainer.innerHTML = '';
             totalLetters.fill(0);
             filledLetters.fill(0);
+            currentMatrix = pattern.map(row => row.split(''));
             for (let i = 0; i < 100; i++) {
                 for (let j = 0; j < 100; j++) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
-                    const letter = pattern[i][j];
+                    const letter = currentMatrix[i][j];
                     if (letter !== '0') {
                         cell.classList.add(`letter${letter}`);
                         if (letter === 'z') {
@@ -147,7 +148,6 @@
                         } else {
                             totalLetters[getIndex(letter)]++;
                         }
-                        currentMatrix[i][j] = letter;
                     }
                     gridContainer.appendChild(cell);
                 }
