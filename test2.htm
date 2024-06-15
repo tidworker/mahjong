@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write1.1</title>
+    <title>Let's Write</title>
     <style>
         body, html {
             flex-direction: column;
@@ -117,7 +117,7 @@
             img.onerror = function() {
                 console.error("Failed to load image:", `${textSequence[currentTextIndex]}.bmp`);
             };
-            img.src = `${textSequence[currentTextIndex]}.bmp`; // 指定圖像文件的名稱
+            img.src = `${textSequence[currentTextIndex]}.bmp`; // 指定图像文件的名称
             console.log("Loading image:", img.src);
         }
 
@@ -148,7 +148,7 @@
                         if (letter === 'z') {
                             cell.style.backgroundColor = '#191919';
                         } else {
-                            totalLetters[letter.charCodeAt(0) - 97]++; // 計算每個字母的總數
+                            totalLetters[letter.charCodeAt(0) - 97]++; // 计算每个字母的总数
                         }
                     }
                     cells[i][j] = cell;
@@ -181,7 +181,7 @@
             const rect = grid.getBoundingClientRect();
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
-            if (canPaint) {
+            if (canPaint || completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 fillCircle(x, y, 10); // 将半径设置为10，增加笔刷大小
             }
         }
@@ -190,7 +190,7 @@
             const rect = grid.getBoundingClientRect();
             const x = Math.floor((e.clientX - rect.left) / 4);
             const y = Math.floor((e.clientY - rect.top) / 4);
-            if (canPaint) {
+            if (canPaint || completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 fillCircle(x, y, 10); // 将半径设置为10，增加笔刷大小
             }
         }
@@ -230,17 +230,17 @@
                     currentLetterIndex++;
                     updateCurrentLetterColor();
                 }
-                if (currentLetterIndex === 25) { // 如果当前字母是 'z'
-                    const percentageZ = (filledLetters[getLetterIndex('z')] / totalLetters[getLetterIndex('z')]) * 100;
-                    if (percentageZ >= 97) {
-                        document.getElementById('nextButton').click();
-                    }
-                }
+                canPaint = false;
+                document.addEventListener('mousedown', enablePaint, { once: true });
+                document.addEventListener('touchstart', enablePaint, { once: true });
+            }
+            if (currentLetterIndex === 25 && percentageColored >= 97) {
+                document.getElementById('nextButton').click();
             }
         }
 
-        function getLetterIndex(letter) {
-            return letter.charCodeAt(0) - 97;
+        function enablePaint() {
+            canPaint = true;
         }
 
         function nextWord() {
