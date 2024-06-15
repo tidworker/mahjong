@@ -230,14 +230,11 @@
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
             if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-                if (currentLetterIndex < 25) {
+                canPaint = false;
+                setTimeout(() => {
                     document.addEventListener('mousedown', nextLetterHandler, { once: true });
                     document.addEventListener('touchstart', nextLetterHandler, { once: true });
-                }
-                if (currentLetterIndex === 25) { // 当最后一个字母达到95%时触发
-                    canPaint = false;
-                    setTimeout(nextWord, 1000); // 延迟1秒后切换到下一个字
-                }
+                }, 1000); // 1秒后触发下一笔划
             }
         }
 
@@ -246,6 +243,14 @@
                 currentLetterIndex++;
                 updateCurrentLetterColor();
                 canPaint = true;
+            }
+            if (currentLetterIndex === 25 && currentTextIndex < textSequence.length - 1) {
+                currentTextIndex++;
+                currentLetterIndex = 0;
+                totalLetters = Array(26).fill(0);
+                filledLetters = Array(26).fill(0);
+                completedLetters.clear();
+                loadImage();
             }
         }
 
