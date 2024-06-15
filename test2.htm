@@ -12,7 +12,7 @@
             padding: 0;
             overflow: hidden;
             display: flex;
-            justify-content: flex-start; /* 水平方向置顶 */
+            justify-content: center;
             align-items: center;
             height: 100%;
         }
@@ -21,11 +21,10 @@
             flex-direction: column;
             align-items: center;
         }
-        .grid {
+        #grid {
             display: grid;
             grid-template-columns: repeat(100, 4px);
             grid-template-rows: repeat(100, 4px);
-            margin-bottom: 20px;
         }
         .cell {
             width: 4px;
@@ -35,11 +34,8 @@
         }
         .lettera, .letterb, .letterc, .letterd, .lettere, .letterf, .letterg, .letterh, .letteri, .letterj,
         .letterk, .letterl, .letterm, .lettern, .lettero, .letterp, .letterq, .letterr, .letters, .lettert,
-        .letteru, .letterv, .letterw, .letterx, .lettery {
+        .letteru, .letterv, .letterw, .letterx, .lettery, .letterz {
             background-color: #d3d3d3;
-        }
-        .letterz {
-            background-color: #191919;
         }
         .current {
             background-color: #808080;
@@ -49,9 +45,15 @@
             font-size: 5px;
             color: #F2F2F2;
         }
-        #buttons img {
+        #controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
             cursor: pointer;
-            margin: 12px;
         }
     </style>
 </head>
@@ -59,31 +61,17 @@
     <div id="container">
         <div id="grid" class="grid"></div>
         <div id="percentage">已塗色百分比：0%</div>
+        <div id="controls">
+            <button id="prevButton">Prev</button>
+            <button id="nextButton">Next</button>
+        </div>
     </div>
-
-    <div class="image-row">
-        <img src="jin.png" style="opacity: 0.3;">
-        <img src="gon.png" style="opacity: 0.3;">
-        <img src="ban.png" style="opacity: 0.3;">
-        <img src="row.png" style="opacity: 0.3;">
-        <img src="po.png" style="opacity: 0.3;">
-        <img src="ro.png" style="opacity: 0.3;">
-        <img src="mi.png" style="opacity: 0.3;">
-        <img src="jinn.png" style="opacity: 0.3;">
-    </div>
-    <br>
-    <br>
-    <div id="buttons">
-        <img src="back.png" onclick="history.back()">
-        <img src="re.png" onclick="location.reload()">
-    </div>
-    <br>
-    <br>
-    <img src="logo2.png">   
 
     <script>
         const gridContainer = document.getElementById('grid');
         const percentageDisplay = document.getElementById('percentage');
+        const nextButton = document.getElementById('nextButton');
+        const prevButton = document.getElementById('prevButton');
         const colorMap = {
             '0,0,0': 'a',
             '127,127,127': 'b',
@@ -103,6 +91,7 @@
         let completedLetters = new Set();
         let currentBlock = 0;
         let patternList = [];
+        let mouseDown = false;
 
         function loadImage() {
             const img = new Image();
@@ -115,7 +104,7 @@
                 const imageData = ctx.getImageData(0, 0, 1000, 1000);
                 processImage(imageData.data);
             };
-            img.src = 'test3.bmp'; // 指定圖像文件的名稱
+            img.src = 'test3.bmp';
         }
 
         function processImage(data) {
@@ -137,15 +126,15 @@
                     line += colorMap[colorKey] || '0';
                 }
                 pattern.push(line);
+                                }
+                pattern.push(line);
             }
             return pattern;
         }
 
         function initializeGrid(pattern) {
             gridContainer.innerHTML = '';
-            const cells = [];
             for (let i = 0; i < 100; i++) {
-                cells[i] = [];
                 for (let j = 0; j < 100; j++) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
@@ -155,32 +144,67 @@
                         if (letter === 'z') {
                             cell.style.backgroundColor = '#191919';
                         } else {
-                            totalLetters[letter.charCodeAt(0) - 97]++;
+                            totalLetters[getIndex(letter)]++;
                         }
                     }
-                    cells[i][j] = cell;
                     gridContainer.appendChild(cell);
                 }
             }
             updateCurrentLetterColor();
         }
 
+        function getIndex(letter) {
+            return letter.charCodeAt(0) - 97;
+        }
+
         function updateCurrentLetterColor() {
             const currentLetter = String.fromCharCode(97 + currentLetterIndex);
-            gridContainer.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
+            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
                 cell.classList.add('current');
             });
         }
 
-        gridContainer.addEventListener('mousedown', handleMouse);
+        gridContainer.addEventListener('mousedown', handleMouseDown);
+        gridContainer.addEventListener('mouseup', handleMouseUp);
         gridContainer.addEventListener('mousemove', function(e) {
-            if (e.buttons === 1) {
+            if (mouseDown && canPaint) {
                 handleMouse(e);
             }
         });
 
-        gridContainer.addEventListener('touchstart', handleTouch, { passive: false });
-        gridContainer.addEventListener('touchmove', handleTouch, { passive: false });
+        gridContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+        gridContainer.addEventListener('touchend', handleTouchEnd, { passive: false });
+        gridContainer.addEventListener('touchmove', function(e) {
+            if (canPaint) {
+                handleTouch(e);
+            }
+        }, { passive: false });
+
+        function handleMouseDown(e) {
+            mouseDown = true;
+            handleMouse(e);
+        }
+
+        function handleMouseUp() {
+            mouseDown = false;
+            canPaint = false;
+        }
+
+        function handleMouse(e) {
+            const rect = gridContainer.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / 4);
+            const y = Math.floor((e.clientY - rect.top) / 4);
+            handlePainting(x, y);
+        }
+
+        function handleTouchStart(e) {
+            canPaint = true;
+            handleTouch(e);
+        }
+
+        function handleTouchEnd() {
+            canPaint = false;
+        }
 
         function handleTouch(e) {
             e.preventDefault();
@@ -188,18 +212,11 @@
             const rect = gridContainer.getBoundingClientRect();
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
-            if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
-            }
+            handlePainting(x, y);
         }
 
-        function handleMouse(e) {
-            const rect = gridContainer.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / 4);
-            const y = Math.floor((e.clientY - rect.top) / 4);
-            if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
-            }
+        function handlePainting(x, y) {
+            fillCircle(x, y, 10);
         }
 
         function fillCircle(cx, cy, radius) {
@@ -212,12 +229,10 @@
                         if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
                             const targetCell = gridContainer.querySelectorAll('.cell')[ny * 100 + nx];
                             const letter = String.fromCharCode(97 + currentLetterIndex);
-                            if ((targetCell.classList.contains(`letter${letter}`) || completedLetters.has(targetCell.className.slice(-1))) && !targetCell.style.backgroundColor) {
+                            if (targetCell.classList.contains(`letter${letter}`) && !targetCell.style.backgroundColor) {
                                 targetCell.style.backgroundColor = '#000000';
-                                if (targetCell.classList.contains(`letter${letter}`)) {
-                                    filledLetters[currentLetterIndex]++;
-                                    painted = true;
-                                }
+                                filledLetters[getIndex(letter)]++;
+                                painted = true;
                             }
                         }
                     }
@@ -229,34 +244,74 @@
         }
 
         function updatePercentage() {
-            const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
-            percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (currentLetterIndex === 25 || (currentLetterIndex < 25 && percentageColored >= 97)) {
-                currentLetterIndex++;
-                if (currentLetterIndex === 26) {
-                    currentLetterIndex = 0;
-                    if (currentBlock < 99) {
-                        currentBlock++;
-                        initializeGrid(patternList[currentBlock]);
-                    } else {
-                        alert('所有矩陣已完成');
-                    }
-                } else {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            const totalCurrentLetter = totalLetters[getIndex(currentLetter)];
+            const totalCurrentFilled = filledLetters[getIndex(currentLetter)];
+            const totalPercentageColored = (totalCurrentFilled / totalCurrentLetter) * 100;
+
+            percentageDisplay.textContent = `已塗色百分比：${totalPercentageColored.toFixed(2)}%`;
+
+            if (totalPercentageColored >= 99 && !completedLetters.has(currentLetter)) {
+                completedLetters.add(currentLetter);
+                if (currentLetterIndex < 25) {
+                    currentLetterIndex++;
                     updateCurrentLetterColor();
+                    canPaint = false;
+                    document.addEventListener('mousedown', startNextLetter, { once: true });
+                    document.addEventListener('touchstart', startNextLetter, { once: true });
                 }
-                filledLetters = Array(26).fill(0); // 重置填色進度
-                totalLetters = Array(26).fill(0); // 重置總字母數量
-                canPaint = true;
+            }
+
+            const totalColored = filledLetters.reduce((a, b) => a + b, 0);
+            const totalToFill = totalLetters.reduce((a, b) => a + b, 0);
+            const overallPercentageColored = (totalColored / totalToFill) * 100;
+
+            if (overallPercentageColored >= 30) {
+                setTimeout(() => {
+                    switchToNextBlock();
+                }, 1000);
             }
         }
 
-        // 禁止滾動刷新頁面
+        function startNextLetter() {
+            canPaint = true;
+        }
+
+        function switchToNextBlock() {
+            if (currentBlock < 99) {
+                currentBlock++;
+                initializeGrid(patternList[currentBlock]);
+            } else {
+                alert('所有矩陣已完成');
+            }
+            resetPaintingState();
+        }
+
+        function switchToPrevBlock() {
+            if (currentBlock > 0) {
+                currentBlock--;
+                initializeGrid(patternList[currentBlock]);
+            }
+            resetPaintingState();
+        }
+
+        function resetPaintingState() {
+            currentLetterIndex = 0;
+            completedLetters.clear();
+            filledLetters = Array(26).fill(0);
+            totalLetters = Array(26).fill(0);
+            updateCurrentLetterColor();
+        }
+
+        nextButton.addEventListener('click', switchToNextBlock);
+        prevButton.addEventListener('click', switchToPrevBlock);
+
         document.addEventListener('touchmove', function(event) {
             event.preventDefault();
         }, { passive: false });
 
-        // 初始化遊戲
         window.onload = loadImage;
     </script>
 </body>
 </html>
+
