@@ -6,12 +6,12 @@
     <title>Let's Write</title>
     <style>
         body, html {
+            display: flex;
             flex-direction: column;
             background-color: #F2F2F2;
             margin: 0;
             padding: 0;
             overflow: hidden;
-            display: flex;
             justify-content: center;
             align-items: center;
             height: 100%;
@@ -115,7 +115,8 @@
             for (let block = 0; block < 100; block++) {
                 const startX = (block % 10) * 100;
                 const startY = Math.floor(block / 10) * 100;
-                patternList.push(createPattern(data, startX, startY));
+                const pattern = createPattern(data, startX, startY);
+                patternList.push(pattern);
             }
             switchToNextBlock();
         }
@@ -316,4 +317,4 @@
         window.onload = loadImage;
     </script>
 </body>
-</html/>
+</html>
