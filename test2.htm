@@ -89,41 +89,40 @@
         let currentLetterIndex = 0;
         let canPaint = true;
         let completedLetters = new Set();
-        let currentBlock = 0;
-        let patternList = [];
-        let mouseDown = false;
         let currentMatrix = Array.from({ length: 100 }, () => Array(100).fill('0'));
+        let mouseDown = false;
 
         // 載入圖像並處理數據
         function loadImage() {
             const img = new Image();
-            img.onload = function() {
+            img.onload = function () {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 canvas.width = 1000;
                 canvas.height = 1000;
                 ctx.drawImage(img, 0, 0, 1000, 1000);
                 const imageData = ctx.getImageData(0, 0, 1000, 1000);
-                processImage(imageData.data);
+                const patterns = extractPatterns(imageData.data);
+                setupPatterns(patterns);
             };
             img.src = 'test3.bmp';
         }
 
-        // 處理圖像數據並生成字符矩陣
-        function processImage(data) {
-            patternList = []; // 清空現有的圖案
+        // 提取圖像中的字符模式
+        function extractPatterns(data) {
+            let patterns = [];
             for (let block = 0; block < 100; block++) {
                 const startX = (block % 10) * 100;
                 const startY = Math.floor(block / 10) * 100;
                 const pattern = createPattern(data, startX, startY);
-                patternList.push(pattern);
+                patterns.push(pattern);
             }
-            switchToNextBlock();
+            return patterns;
         }
 
-        // 根據色彩地圖創建字符矩陣
+        // 根據色彩地圖創建字符模式
         function createPattern(data, startX, startY) {
-            const pattern = [];
+            let pattern = [];
             for (let i = 0; i < 100; i++) {
                 let line = '';
                 for (let j = 0; j < 100; j++) {
@@ -134,6 +133,15 @@
                 pattern.push(line);
             }
             return pattern;
+        }
+
+        // 設置模式並初始化第一個矩陣
+        function setupPatterns(patterns) {
+            totalLetters = Array(26).fill(0);
+            filledLetters = Array(26).fill(0);
+            currentMatrix = Array.from({ length: 100 }, () => Array(100).fill('0'));
+            patternList = patterns;
+            initializeGrid(patterns[0]);
         }
 
         // 初始化網格
@@ -175,7 +183,7 @@
         // 事件處理
         gridContainer.addEventListener('mousedown', handleMouseDown);
         gridContainer.addEventListener('mouseup', handleMouseUp);
-        gridContainer.addEventListener('mousemove', function(e) {
+        gridContainer.addEventListener('mousemove', function (e) {
             if (mouseDown && canPaint) {
                 handleMouse(e);
             }
@@ -183,7 +191,7 @@
 
         gridContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
         gridContainer.addEventListener('touchend', handleTouchEnd, { passive: false });
-        gridContainer.addEventListener('touchmove', function(e) {
+        gridContainer.addEventListener('touchmove', function (e) {
             if (canPaint) {
                 handleTouch(e);
             }
@@ -282,7 +290,7 @@
         }
 
         function switchToNextBlock() {
-            if (currentBlock < 99) {
+            if (currentBlock < patternList.length - 1) {
                 currentBlock++;
                 initializeGrid(patternList[currentBlock]);
             } else {
@@ -310,7 +318,7 @@
         nextButton.addEventListener('click', switchToNextBlock);
         prevButton.addEventListener('click', switchToPrevBlock);
 
-        document.addEventListener('touchmove', function(event) {
+        document.addEventListener('touchmove', function (event) {
             event.preventDefault();
         }, { passive: false });
 
