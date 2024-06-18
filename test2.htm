@@ -109,149 +109,146 @@
         }
 
         function processImage(data) {
+            patternList = []; // 清空現有的圖案
             for (let block = 0; block < 100; block++) {
                 const startX = (block % 10) * 100;
                 const startY = Math.floor(block / 10) * 100;
                 patternList.push(createPattern(data, startX, startY));
             }
-            switchToNext
-function processImage(data) {
-    for (let block = 0; block < 100; block++) {
-        const startX = (block % 10) * 100;
-        const startY = Math.floor(block / 10) * 100;
-        patternList.push(createPattern(data, startX, startY));
-    }
-    switchToNextBlock();
-}
-
-function createPattern(data, startX, startY) {
-    const pattern = [];
-    for (let i = 0; i < 100; i++) {
-        let line = '';
-        for (let j = 0; j < 100; j++) {
-            const index = 4 * ((startY + i) * 1000 + (startX + j));
-            const colorKey = `${data[index]},${data[index + 1]},${data[index + 2]}`;
-            line += colorMap[colorKey] || '0';
+            switchToNextBlock();
         }
-        pattern.push(line);
-    }
-    return pattern;
-}
 
-function initializeGrid(pattern) {
-    gridContainer.innerHTML = '';
-    totalLetters.fill(0);
-    filledLetters.fill(0);
-    currentMatrix = pattern.map(row => row.split(''));
-    for (let i = 0; i < 100; i++) {
-        for (let j = 0; j < 100; j++) {
-            const cell = document.createElement('div');
-            cell.className = 'cell';
-            const letter = currentMatrix[i][j];
-            if (letter !== '0') {
-                cell.classList.add(`letter${letter}`);
-                if (letter === 'z') {
-                    cell.style.backgroundColor = '#191919';
-                } else {
-                    totalLetters[getIndex(letter)]++;
+        function createPattern(data, startX, startY) {
+            const pattern = [];
+            for (let i = 0; i < 100; i++) {
+                let line = '';
+                for (let j = 0; j < 100; j++) {
+                    const index = 4 * ((startY + i) * 1000 + (startX + j));
+                    const colorKey = `${data[index]},${data[index + 1]},${data[index + 2]}`;
+                    line += colorMap[colorKey] || '0';
+                }
+                pattern.push(line);
+            }
+            return pattern;
+        }
+
+        function initializeGrid(pattern) {
+            gridContainer.innerHTML = '';
+            totalLetters.fill(0);
+            filledLetters.fill(0);
+            currentMatrix = pattern.map(row => row.split(''));
+            for (let i = 0; i < 100; i++) {
+                for (let j = 0; j < 100; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    const letter = currentMatrix[i][j];
+                    if (letter !== '0') {
+                        cell.classList.add(`letter${letter}`);
+                        if (letter === 'z') {
+                            cell.style.backgroundColor = '#191919';
+                        } else {
+                            totalLetters[getIndex(letter)]++;
+                        }
+                    }
+                    gridContainer.appendChild(cell);
                 }
             }
-            gridContainer.appendChild(cell);
+            updateCurrentLetterColor();
         }
-    }
-    updateCurrentLetterColor();
-}
 
-function getIndex(letter) {
-    return letter.charCodeAt(0) - 97;
-}
+        function getIndex(letter) {
+            return letter.charCodeAt(0) - 97;
+        }
 
-function updateCurrentLetterColor() {
-    const currentLetter = String.fromCharCode(97 + currentLetterIndex);
-    document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
-        cell.classList.add('current');
-    });
-}
+        function updateCurrentLetterColor() {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
+                cell.classList.add('current');
+            });
+        }
 
-gridContainer.addEventListener('mousedown', handleMouseDown);
-gridContainer.addEventListener('mouseup', handleMouseUp);
-gridContainer.addEventListener('mousemove', function(e) {
-    if (mouseDown && canPaint) {
-        handleMouse(e);
-    }
-});
+        gridContainer.addEventListener('mousedown', handleMouseDown);
+        gridContainer.addEventListener('mouseup', handleMouseUp);
+        gridContainer.addEventListener('mousemove', function(e) {
+            if (mouseDown && canPaint) {
+                handleMouse(e);
+            }
+        });
 
-gridContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
-gridContainer.addEventListener('touchend', handleTouchEnd, { passive: false });
-gridContainer.addEventListener('touchmove', function(e) {
-    if (canPaint) {
-        handleTouch(e);
-    }
-}, { passive: false });
+        gridContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+        gridContainer.addEventListener('touchend', handleTouchEnd, { passive: false });
+        gridContainer.addEventListener('touchmove', function(e) {
+            if (canPaint) {
+                handleTouch(e);
+            }
+        }, { passive: false });
 
-function handleMouseDown(e) {
-    mouseDown = true;
-    handleMouse(e);
-}
+        function handleMouseDown(e) {
+            mouseDown = true;
+            handleMouse(e);
+        }
 
-function handleMouseUp() {
-    mouseDown = false;
-    canPaint = false;
-}
+        function handleMouseUp() {
+            mouseDown = false;
+            canPaint = false;
+        }
 
-function handleMouse(e) {
-    const rect = gridContainer.getBoundingClientRect();
-    const x = Math.floor((e.clientX - rect.left) / 4);
-    const y = Math.floor((e.clientY - rect.top) / 4);
-    handlePainting(x, y);
-}
+        function handleMouse(e) {
+            const rect = gridContainer.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / 4);
+            const y = Math.floor((e.clientY - rect.top) / 4);
+            handlePainting(x, y);
+        }
 
-function handleTouchStart(e) {
-    canPaint = true;
-    handleTouch(e);
-}
+        function handleTouchStart(e) {
+            canPaint = true;
+            handleTouch(e);
+        }
 
-function handleTouchEnd() {
-    canPaint = false;
-}
+        function handleTouchEnd() {
+            canPaint = false;
+        }
 
-function handleTouch(e) {
-    e.preventDefault();
-    const touch = e.touches[0];
-    const rect = gridContainer.getBoundingClientRect();
-    const x = Math.floor((touch.clientX - rect.left) / 4);
-    const y = Math.floor((touch.clientY - rect.top) / 4);
-    handlePainting(x, y);
-}
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = gridContainer.getBoundingClientRect();
+            const x = Math.floor((touch.clientX - rect.left) / 4);
+            const y = Math.floor((touch.clientY - rect.top) / 4);
+            handlePainting(x, y);
+        }
 
-function handlePainting(x, y) {
-    fillCircle(x, y, 10);
-}
+        function handlePainting(x, y) {
+            fillCircle(x, y, 10);
+        }
 
-function fillCircle(cx, cy, radius) {
-    let painted = false;
-    for (let i = -radius; i <= radius; i++) {
-        for (let j = -radius; j <= radius; j++) {
-            if (i * i + j * j <= radius * radius) {
-                const nx = cx + j;
-                const ny = cy + i;
-                if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
-                    const targetCell = gridContainer.querySelectorAll('.cell')[ny * 100 + nx];
-                    const letter = currentMatrix[ny][nx];
-                    if (letter === String.fromCharCode(97 + currentLetterIndex) && !targetCell.style.backgroundColor) {
-                        targetCell.style.backgroundColor = '#000000';
-                        filledLetters[getIndex(letter)]++;
-                        painted = true;
+        function fillCircle(cx, cy, radius) {
+            let painted = false;
+            for (let i = -radius; i <= radius; i++) {
+                for (let j = -radius; j <= radius; j++) {
+                    if (i * i + j * j <= radius * radius) {
+                        const nx = cx + j;
+                        const ny = cy + i;
+                        if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
+                            const targetCell = gridContainer.querySelectorAll('.cell')[ny * 100 + nx];
+                            const letter = currentMatrix[ny][nx];
+                            if (letter === String.fromCharCode(97 + currentLetterIndex) && !targetCell.style.backgroundColor) {
+                                targetCell.style.backgroundColor = '#000000';
+                                filledLetters[getIndex(letter)]++;
+                                painted = true;
+                            }
+                        }
                     }
                 }
             }
+            if (painted) {
+                updatePercentage();
+            }
         }
-    }
-    if (painted) {
-        updatePercentage();
-    }
-}
 
+        function updatePercentage() {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            const total
 function updatePercentage() {
     const currentLetter = String.fromCharCode(97 + currentLetterIndex);
     const totalCurrentLetter = totalLetters[getIndex(currentLetter)];
