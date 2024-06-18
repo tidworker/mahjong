@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write</title>
+    <title>Let's Write1.0</title>
     <style>
         body, html {
             flex-direction: column;
@@ -132,7 +132,6 @@
                 }
                 pattern.push(line);
             }
-            console.log(pattern); // 用于调试，打印转换后的矩阵
             initializeGrid(pattern);
         }
 
@@ -240,8 +239,7 @@
         function updatePercentage() {
             const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 100 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
-                completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
+            if (percentageColored >= 100 && !completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
                 if (currentLetterIndex < 25) {
                     currentLetterIndex++;
                     updateCurrentLetterColor();
