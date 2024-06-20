@@ -55,8 +55,6 @@
     </style>
 </head>
 <body>
-
-    <br><br>
     <div id="container">
         <div id="grid"></div>
         <div id="percentage">已塗色百分比：0%</div>
@@ -99,6 +97,8 @@
             '63,72,204': 'i'
         };
 
+        let currentImageIndex = 1;
+
         function loadImage() {
             const img = new Image();
             img.onload = function() {
@@ -110,7 +110,14 @@
                 const imageData = ctx.getImageData(0, 0, 100, 100);
                 convertToPattern(imageData.data);
             };
-            img.src = 'test.bmp'; // 指定圖像文件的名稱
+            img.onerror = function() {
+                console.error('Failed to load image:', getImageSrc());
+            };
+            img.src = getImageSrc();
+        }
+
+        function getImageSrc() {
+            return `${currentImageIndex.toString().padStart(4, '0')}.bmp`;
         }
 
         function convertToPattern(data) {
@@ -227,8 +234,11 @@
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
                 if (currentLetterIndex === 7) { // 當前字母為 'h'
                     setTimeout(() => {
-                        window.location.href = '000002.htm';
-                    }, 1000); // 1秒後跳轉頁面
+                        currentImageIndex++;
+                        if (currentImageIndex <= 5000) {
+                            loadImage(); // 切換到下一張圖像
+                        }
+                    }, 1000); // 1秒後切換圖像
                 }
                 canPaint = true;
                 const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
