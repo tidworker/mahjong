@@ -60,6 +60,27 @@
         <div id="percentage">已塗色百分比：0%</div>
     </div>
 
+    <div class="image-row">
+        <img src="jin.png" style="opacity: 0.3;">
+        <img src="gon.png" style="opacity: 0.3;">
+        <img src="ban.png" style="opacity: 0.3;">
+        <img src="row.png" style="opacity: 0.3;">
+        <img src="po.png" style="opacity: 0.3;">
+        <img src="ro.png" style="opacity: 0.3;">
+        <img src="mi.png" style="opacity: 0.3;">
+        <img src="jinn.png" style="opacity: 0.3;">
+    </div>
+    <br>
+    <br>
+    <div id="buttons">
+        <img src="back.png" onclick="history.back()">
+        <img src="re.png" onclick="location.reload()">
+        <img src="next.png" onclick="window.location.href='000002.htm'">
+    </div>
+    <br>
+    <br>
+    <img src="logo2.png">   
+
     <script>
         const grid = document.getElementById('grid');
         const percentageDisplay = document.getElementById('percentage');
@@ -123,7 +144,11 @@
                     const letter = pattern[i][j];
                     if (letter !== '0') {
                         cell.classList.add(`letter${letter}`);
-                        totalLetters[letter.charCodeAt(0) - 97]++;
+                        if (letter === 'z') {
+                            cell.style.backgroundColor = '#191919';
+                        } else {
+                            totalLetters[letter.charCodeAt(0) - 97]++; // 計算每個字母的總數
+                        }
                     }
                     cells[i][j] = cell;
                     grid.appendChild(cell);
@@ -177,7 +202,6 @@
         }
 
         function fillCircle(cx, cy, radius) {
-            let painted = false;
             for (let i = -radius; i <= radius; i++) {
                 for (let j = -radius; j <= radius; j++) {
                     if (i * i + j * j <= radius * radius) {
@@ -190,16 +214,13 @@
                                 targetCell.style.backgroundColor = '#000000';
                                 if (targetCell.classList.contains(`letter${letter}`)) {
                                     filledLetters[currentLetterIndex]++;
-                                    painted = true;
                                 }
                             }
                         }
                     }
                 }
             }
-            if (painted) {
-                updatePercentage();
-            }
+            updatePercentage();
         }
 
         function updatePercentage() {
@@ -207,17 +228,22 @@
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
             if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-                currentLetterIndex++;
-                if (currentLetterIndex < 26) {
-                    updateCurrentLetterColor();
+                if (currentLetterIndex === 25) { // 完成所有字母後加載下一張圖像
+                    setTimeout(() => {
+                        currentImageIndex++;
+                        if (currentImageIndex <= 5000) {
+                            completedLetters.clear();
+                            currentLetterIndex = 0;
+                            totalLetters.fill(0);
+                            filledLetters.fill(0);
+                            loadImage(); // 切換到下一張圖像
+                        } else {
+                            console.log("所有圖片已處理完畢");
+                        }
+                    }, 1000);
                 } else {
-                    currentLetterIndex = 0;
-                    currentImageIndex++;
-                    if (currentImageIndex <= 5000) {
-                        loadImage();
-                    } else {
-                        console.log("所有圖片已處理完畢");
-                    }
+                    currentLetterIndex++;
+                    updateCurrentLetterColor();
                 }
             }
         }
