@@ -55,7 +55,6 @@
     </style>
 </head>
 <body>
-
     <br><br>
     <div id="container">
         <div id="grid"></div>
@@ -153,7 +152,7 @@
                         if (letter === 'z') {
                             cell.style.backgroundColor = '#191919';
                         } else {
-                            totalLetters[letter.charCodeAt(0) - 97]++; // 計算每個字母的總數
+                            totalLetters[letter.charCodeAt(0) - 97]++;
                         }
                     }
                     cells[i][j] = cell;
@@ -170,22 +169,12 @@
             });
         }
 
-        function removeCurrentLetterColor() {
-            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
-            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
-                cell.classList.remove('current');
-            });
+        function handleMouse(e) {
+            const rect = grid.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / 4);
+            const y = Math.floor((e.clientY - rect.top) / 4);
+            fillCircle(x, y, 10);
         }
-
-        grid.addEventListener('mousedown', handleMouse);
-        grid.addEventListener('mousemove', function(e) {
-            if (e.buttons === 1) {
-                handleMouse(e);
-            }
-        });
-
-        grid.addEventListener('touchstart', handleTouch, { passive: false });
-        grid.addEventListener('touchmove', handleTouch, { passive: false });
 
         function handleTouch(e) {
             e.preventDefault();
@@ -193,18 +182,7 @@
             const rect = grid.getBoundingClientRect();
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
-            if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
-            }
-        }
-
-        function handleMouse(e) {
-            const rect = grid.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / 4);
-            const y = Math.floor((e.clientY - rect.top) / 4);
-            if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
-            }
+            fillCircle(x, y, 10);
         }
 
         function fillCircle(cx, cy, radius) {
@@ -258,18 +236,20 @@
             }
         }
 
-        let currentLetterIndex = 0;
-        let totalLetters = Array(26).fill(0);
-        let filledLetters = Array(26).fill(0);
-        let canPaint = true;
-        let completedLetters = new Set();
+        grid.addEventListener('mousedown', handleMouse);
+        grid.addEventListener('mousemove', function(e) {
+            if (e.buttons === 1) {
+                handleMouse(e);
+            }
+        });
 
-        // 禁止滾動刷新頁面
+        grid.addEventListener('touchstart', handleTouch, { passive: false });
+        grid.addEventListener('touchmove', handleTouch, { passive: false });
+
         document.addEventListener('touchmove', function(event) {
             event.preventDefault();
         }, { passive: false });
 
-        // 初始化遊戲
         window.onload = loadImage;
     </script>
 </body>
