@@ -59,6 +59,10 @@
         let mouseDown = false;
         let canPaint = true;
         let lastX = -1, lastY = -1;
+        let currentLetter = 'a'; // 当前要填色的字母
+        const letters = 'abcdefghijklmnoqrstuvwxyz'.split('');
+        let filledCells = 0; // 当前字母已填色的单元格数量
+        let totalCells = 0; // 当前字母的总单元格数量
 
         const colorMap = {
             '0,0,0': 'a',
@@ -107,7 +111,7 @@
                             const g = data[index + 1];
                             const b = data[index + 2];
                             const colorKey = `${r},${g},${b}`;
-                            const letter = colorMap[colorKey] || '0';  // 將色碼轉換為對應的字母
+                            const letter = colorMap[colorKey] || '0';  // 将色码转换为对应的字母
                             row.push(letter);
                         }
                         block.push(row);
@@ -122,6 +126,8 @@
             const container = document.getElementById('matrix-container');
             container.innerHTML = '';
             currentMatrix = blocks[index];
+            filledCells = 0;
+            totalCells = 0;
             for (let i = 0; i < currentMatrix.length; i++) {
                 for (let j = 0; j < currentMatrix[i].length; j++) {
                     const cell = document.createElement('div');
@@ -129,6 +135,9 @@
                     const letter = currentMatrix[i][j];
                     if (letter !== '0') {
                         cell.classList.add(`letter${letter}`);
+                        if (letter === currentLetter) {
+                            totalCells++;
+                        }
                     } else {
                         cell.classList.add('letter0');
                     }
@@ -179,6 +188,7 @@
             canPaint = false;
             lastX = -1;
             lastY = -1;
+            checkIfLetterFilled();
         }
 
         function handleMouse(e) {
@@ -232,11 +242,61 @@
             if (cx >= 0 && cx < 100 && cy >= 0 && cy < 100) {
                 const cellIndex = cy * 100 + cx;
                 const cell = document.querySelector(`#matrix-container .cell:nth-child(${cellIndex + 1})`);
-                if (cell && !cell.classList.contains('letter0')) {  // 不允許上色0的部分
-                    cell.style.backgroundColor = '#000000';
+                if (cell && !cell.classList.contains('letter0') && cell.classList.contains(`letter${currentLetter}`))function fillCell(cx, cy) {
+    if (cx >= 0 && cx < 100 && cy >= 0 && cy < 100) {
+        const cellIndex = cy * 100 + cx;
+        const cell = document.querySelector(`#matrix-container .cell:nth-child(${cellIndex + 1})`);
+        if (cell && !cell.classList.contains('letter0') && cell.classList.contains(`letter${currentLetter}`)) {  
+            cell.style.backgroundColor = '#000000';
+            filledCells++;
+            if (filledCells >= totalCells) {
+                moveToNextLetter();
+            }
+        }
+    }
+}
+
+function checkIfLetterFilled() {
+    if (filledCells >= totalCells) {
+        moveToNextLetter();
+    }
+}
+
+function moveToNextLetter() {
+    const currentLetterIndex = letters.indexOf(currentLetter);
+    if (currentLetterIndex < letters.length - 1) {
+        currentLetter = letters[currentLetterIndex + 1];
+        filledCells = 0;
+        totalCells = 0;
+        // 重新计算新字母的总单元格数量
+        for (let i = 0; i < currentMatrix.length; i++) {
+            for (let j = 0; j < currentMatrix[i].length; j++) {
+                const letter = currentMatrix[i][j];
+                if (letter === currentLetter) {
+                    totalCells++;
                 }
             }
         }
-    </script>
+    }
+}
+
+// 初始化并显示第一个字母的单元格数量
+window.onload = function() {
+    const img = new Image();
+    img.onload = function() {
+        processImage(img);
+        // 计算初始字母的总单元格数量
+        for (let i = 0; i < currentMatrix.length; i++) {
+            for (let j = 0; j < currentMatrix[i].length; j++) {
+                const letter = currentMatrix[i][j];
+                if (letter === currentLetter) {
+                    totalCells++;
+                }
+            }
+        }
+    };
+    img.src = 'test3.bmp';
+};
+</script>
 </body>
 </html>
