@@ -99,6 +99,9 @@
             '255,255,255': '0'  // 白色代表0，不可上色
         };
 
+        let blocks = [];
+        let currentBlockIndex = 0;
+
         function loadImage() {
             const img = new Image();
             img.onload = function() {
@@ -114,7 +117,6 @@
         }
 
         function processImage(data) {
-            const blocks = [];
             for (let blockY = 0; blockY < 10; blockY++) {
                 for (let blockX = 0; blockX < 10; blockX++) {
                     const block = [];
@@ -136,11 +138,13 @@
                     blocks.push(block);
                 }
             }
-            initializeGrid(blocks[0]);
+            displayBlock(0);
         }
 
-        function initializeGrid(pattern) {
+        function displayBlock(index) {
             grid.innerHTML = '';
+            currentBlockIndex = index;
+            const pattern = blocks[index];
             for (let i = 0; i < 100; i++) {
                 cells[i] = [];
                 for (let j = 0; j < 100; j++) {
@@ -237,14 +241,31 @@
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
             if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-                canPaint = true;
-                const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
-                document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
-                    cell.classList.add('current');
-                });
-                if (currentLetterIndex < 25) {
-                    document.addEventListener('mousedown', nextLetterHandler, { once: true });
-                    document.addEventListener('touchstart', nextLetterHandler, { once: true });
+                moveToNextLetterOrBlock();
+            }
+        }
+
+        function moveToNextLetterOrBlock() {
+            const currentLetterIndex = letters.indexOf(currentLetter);
+            if (currentLetterIndex < letters.length - 1) {
+                currentLetterIndex++;
+                filledCells = 0;
+                totalCells = 0;
+                // 重新计算新字母的总单元格数量
+                for (let i = 0; i < currentMatrix.length; i++) {
+                    for (let j = 0; j < currentMatrix[i].length; j++) {
+                        const letter = currentMatrix[i][j];
+                        if (letter === currentLetter) {
+                            totalCells++;
+                        }
+                    }
+                }
+                updateCurrentLetterColor();
+            } else {
+                if (currentBlockIndex < blocks.length - 1) {
+                    displayBlock(currentBlockIndex + 1);
+                } else {
+                    alert('所有字母已完成');
                 }
             }
         }
