@@ -169,6 +169,8 @@
         function handleMouseDown(e) {
             mouseDown = true;
             canPaint = true;
+            lastX = -1;
+            lastY = -1;
             handleMouse(e);
         }
 
@@ -200,6 +202,11 @@
         }
 
         function paintLine(x0, y0, x1, y1) {
+            if (x0 === -1 || y0 === -1) {
+                fillCell(x1, y1);
+                return;
+            }
+
             const dx = Math.abs(x1 - x0);
             const dy = Math.abs(y1 - y0);
             const sx = (x0 < x1) ? 1 : -1;
