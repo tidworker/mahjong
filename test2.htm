@@ -27,6 +27,9 @@
             height: 4px;
             background-color: #fff;
         }
+        .lettera, .letterb, .letterc, .letterd, .lettere, .letterf, .letterg, .letterh, .letteri {
+            background-color: #d3d3d3;
+        }
         #controls {
             margin-top: 20px;
         }
@@ -50,6 +53,21 @@
         let currentBlockIndex = 0;
         let blocks = [];
         let currentMatrix = [];
+        let mouseDown = false;
+        let canPaint = true;
+
+        const colorMap = {
+            '0,0,0': 'a',
+            '127,127,127': 'b',
+            '136,0,21': 'c',
+            '237,28,36': 'd',
+            '255,127,39': 'e',
+            '255,242,0': 'f',
+            '34,177,76': 'g',
+            '0,162,232': 'h',
+            '63,72,204': 'i',
+            '255,255,255': '0'  // 白色代表0，不可上色
+        };
 
         window.onload = function() {
             const img = new Image();
@@ -84,8 +102,9 @@
                             const r = data[index];
                             const g = data[index + 1];
                             const b = data[index + 2];
-                            const colorKey = `rgb(${r},${g},${b})`;
-                            row.push(colorKey);
+                            const colorKey = `${r},${g},${b}`;
+                            const letter = colorMap[colorKey] || '0';  // 將色碼轉換為對應的字母
+                            row.push(letter);
                         }
                         block.push(row);
                     }
@@ -103,7 +122,10 @@
                 for (let j = 0; j < currentMatrix[i].length; j++) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
-                    cell.style.backgroundColor = currentMatrix[i][j];
+                    const letter = currentMatrix[i][j];
+                    if (letter !== '0') {
+                        cell.classList.add(`letter${letter}`);
+                    }
                     container.appendChild(cell);
                 }
             }
@@ -124,18 +146,23 @@
         });
 
         document.getElementById('matrix-container').addEventListener('mousedown', handleMouseDown);
+        document.getElementById('matrix-container').addEventListener('touchstart', handleMouseDown, { passive: false });
         document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('touchend', handleMouseUp, { passive: false });
         document.getElementById('matrix-container').addEventListener('mousemove', function(e) {
             if (mouseDown && canPaint) {
                 handleMouse(e);
             }
         });
-
-        let mouseDown = false;
-        let canPaint = true;
+        document.getElementById('matrix-container').addEventListener('touchmove', function(e) {
+            if (canPaint) {
+                handleTouch(e);
+            }
+        }, { passive: false });
 
         function handleMouseDown(e) {
             mouseDown = true;
+            canPaint = true;
             handleMouse(e);
         }
 
@@ -151,6 +178,15 @@
             fillCircle(x, y, 10);
         }
 
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = document.getElementById('matrix-container').getBoundingClientRect();
+            const x = Math.floor((touch.clientX - rect.left) / 4);
+            const y = Math.floor((touch.clientY - rect.top) / 4);
+            fillCircle(x, y, 10);
+        }
+
         function fillCircle(cx, cy, radius) {
             for (let i = -radius; i <= radius; i++) {
                 for (let j = -radius; j <= radius; j++) {
@@ -158,8 +194,11 @@
                         const nx = cx + j;
                         const ny = cy + i;
                         if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
-                            const cell = document.querySelector(`#matrix-container .cell:nth-child(${ny * 100 + nx + 1})`);
-                            cell.style.backgroundColor = '#000000';
+                            const cellIndex = ny * 100 + nx;
+                            const cell = document.querySelector(`#matrix-container .cell:nth-child(${cellIndex + 1})`);
+                            if (cell && !cell.classList.contains('letter0')) {  // 不允許上色0的部分
+                                cell.style.backgroundColor = '#000000';
+                            }
                         }
                     }
                 }
