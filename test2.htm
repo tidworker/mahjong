@@ -78,14 +78,14 @@
                     const startX = blockX * 100;
                     const startY = blockY * 100;
                     for (let y = 0; y < 100; y++) {
-                        let row = '';
+                        let row = [];
                         for (let x = 0; x < 100; x++) {
                             const index = 4 * ((startY + y) * 1000 + (startX + x));
                             const r = data[index];
                             const g = data[index + 1];
                             const b = data[index + 2];
                             const colorKey = `${r},${g},${b}`;
-                            row += colorKey + ' ';
+                            row.push(colorKey);
                         }
                         block.push(row);
                     }
@@ -97,7 +97,11 @@
 
         function displayBlock(index) {
             const container = document.getElementById('matrix-container');
-            container.textContent = blocks[index].join('\n');
+            container.textContent = '';
+            const block = blocks[index];
+            for (let i = 0; i < block.length; i++) {
+                container.textContent += block[i].join(' ') + '\n';
+            }
         }
 
         document.getElementById('prevButton').addEventListener('click', function() {
