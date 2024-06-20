@@ -12,7 +12,7 @@
             padding: 0;
             overflow: hidden;
             display: flex;
-            justify-content: flex-start;
+            justify-content: flex-start; /* 水平方向置顶 */
             align-items: center;
             height: 100%;
         }
@@ -55,6 +55,7 @@
     </style>
 </head>
 <body>
+
     <br><br>
     <div id="container">
         <div id="grid"></div>
@@ -76,11 +77,10 @@
     <div id="buttons">
         <img src="back.png" onclick="history.back()">
         <img src="re.png" onclick="location.reload()">
-        <img src="next.png" onclick="displayNextBlock()">
     </div>
     <br>
     <br>
-    <img src="logo2.png">
+    <img src="logo2.png">   
 
     <script>
         const grid = document.getElementById('grid');
@@ -95,64 +95,45 @@
             '255,242,0': 'f',
             '34,177,76': 'g',
             '0,162,232': 'h',
-            '63,72,204': 'i',
-            '255,255,255': '0'  // 白色代表0，不可上色
+            '63,72,204': 'i'
         };
 
-        let blocks = [];
-        let currentBlockIndex = 0;
-        let currentLetterIndex = 0;
-        let totalLetters = Array(26).fill(0);
-        let filledLetters = Array(26).fill(0);
-        let completedLetters = new Set();
-        let canPaint = true;
+        let currentImageIndex = 1;
 
         function loadImage() {
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                canvas.width = 1000;
-                canvas.height = 1000;
-                ctx.drawImage(img, 0, 0, 1000, 1000);
-                const imageData = ctx.getImageData(0, 0, 1000, 1000);
-                processImage(imageData.data);
+                canvas.width = 100;
+                canvas.height = 100;
+                ctx.drawImage(img, 0, 0, 100, 100);
+                const imageData = ctx.getImageData(0, 0, 100, 100);
+                convertToPattern(imageData.data);
             };
-            img.src = 'test3.bmp';
+            img.src = getImageSrc(); // 使用 getImageSrc() 來獲取圖像文件名
         }
 
-        function processImage(data) {
-            for (let blockY = 0; blockY < 10; blockY++) {
-                for (let blockX = 0; blockX < 10; blockX++) {
-                    const block = [];
-                    const startX = blockX * 100;
-                    const startY = blockY * 100;
-                    for (let y = 0; y < 100; y++) {
-                        const row = [];
-                        for (let x = 0; x < 100; x++) {
-                            const index = 4 * ((startY + y) * 1000 + (startX + x));
-                            const r = data[index];
-                            const g = data[index + 1];
-                            const b = data[index + 2];
-                            const colorKey = `${r},${g},${b}`;
-                            const letter = colorMap[colorKey] || '0';
-                            row.push(letter);
-                        }
-                        block.push(row);
-                    }
-                    blocks.push(block);
+        function getImageSrc() {
+            return `000${currentImageIndex.toString().padStart(3, '0')}.bmp`;
+        }
+
+        function convertToPattern(data) {
+            const pattern = [];
+            for (let i = 0; i < 100; i++) {
+                let line = '';
+                for (let j = 0; j < 100; j++) {
+                    const index = 4 * (i * 100 + j);
+                    const colorKey = `${data[index]},${data[index + 1]},${data[index + 2]}`;
+                    line += colorMap[colorKey] || '0';
                 }
+                pattern.push(line);
             }
-            displayBlock(0);
+            initializeGrid(pattern);
         }
 
-        function displayBlock(index) {
+        function initializeGrid(pattern) {
             grid.innerHTML = '';
-            currentBlockIndex = index;
-            const pattern = blocks[index];
-            totalLetters.fill(0);
-            filledLetters.fill(0);
-            completedLetters.clear(); // 清除已完成的字母
             for (let i = 0; i < 100; i++) {
                 cells[i] = [];
                 for (let j = 0; j < 100; j++) {
@@ -161,7 +142,11 @@
                     const letter = pattern[i][j];
                     if (letter !== '0') {
                         cell.classList.add(`letter${letter}`);
-                        totalLetters[letter.charCodeAt(0) - 97]++;
+                        if (letter === 'z') {
+                            cell.style.backgroundColor = '#191919';
+                        } else {
+                            totalLetters[letter.charCodeAt(0) - 97]++; // 計算每個字母的總數
+                        }
                     }
                     cells[i][j] = cell;
                     grid.appendChild(cell);
@@ -201,7 +186,7 @@
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
             if (canPaint) {
-                fillCircle(x, y, 10);
+                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
             }
         }
 
@@ -210,7 +195,7 @@
             const x = Math.floor((e.clientX - rect.left) / 4);
             const y = Math.floor((e.clientY - rect.top) / 4);
             if (canPaint) {
-                fillCircle(x, y, 10);
+                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
             }
         }
 
@@ -224,10 +209,12 @@
                         if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
                             const targetCell = cells[ny][nx];
                             const letter = String.fromCharCode(97 + currentLetterIndex);
-                            if (targetCell.classList.contains(`letter${letter}`) && !targetCell.style.backgroundColor) {
+                            if ((targetCell.classList.contains(`letter${letter}`) || completedLetters.has(targetCell.className.slice(-1))) && !targetCell.style.backgroundColor) {
                                 targetCell.style.backgroundColor = '#000000';
-                                filledLetters[currentLetterIndex]++;
-                                painted = true;
+                                if (targetCell.classList.contains(`letter${letter}`)) {
+                                    filledLetters[currentLetterIndex]++;
+                                    painted = true;
+                                }
                             }
                         }
                     }
@@ -241,33 +228,41 @@
         function updatePercentage() {
             const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 95) {
-                moveToNextLetterOrBlock();
-            }
-        }
-
-        function moveToNextLetterOrBlock() {
-            removeCurrentLetterColor();
-            completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-            if (currentLetterIndex < 25) {
-                currentLetterIndex++;
-                updateCurrentLetterColor();
-            } else {
-                if (currentBlockIndex < blocks.length - 1) {
-                    currentLetterIndex = 0; // 重置字母索引
-                    displayBlock(currentBlockIndex + 1);
-                } else {
-                    alert('所有區塊已完成');
+            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
+                completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
+                if (currentLetterIndex === 7) { // 當前字母為 'h'
+                    setTimeout(() => {
+                        currentImageIndex++;
+                        if (currentImageIndex <= 5000) {
+                            loadImage(); // 切換到下一張圖像
+                        }
+                    }, 1000); // 1秒後切換圖像
+                }
+                canPaint = true;
+                const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
+                document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
+                    cell.classList.add('current');
+                });
+                if (currentLetterIndex < 25) {
+                    document.addEventListener('mousedown', nextLetterHandler, { once: true });
+                    document.addEventListener('touchstart', nextLetterHandler, { once: true });
                 }
             }
         }
 
-        function displayNextBlock() {
-            if (currentBlockIndex < blocks.length - 1) {
-                currentLetterIndex = 0; // 重置字母索引
-                displayBlock(currentBlockIndex + 1);
+        function nextLetterHandler() {
+            if (currentLetterIndex < 25) {
+                currentLetterIndex++;
+                updateCurrentLetterColor();
+                canPaint = true;
             }
         }
+
+        let currentLetterIndex = 0;
+        let totalLetters = Array(26).fill(0);
+        let filledLetters = Array(26).fill(0);
+        let canPaint = true;
+        let completedLetters = new Set();
 
         // 禁止滾動刷新頁面
         document.addEventListener('touchmove', function(event) {
