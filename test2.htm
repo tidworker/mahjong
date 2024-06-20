@@ -52,36 +52,24 @@
             cursor: pointer;
             margin: 12px;
         }
+        #buttons button {
+            cursor: pointer;
+            margin: 12px;
+            padding: 8px;
+        }
     </style>
 </head>
 <body>
-
     <br><br>
     <div id="container">
         <div id="grid"></div>
         <div id="percentage">已塗色百分比：0%</div>
     </div>
-
-    <div class="image-row">
-        <img src="jin.png" style="opacity: 0.3;">
-        <img src="gon.png" style="opacity: 0.3;">
-        <img src="ban.png" style="opacity: 0.3;">
-        <img src="row.png" style="opacity: 0.3;">
-        <img src="po.png" style="opacity: 0.3;">
-        <img src="ro.png" style="opacity: 0.3;">
-        <img src="mi.png" style="opacity: 0.3;">
-        <img src="jinn.png" style="opacity: 0.3;">
-    </div>
-    <br>
-    <br>
     <div id="buttons">
-        <img src="back.png" onclick="history.back()">
-        <img src="re.png" onclick="location.reload()">
-        <img src="next.png" onclick="window.location.href='000002.htm'">
+        <button onclick="loadImage('0001.bmp')">Prev</button>
+        <button onclick="loadImage('0002.bmp')">Next</button>
     </div>
-    <br>
-    <br>
-    <img src="logo2.png">   
+    <br><br>
 
     <script>
         const grid = document.getElementById('grid');
@@ -96,14 +84,10 @@
             '255,242,0': 'f',
             '34,177,76': 'g',
             '0,162,232': 'h',
-            '63,72,204': 'i',
-            '163,73,164': 'j',
-            '195,195,195': 'k',
-            '185,122,87': 'l'
-            
+            '63,72,204': 'i'
         };
 
-        function loadImage(imageIndex) {
+        function loadImage(filename) {
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
@@ -114,7 +98,7 @@
                 const imageData = ctx.getImageData(0, 0, 100, 100);
                 convertToPattern(imageData.data);
             };
-            img.src = `${imageIndex.toString().padStart(4, '0')}.bmp`; // 根據索引讀取對應的圖像文件
+            img.src = filename; // 指定圖像文件的名稱
         }
 
         function convertToPattern(data) {
@@ -231,7 +215,7 @@
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
                 if (currentLetterIndex === 7) { // 當前字母為 'h'
                     setTimeout(() => {
-                        loadImage(2); // 讀取下一張圖片
+                        loadImage('0002.bmp'); // 讀取下一張圖片
                     }, 1000); // 1秒後讀取下一張圖片
                 }
                 canPaint = true;
@@ -266,7 +250,7 @@
         }, { passive: false });
 
         // 初始化遊戲
-        window.onload = () => loadImage(1);
+        window.onload = () => loadImage('0001.bmp');
     </script>
 </body>
 </html>
