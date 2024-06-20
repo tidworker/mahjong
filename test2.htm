@@ -16,17 +16,16 @@
             background-color: #f2f2f2;
         }
         #matrix-container {
+            display: grid;
+            grid-template-columns: repeat(100, 4px);
+            grid-template-rows: repeat(100, 4px);
+            gap: 1px;
+            margin-top: 20px;
+        }
+        .cell {
+            width: 4px;
+            height: 4px;
             background-color: #fff;
-            padding: 10px;
-            border: 1px solid #ccc;
-            font-size: 10px;
-            white-space: pre;
-            overflow: auto;
-            width: 410px;
-            height: 410px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
         #controls {
             margin-top: 20px;
@@ -78,13 +77,13 @@
                     const startX = blockX * 100;
                     const startY = blockY * 100;
                     for (let y = 0; y < 100; y++) {
-                        let row = [];
+                        const row = [];
                         for (let x = 0; x < 100; x++) {
                             const index = 4 * ((startY + y) * 1000 + (startX + x));
                             const r = data[index];
                             const g = data[index + 1];
                             const b = data[index + 2];
-                            const colorKey = `${r},${g},${b}`;
+                            const colorKey = `rgb(${r},${g},${b})`;
                             row.push(colorKey);
                         }
                         block.push(row);
@@ -97,10 +96,15 @@
 
         function displayBlock(index) {
             const container = document.getElementById('matrix-container');
-            container.textContent = '';
+            container.innerHTML = '';
             const block = blocks[index];
             for (let i = 0; i < block.length; i++) {
-                container.textContent += block[i].join(' ') + '\n';
+                for (let j = 0; j < block[i].length; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.style.backgroundColor = block[i][j];
+                    container.appendChild(cell);
+                }
             }
         }
 
