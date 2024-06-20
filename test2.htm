@@ -152,6 +152,7 @@
             const pattern = blocks[index];
             totalLetters.fill(0);
             filledLetters.fill(0);
+            completedLetters.clear(); // 清除已完成的字母
             for (let i = 0; i < 100; i++) {
                 cells[i] = [];
                 for (let j = 0; j < 100; j++) {
@@ -247,6 +248,7 @@
 
         function moveToNextLetterOrBlock() {
             removeCurrentLetterColor();
+            completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
             if (currentLetterIndex < 25) {
                 currentLetterIndex++;
                 updateCurrentLetterColor();
