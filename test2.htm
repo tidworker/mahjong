@@ -90,7 +90,22 @@
             '185,122,87': 'l'
         };
 
+        let currentLetterIndex = 0;
+        let totalLetters = Array(26).fill(0);
+        let filledLetters = Array(26).fill(0);
+        let completedLetters = new Set();
+        let canPaint = true;
+
+        function resetState() {
+            currentLetterIndex = 0;
+            totalLetters = Array(26).fill(0);
+            filledLetters = Array(26).fill(0);
+            completedLetters = new Set();
+            canPaint = true;
+        }
+
         function loadImage(filename) {
+            resetState();
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
@@ -220,40 +235,33 @@
                     setTimeout(() => {
                         loadImage('0002.bmp'); // 讀取下一張圖片
                     }, 1000); // 1秒後讀取下一張圖片
-                }
-                canPaint = true;
-                const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
-                document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
-                    cell.classList.add('current');
-                });
-                if (currentLetterIndex < 25) {
-                    document.addEventListener('mousedown', nextLetterHandler, { once: true });
-                    document.addEventListener('touchstart', nextLetterHandler, { once: true });
-                }
-            }
+}
+canPaint = true;
+const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
+document.querySelectorAll(.letter${nextLetter}).forEach(cell => {
+cell.classList.add('current');
+});
+if (currentLetterIndex < 25) {
+document.addEventListener('mousedown', nextLetterHandler, { once: true });
+document.addEventListener('touchstart', nextLetterHandler, { once: true });
+}
+}
+}
+    function nextLetterHandler() {
+        if (currentLetterIndex < 25) {
+            currentLetterIndex++;
+            updateCurrentLetterColor();
+            canPaint = true;
         }
+    }
 
-        function nextLetterHandler() {
-            if (currentLetterIndex < 25) {
-                currentLetterIndex++;
-                updateCurrentLetterColor();
-                canPaint = true;
-            }
-        }
+    // 禁止滾動刷新頁面
+    document.addEventListener('touchmove', function(event) {
+        event.preventDefault();
+    }, { passive: false });
 
-        let currentLetterIndex = 0;
-        let totalLetters = Array(26).fill(0);
-        let filledLetters = Array(26).fill(0);
-        let canPaint = true;
-        let completedLetters = new Set();
-
-        // 禁止滾動刷新頁面
-        document.addEventListener('touchmove', function(event) {
-            event.preventDefault();
-        }, { passive: false });
-
-        // 初始化遊戲
-        window.onload = () => loadImage('0001.bmp');
-    </script>
+    // 初始化遊戲
+    window.onload = () => loadImage('0001.bmp');
+</script>
 </body>
 </html>
