@@ -81,6 +81,15 @@
             const img = new Image();
             img.onload = function() {
                 processImage(img);
+                // 计算初始字母的总单元格数量
+                for (let i = 0; i < currentMatrix.length; i++) {
+                    for (let j = 0; j < currentMatrix[i].length; j++) {
+                        const letter = currentMatrix[i][j];
+                        if (letter === currentLetter) {
+                            totalCells++;
+                        }
+                    }
+                }
             };
             img.src = 'test3.bmp';
         };
@@ -231,6 +240,7 @@
                     err -= dy;
                     x0 += sx;
                 }
+
                 if (e2 < dx) {
                     err += dx;
                     y0 += sy;
@@ -242,61 +252,57 @@
             if (cx >= 0 && cx < 100 && cy >= 0 && cy < 100) {
                 const cellIndex = cy * 100 + cx;
                 const cell = document.querySelector(`#matrix-container .cell:nth-child(${cellIndex + 1})`);
-                if (cell && !cell.classList.contains('letter0') && cell.classList.contains(`letter${currentLetter}`))function fillCell(cx, cy) {
-    if (cx >= 0 && cx < 100 && cy >= 0 && cy < 100) {
-        const cellIndex = cy * 100 + cx;
-        const cell = document.querySelector(`#matrix-container .cell:nth-child(${cellIndex + 1})`);
-        if (cell && !cell.classList.contains('letter0') && cell.classList.contains(`letter${currentLetter}`)) {  
-            cell.style.backgroundColor = '#000000';
-            filledCells++;
+                if (cell && !cell.classList.contains('letter0') && cell.classList.contains(`letter${currentLetter}`)) {  
+                    cell.style.backgroundColor = '#000000';
+                    filledCells++;
+                    if (filledCells >= totalCells) {
+                        moveToNextLetter();
+                    }
+                }
+            }
+        }
+
+        function checkIfLetterFilled() {
             if (filledCells >= totalCells) {
                 moveToNextLetter();
             }
         }
-    }
-}
 
-function checkIfLetterFilled() {
-    if (filledCells >= totalCells) {
-        moveToNextLetter();
-    }
-}
-
-function moveToNextLetter() {
-    const currentLetterIndex = letters.indexOf(currentLetter);
-    if (currentLetterIndex < letters.length - 1) {
-        currentLetter = letters[currentLetterIndex + 1];
-        filledCells = 0;
-        totalCells = 0;
-        // 重新计算新字母的总单元格数量
-        for (let i = 0; i < currentMatrix.length; i++) {
-            for (let j = 0; j < currentMatrix[i].length; j++) {
-                const letter = currentMatrix[i][j];
-                if (letter === currentLetter) {
-                    totalCells++;
+        function moveToNextLetter() {
+            const currentLetterIndex = letters.indexOf(currentLetter);
+            if (currentLetterIndex < letters.length - 1) {
+                currentLetter = letters[currentLetterIndex + 1];
+                filledCells = 0;
+                totalCells = 0;
+                // 重新计算新字母的总单元格数量
+                for (let i = 0; i < currentMatrix.length; i++) {
+                    for (let j = 0; j < currentMatrix[i].length; j++) {
+                        const letter = currentMatrix[i][j];
+                        if (letter === currentLetter) {
+                            totalCells++;
+                        }
+                    }
                 }
             }
         }
-    }
-}
 
-// 初始化并显示第一个字母的单元格数量
-window.onload = function() {
-    const img = new Image();
-    img.onload = function() {
-        processImage(img);
-        // 计算初始字母的总单元格数量
-        for (let i = 0; i < currentMatrix.length; i++) {
-            for (let j = 0; j < currentMatrix[i].length; j++) {
-                const letter = currentMatrix[i][j];
-                if (letter === currentLetter) {
-                    totalCells++;
+        // 初始化并显示第一个字母的单元格数量
+        window.onload = function() {
+            const img = new Image();
+            img.onload = function() {
+                processImage(img);
+                // 计算初始字母的总单元格数量
+                for (let i = 0; i < currentMatrix.length; i++) {
+                    for (let j = 0; j < currentMatrix[i].length; j++) {
+                        const letter = currentMatrix[i][j];
+                        if (letter === currentLetter) {
+                            totalCells++;
+                        }
+                    }
                 }
-            }
-        }
-    };
-    img.src = 'test3.bmp';
-};
-</script>
+            };
+            img.src = 'test3.bmp';
+        };
+    </script>
 </body>
 </html>
