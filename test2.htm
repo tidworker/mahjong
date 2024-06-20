@@ -19,7 +19,7 @@
             display: grid;
             grid-template-columns: repeat(100, 4px);
             grid-template-rows: repeat(100, 4px);
-            gap: 1px;
+            gap: 0;
             margin-top: 20px;
         }
         .cell {
@@ -49,6 +49,7 @@
     <script>
         let currentBlockIndex = 0;
         let blocks = [];
+        let currentMatrix = [];
 
         window.onload = function() {
             const img = new Image();
@@ -97,12 +98,12 @@
         function displayBlock(index) {
             const container = document.getElementById('matrix-container');
             container.innerHTML = '';
-            const block = blocks[index];
-            for (let i = 0; i < block.length; i++) {
-                for (let j = 0; j < block[i].length; j++) {
+            currentMatrix = blocks[index];
+            for (let i = 0; i < currentMatrix.length; i++) {
+                for (let j = 0; j < currentMatrix[i].length; j++) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
-                    cell.style.backgroundColor = block[i][j];
+                    cell.style.backgroundColor = currentMatrix[i][j];
                     container.appendChild(cell);
                 }
             }
@@ -121,6 +122,49 @@
                 displayBlock(currentBlockIndex);
             }
         });
+
+        document.getElementById('matrix-container').addEventListener('mousedown', handleMouseDown);
+        document.addEventListener('mouseup', handleMouseUp);
+        document.getElementById('matrix-container').addEventListener('mousemove', function(e) {
+            if (mouseDown && canPaint) {
+                handleMouse(e);
+            }
+        });
+
+        let mouseDown = false;
+        let canPaint = true;
+
+        function handleMouseDown(e) {
+            mouseDown = true;
+            handleMouse(e);
+        }
+
+        function handleMouseUp() {
+            mouseDown = false;
+            canPaint = false;
+        }
+
+        function handleMouse(e) {
+            const rect = document.getElementById('matrix-container').getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / 4);
+            const y = Math.floor((e.clientY - rect.top) / 4);
+            fillCircle(x, y, 10);
+        }
+
+        function fillCircle(cx, cy, radius) {
+            for (let i = -radius; i <= radius; i++) {
+                for (let j = -radius; j <= radius; j++) {
+                    if (i * i + j * j <= radius * radius) {
+                        const nx = cx + j;
+                        const ny = cy + i;
+                        if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
+                            const cell = document.querySelector(`#matrix-container .cell:nth-child(${ny * 100 + nx + 1})`);
+                            cell.style.backgroundColor = '#000000';
+                        }
+                    }
+                }
+            }
+        }
     </script>
 </body>
 </html>
