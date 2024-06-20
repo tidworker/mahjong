@@ -58,6 +58,7 @@
         let currentMatrix = [];
         let mouseDown = false;
         let canPaint = true;
+        let lastX = -1, lastY = -1;
 
         const colorMap = {
             '0,0,0': 'a',
@@ -174,13 +175,17 @@
         function handleMouseUp() {
             mouseDown = false;
             canPaint = false;
+            lastX = -1;
+            lastY = -1;
         }
 
         function handleMouse(e) {
             const rect = document.getElementById('matrix-container').getBoundingClientRect();
             const x = Math.floor((e.clientX - rect.left) / 4);
             const y = Math.floor((e.clientY - rect.top) / 4);
-            fillCircle(x, y, 10);
+            paintLine(lastX, lastY, x, y);
+            lastX = x;
+            lastY = y;
         }
 
         function handleTouch(e) {
@@ -189,23 +194,39 @@
             const rect = document.getElementById('matrix-container').getBoundingClientRect();
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
-            fillCircle(x, y, 10);
+            paintLine(lastX, lastY, x, y);
+            lastX = x;
+            lastY = y;
         }
 
-        function fillCircle(cx, cy, radius) {
-            for (let i = -radius; i <= radius; i++) {
-                for (let j = -radius; j <= radius; j++) {
-                    if (i * i + j * j <= radius * radius) {
-                        const nx = cx + j;
-                        const ny = cy + i;
-                        if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
-                            const cellIndex = ny * 100 + nx;
-                            const cell = document.querySelector(`#matrix-container .cell:nth-child(${cellIndex + 1})`);
-                            if (cell && !cell.classList.contains('letter0')) {  // 不允許上色0的部分
-                                cell.style.backgroundColor = '#000000';
-                            }
-                        }
-                    }
+        function paintLine(x0, y0, x1, y1) {
+            const dx = Math.abs(x1 - x0);
+            const dy = Math.abs(y1 - y0);
+            const sx = (x0 < x1) ? 1 : -1;
+            const sy = (y0 < y1) ? 1 : -1;
+            let err = dx - dy;
+
+            while (true) {
+                fillCell(x0, y0);
+                if (x0 === x1 && y0 === y1) break;
+                const e2 = 2 * err;
+                if (e2 > -dy) {
+                    err -= dy;
+                    x0 += sx;
+                }
+                if (e2 < dx) {
+                    err += dx;
+                    y0 += sy;
+                }
+            }
+        }
+
+        function fillCell(cx, cy) {
+            if (cx >= 0 && cx < 100 && cy >= 0 && cy < 100) {
+                const cellIndex = cy * 100 + cx;
+                const cell = document.querySelector(`#matrix-container .cell:nth-child(${cellIndex + 1})`);
+                if (cell && !cell.classList.contains('letter0')) {  // 不允許上色0的部分
+                    cell.style.backgroundColor = '#000000';
                 }
             }
         }
