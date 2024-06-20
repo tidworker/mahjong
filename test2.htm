@@ -12,7 +12,7 @@
             padding: 0;
             overflow: hidden;
             display: flex;
-            justify-content: flex-start; /* 水平方向置顶 */
+            justify-content: flex-start;
             align-items: center;
             height: 100%;
         }
@@ -55,6 +55,8 @@
     </style>
 </head>
 <body>
+
+    <br><br>
     <div id="container">
         <div id="grid"></div>
         <div id="percentage">已塗色百分比：0%</div>
@@ -98,6 +100,10 @@
         };
 
         let currentImageIndex = 1;
+        let currentLetterIndex = 0;
+        let totalLetters = Array(26).fill(0);
+        let filledLetters = Array(26).fill(0);
+        let completedLetters = new Set();
 
         function loadImage() {
             const img = new Image();
@@ -144,11 +150,7 @@
                     const letter = pattern[i][j];
                     if (letter !== '0') {
                         cell.classList.add(`letter${letter}`);
-                        if (letter === 'z') {
-                            cell.style.backgroundColor = '#191919';
-                        } else {
-                            totalLetters[letter.charCodeAt(0) - 97]++; // 計算每個字母的總數
-                        }
+                        totalLetters[letter.charCodeAt(0) - 97]++;
                     }
                     cells[i][j] = cell;
                     grid.appendChild(cell);
@@ -164,22 +166,12 @@
             });
         }
 
-        function removeCurrentLetterColor() {
-            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
-            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
-                cell.classList.remove('current');
-            });
+        function handleMouse(e) {
+            const rect = grid.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / 4);
+            const y = Math.floor((e.clientY - rect.top) / 4);
+            fillCircle(x, y, 10);
         }
-
-        grid.addEventListener('mousedown', handleMouse);
-        grid.addEventListener('mousemove', function(e) {
-            if (e.buttons === 1) {
-                handleMouse(e);
-            }
-        });
-
-        grid.addEventListener('touchstart', handleTouch, { passive: false });
-        grid.addEventListener('touchmove', handleTouch, { passive: false });
 
         function handleTouch(e) {
             e.preventDefault();
@@ -187,18 +179,7 @@
             const rect = grid.getBoundingClientRect();
             const x = Math.floor((touch.clientX - rect.left) / 4);
             const y = Math.floor((touch.clientY - rect.top) / 4);
-            if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
-            }
-        }
-
-        function handleMouse(e) {
-            const rect = grid.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / 4);
-            const y = Math.floor((e.clientY - rect.top) / 4);
-            if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
-            }
+            fillCircle(x, y, 10);
         }
 
         function fillCircle(cx, cy, radius) {
@@ -226,33 +207,37 @@
         function updatePercentage() {
             const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
+            if (percentageColored >= 95) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-                if (currentLetterIndex === 25) { // 完成所有字母後加載下一張圖像
+                if (completedLetters.size === 26) {
                     setTimeout(() => {
                         currentImageIndex++;
                         if (currentImageIndex <= 5000) {
-                            completedLetters.clear();
                             currentLetterIndex = 0;
+                            completedLetters.clear();
                             totalLetters.fill(0);
                             filledLetters.fill(0);
-                            loadImage(); // 切換到下一張圖像
-                        } else {
-                            console.log("所有圖片已處理完畢");
+                            loadImage();
                         }
                     }, 1000);
                 } else {
-                    currentLetterIndex++;
-                    updateCurrentLetterColor();
+                    if (currentLetterIndex < 25) {
+                        currentLetterIndex++;
+                        updateCurrentLetterColor();
+                    }
                 }
             }
         }
 
-        let currentLetterIndex = 0;
-        let totalLetters = Array(26).fill(0);
-        let filledLetters = Array(26).fill(0);
-        let canPaint = true;
-        let completedLetters = new Set();
+        grid.addEventListener('mousedown', handleMouse);
+        grid.addEventListener('mousemove', function(e) {
+            if (e.buttons === 1) {
+                handleMouse(e);
+            }
+        });
+
+        grid.addEventListener('touchstart', handleTouch, { passive: false });
+        grid.addEventListener('touchmove', handleTouch, { passive: false });
 
         document.addEventListener('touchmove', function(event) {
             event.preventDefault();
