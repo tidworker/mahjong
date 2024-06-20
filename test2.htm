@@ -12,7 +12,7 @@
             padding: 0;
             overflow: hidden;
             display: flex;
-            justify-content: flex-start; /* 水平方向置顶 */
+            justify-content: flex-start;
             align-items: center;
             height: 100%;
         }
@@ -94,7 +94,7 @@
         }
 
         function getImageSrc() {
-            return `000${currentImageIndex.toString().padStart(3, '0')}.bmp`;
+            return `${currentImageIndex.toString().padStart(4, '0')}.bmp`;
         }
 
         function convertToPattern(data) {
@@ -239,12 +239,10 @@
         let canPaint = true;
         let completedLetters = new Set();
 
-        // 禁止滾動刷新頁面
         document.addEventListener('touchmove', function(event) {
             event.preventDefault();
         }, { passive: false });
 
-        // 初始化遊戲
         window.onload = loadImage;
     </script>
 </body>
