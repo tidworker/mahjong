@@ -30,6 +30,9 @@
         .lettera, .letterb, .letterc, .letterd, .lettere, .letterf, .letterg, .letterh, .letteri {
             background-color: #d3d3d3;
         }
+        .letter0 {
+            background-color: #fff;
+        }
         #controls {
             margin-top: 20px;
         }
@@ -125,6 +128,8 @@
                     const letter = currentMatrix[i][j];
                     if (letter !== '0') {
                         cell.classList.add(`letter${letter}`);
+                    } else {
+                        cell.classList.add('letter0');
                     }
                     container.appendChild(cell);
                 }
