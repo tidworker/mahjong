@@ -16,26 +16,41 @@
             background-color: #f2f2f2;
         }
         #matrix-container {
-            display: grid;
-            grid-template-columns: repeat(10, auto);
-            grid-gap: 10px;
-            margin-top: 20px;
-        }
-        .matrix-block {
             background-color: #fff;
             padding: 10px;
             border: 1px solid #ccc;
             font-size: 10px;
             white-space: pre;
             overflow: auto;
+            width: 410px;
+            height: 410px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 10px;
         }
     </style>
 </head>
 <body>
     <h1>Matrix Reader</h1>
     <div id="matrix-container"></div>
+    <div id="controls">
+        <button id="prevButton">Prev</button>
+        <button id="nextButton">Next</button>
+    </div>
 
     <script>
+        let currentBlockIndex = 0;
+        let blocks = [];
+
         window.onload = function() {
             const img = new Image();
             img.onload = function() {
@@ -51,8 +66,8 @@
             canvas.height = 1000;
             ctx.drawImage(img, 0, 0, 1000, 1000);
             const imageData = ctx.getImageData(0, 0, 1000, 1000);
-            const blocks = extractBlocks(imageData.data);
-            displayBlocks(blocks);
+            blocks = extractBlocks(imageData.data);
+            displayBlock(0);
         }
 
         function extractBlocks(data) {
@@ -80,16 +95,24 @@
             return blocks;
         }
 
-        function displayBlocks(blocks) {
+        function displayBlock(index) {
             const container = document.getElementById('matrix-container');
-            container.innerHTML = '';
-            blocks.forEach((block, index) => {
-                const blockDiv = document.createElement('div');
-                blockDiv.className = 'matrix-block';
-                blockDiv.textContent = block.join('\n');
-                container.appendChild(blockDiv);
-            });
+            container.textContent = blocks[index].join('\n');
         }
+
+        document.getElementById('prevButton').addEventListener('click', function() {
+            if (currentBlockIndex > 0) {
+                currentBlockIndex--;
+                displayBlock(currentBlockIndex);
+            }
+        });
+
+        document.getElementById('nextButton').addEventListener('click', function() {
+            if (currentBlockIndex < blocks.length - 1) {
+                currentBlockIndex++;
+                displayBlock(currentBlockIndex);
+            }
+        });
     </script>
 </body>
 </html>
