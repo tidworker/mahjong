@@ -101,13 +101,18 @@
         function loadImage() {
             const img = new Image();
             img.onload = function() {
+                console.log('Image loaded:', getImageSrc());
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 canvas.width = 100;
                 canvas.height = 100;
                 ctx.drawImage(img, 0, 0, 100, 100);
                 const imageData = ctx.getImageData(0, 0, 100, 100);
+                console.log('Image data:', imageData);
                 convertToPattern(imageData.data);
+            };
+            img.onerror = function() {
+                console.error('Failed to load image:', getImageSrc());
             };
             img.src = getImageSrc();
         }
@@ -127,6 +132,7 @@
                 }
                 pattern.push(line);
             }
+            console.log('Pattern:', pattern);
             initializeGrid(pattern);
         }
 
