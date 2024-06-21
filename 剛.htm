@@ -306,4 +306,28 @@
                 document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
                     cell.classList.add('current');
                 });
-                if (currentLetterIndex 
+                if (currentLetterIndex < 25) {
+                    document.addEventListener('mousedown', nextLetterHandler, { once: true });
+                    document.addEventListener('touchstart', nextLetterHandler, { once: true });
+                }
+            }
+        }
+
+        function nextLetterHandler() {
+            if (currentLetterIndex < 25) {
+                currentLetterIndex++;
+                updateCurrentLetterColor();
+                canPaint = true;
+            }
+        }
+
+        // 禁止滾動刷新頁面
+        document.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+        // 初始化遊戲
+        initializeGrid();
+    </script>
+</body>
+</html>
