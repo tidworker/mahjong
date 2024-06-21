@@ -43,11 +43,7 @@
 
         function initializePages() {
             const inputString = document.getElementById('inputString').value;
-            pages = [];
-            for (let i = 0; i < inputString.length; i += 4) {
-                const fileName = inputString.slice(i, i + 4);
-                pages.push(`${fileName}.htm`);
-            }
+            pages = inputString.split('').map(char => `${char}.htm`);
             currentPageIndex = 0;
             if (pages.length > 0) {
                 document.getElementById('pageFrame').src = pages[currentPageIndex];
@@ -58,14 +54,13 @@
         function updateTextDisplay() {
             const inputString = document.getElementById('inputString').value;
             let displayHTML = '';
-            for (let i = 0; i < inputString.length; i += 4) {
-                const fileName = inputString.slice(i, i + 4);
-                if (i / 4 < currentPageIndex) {
-                    displayHTML += `<span class="past">${fileName}</span> `;
-                } else if (i / 4 === currentPageIndex) {
-                    displayHTML += `<span class="current">${fileName}</span> `;
+            for (let i = 0; i < inputString.length; i++) {
+                if (i < currentPageIndex) {
+                    displayHTML += `<span class="past">${inputString[i]}</span>`;
+                } else if (i === currentPageIndex) {
+                    displayHTML += `<span class="current">${inputString[i]}</span>`;
                 } else {
-                    displayHTML += `<span class="future">${fileName}</span> `;
+                    displayHTML += `<span class="future">${inputString[i]}</span>`;
                 }
             }
             document.getElementById('textDisplay').innerHTML = displayHTML;
