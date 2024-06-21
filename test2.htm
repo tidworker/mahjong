@@ -1,267 +1,57 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Write</title>
+    <title>頁框切換</title>
     <style>
-        body, html {
-            flex-direction: column;
-            background-color: #F2F2F2;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            display: flex;
-            justify-content: flex-start; /* 水平方向置顶 */
-            align-items: center;
-            height: 100%;
+        #iframe-container {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
         }
-        #container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        #grid {
-            display: grid;
-            grid-template-columns: repeat(100, 4px);
-            grid-template-rows: repeat(100, 4px);
-        }
-        .cell {
-            width: 4px;
-            height: 4px;
-            background-color: transparent;
-            box-sizing: border-box;
-        }
-        .lettera, .letterb, .letterc, .letterd, .lettere, .letterf, .letterg, .letterh, .letteri, .letterj,
-        .letterk, .letterl, .letterm, .lettern, .lettero, .letterp, .letterq, .letterr, .letters, .lettert,
-        .letteru, .letterv, .letterw, .letterx, .lettery {
-            background-color: #d3d3d3;
-        }
-        .letterz {
-            background-color: #191919;
-        }
-        .current {
-            background-color: #808080;
-        }
-        #percentage {
-            margin-top: 0px;
-            font-size: 5px;
-            color: #F2F2F2;
-        }
-        #buttons img {
-            cursor: pointer;
-            margin: 12px;
-        }
-        #buttons button {
-            cursor: pointer;
-            margin: 12px;
-            padding: 8px;
+        button {
+            margin: 10px;
         }
     </style>
 </head>
 <body>
-    <br><br>
-    <div id="container">
-        <div id="grid"></div>
-        <div id="percentage">已塗色百分比：0%</div>
+    <h1>頁框切換示例</h1>
+    <input type="text" id="inputString" placeholder="輸入字串">
+    <button onclick="initializePages()">初始化</button>
+    <button onclick="prevPage()">Prev</button>
+    <button onclick="nextPage()">Next</button>
+    <div id="iframe-container">
+        <iframe id="pageFrame" width="100%" height="100%"></iframe>
     </div>
-    <div id="buttons">
-        <button onclick="loadImage('0001.bmp')">Prev</button>
-        <button onclick="loadImage('0002.bmp')">Next</button>
-    </div>
-    <br><br>
 
     <script>
-        const grid = document.getElementById('grid');
-        const percentageDisplay = document.getElementById('percentage');
-        const cells = [];
-        const colorMap = {
-            '0,0,0': 'a',
-            '127,127,127': 'b',
-            '136,0,21': 'c',
-            '237,28,36': 'd',
-            '255,127,39': 'e',
-            '255,242,0': 'f',
-            '34,177,76': 'g',
-            '0,162,232': 'h',
-            '63,72,204': 'i',
-            '163,73,164': 'j',
-            '195,195,195': 'k',
-            '185,122,87': 'l'
-        };
+        let pages = [];
+        let currentPageIndex = 0;
 
-        let currentLetterIndex = 0;
-        let totalLetters = Array(26).fill(0);
-        let filledLetters = Array(26).fill(0);
-        let completedLetters = new Set();
-        let canPaint = true;
-
-        function resetState() {
-            currentLetterIndex = 0;
-            totalLetters = Array(26).fill(0);
-            filledLetters = Array(26).fill(0);
-            completedLetters = new Set();
-            canPaint = true;
-        }
-
-        function loadImage(filename) {
-            resetState();
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = 100;
-                canvas.height = 100;
-                ctx.drawImage(img, 0, 0, 100, 100);
-                const imageData = ctx.getImageData(0, 0, 100, 100);
-                convertToPattern(imageData.data);
-            };
-            img.src = filename; // 指定圖像文件的名稱
-        }
-
-        function convertToPattern(data) {
-            const pattern = [];
-            for (let i = 0; i < 100; i++) {
-                let line = '';
-                for (let j = 0; j < 100; j++) {
-                    const index = 4 * (i * 100 + j);
-                    const colorKey = `${data[index]},${data[index + 1]},${data[index + 2]}`;
-                    line += colorMap[colorKey] || '0';
-                }
-                pattern.push(line);
-            }
-            initializeGrid(pattern);
-        }
-
-        function initializeGrid(pattern) {
-            grid.innerHTML = '';
-            for (let i = 0; i < 100; i++) {
-                cells[i] = [];
-                for (let j = 0; j < 100; j++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    const letter = pattern[i][j];
-                    if (letter !== '0') {
-                        cell.classList.add(`letter${letter}`);
-                        if (letter === 'z') {
-                            cell.style.backgroundColor = '#191919';
-                        } else {
-                            totalLetters[letter.charCodeAt(0) - 97]++; // 計算每個字母的總數
-                        }
-                    }
-                    cells[i][j] = cell;
-                    grid.appendChild(cell);
-                }
-            }
-            updateCurrentLetterColor();
-        }
-
-        function updateCurrentLetterColor() {
-            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
-            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
-                cell.classList.add('current');
-            });
-        }
-
-        function removeCurrentLetterColor() {
-            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
-            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
-                cell.classList.remove('current');
-            });
-        }
-
-        grid.addEventListener('mousedown', handleMouse);
-        grid.addEventListener('mousemove', function(e) {
-            if (e.buttons === 1) {
-                handleMouse(e);
-            }
-        });
-
-        grid.addEventListener('touchstart', handleTouch, { passive: false });
-        grid.addEventListener('touchmove', handleTouch, { passive: false });
-
-        function handleTouch(e) {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const rect = grid.getBoundingClientRect();
-            const x = Math.floor((touch.clientX - rect.left) / 4);
-            const y = Math.floor((touch.clientY - rect.top) / 4);
-            if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+        function initializePages() {
+            const inputString = document.getElementById('inputString').value;
+            pages = inputString.split('').map(char => `${char}.htm`);
+            currentPageIndex = 0;
+            if (pages.length > 0) {
+                document.getElementById('pageFrame').src = pages[currentPageIndex];
             }
         }
 
-        function handleMouse(e) {
-            const rect = grid.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / 4);
-            const y = Math.floor((e.clientY - rect.top) / 4);
-            if (canPaint) {
-                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+        function nextPage() {
+            if (currentPageIndex < pages.length - 1) {
+                currentPageIndex++;
+                document.getElementById('pageFrame').src = pages[currentPageIndex];
             }
         }
 
-        function fillCircle(cx, cy, radius) {
-            let painted = false;
-            for (let i = -radius; i <= radius; i++) {
-                for (let j = -radius; j <= radius; j++) {
-                    if (i * i + j * j <= radius * radius) {
-                        const nx = cx + j;
-                        const ny = cy + i;
-                        if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
-                            const targetCell = cells[ny][nx];
-                            const letter = String.fromCharCode(97 + currentLetterIndex);
-                            if ((targetCell.classList.contains(`letter${letter}`) || completedLetters.has(targetCell.className.slice(-1))) && !targetCell.style.backgroundColor) {
-                                targetCell.style.backgroundColor = '#000000';
-                                if (targetCell.classList.contains(`letter${letter}`)) {
-                                    filledLetters[currentLetterIndex]++;
-                                    painted = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if (painted) {
-                updatePercentage();
+        function prevPage() {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                document.getElementById('pageFrame').src = pages[currentPageIndex];
             }
         }
-
-        function updatePercentage() {
-            const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
-            percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
-                completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-                if (currentLetterIndex === 7) { // 當前字母為 'h'
-                    setTimeout(() => {
-                        loadImage('0002.bmp'); // 讀取下一張圖片
-                    }, 1000); // 1秒後讀取下一張圖片
-}
-canPaint = true;
-const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
-document.querySelectorAll(.letter${nextLetter}).forEach(cell => {
-cell.classList.add('current');
-});
-if (currentLetterIndex < 25) {
-document.addEventListener('mousedown', nextLetterHandler, { once: true });
-document.addEventListener('touchstart', nextLetterHandler, { once: true });
-}
-}
-}
-    function nextLetterHandler() {
-        if (currentLetterIndex < 25) {
-            currentLetterIndex++;
-            updateCurrentLetterColor();
-            canPaint = true;
-        }
-    }
-
-    // 禁止滾動刷新頁面
-    document.addEventListener('touchmove', function(event) {
-        event.preventDefault();
-    }, { passive: false });
-
-    // 初始化遊戲
-    window.onload = () => loadImage('0001.bmp');
-</script>
+    </script>
 </body>
 </html>
