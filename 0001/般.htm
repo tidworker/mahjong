@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's Write</title>
+    <style>
+        body, html {
+            flex-direction: column;
+            background-color: #F2F2F2;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(100, 3px);
+            grid-template-rows: repeat(100, 3px);
+        }
+        .cell {
+            width: 3px;
+            height: 3px;
+            background-color: transparent;
+            box-sizing: border-box;
+        }
+        .lettera, .letterb, .letterc, .letterd, .lettere, .letterf, .letterg, .letterh, .letteri, .letterj,
+        .letterk, .letterl, .letterm, .lettern, .lettero, .letterp, .letterq, .letterr, .letters, .lettert,
+        .letteru, .letterv, .letterw, .letterx, .lettery, .letterz {
+            background-color: #d3d3d3;
+        }
+        .current {
+            background-color: #808080;
+        }
+        #percentage {
+            margin-top: 0px;
+            font-size: 5px;
+            color: #F2F2F2;
+        }
+        #buttons img {
+            cursor: pointer;
+            margin: 12px;
+        }
+        #nextButton {
+            display: none; /* 隐藏按钮 */
+        }
+    </style>
+</head>
+<body>    
+    <div id="container">
+        <div id="grid"></div>
+        <div id="percentage">已塗色百分比：0%</div>
+        <button id="nextButton" onclick="window.parent.postMessage('nextPage', '*')">Next</button>
+    </div>
+
+    <script>
+        const grid = document.getElementById('grid');
+        const percentageDisplay = document.getElementById('percentage');
+        const cells = [];
+        const patternA = [
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '00000000000000000000000000000aa000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000aaaaaa000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000aaaaaaaaa0000000000000000000000000000000hhhh0000000000000000000000000000',
+                '0000000000000000000000000000aaaaaaaaaa000000000000000000000000000hhhhhhhhh00000000000000000000000000',
+                '00000000000000000000000000000aaaaaaaaa0000000000000000000000000hhhhhhhhhhhh0000000000000000000000000',
+                '00000000000000000000000000000aaaaaaaaa00000000000000000000000hhhhhhhhhhhhhh0000000000000000000000000',
+                '0000000000000000000000000000aaaaaaaaaa00000000000000000000gghhhhhhhhhhhhhhh0000000000000000000000000',
+                '0000000000000000000000000000aaaaaaaaaa00000000000000000gggggghhhhhhhhhhhhhh0000000000000000000000000',
+                '000000000000000000000000000aaaaaaaaaaa0000000000000gggggggggghhhhhhhhhhhhhh0000000000000000000000000',
+                '000000000000000000000000000aaaaaaaaaa0000000000000ggggggggggghhhhhhhhhhhhh00000000000000000000000000',
+                '00000000000000000000000000aaaaaaaaaa00000000000000ggggggggggghhh00hhhhhhh000000000000000000000000000',
+                '0000000000000000000000000aaaaaaaaaa0000000000000000ggggggggghh0000hhhhhhh000000000000000000000000000',
+                '0000000000000000000000000aaaaaaaaa00000000000000000gggggggggh00000hhhhhh0000000000000000000000000000',
+                '000000000000000000000000aaaaaaaaaa0cccccc00000000000gggggggg000000hhhhhh0000000000000000000000000000',
+                '00000000000000000000000aaaaaaaaaa0cccccccc00000000000ggggggg000000hhhhhh0000000000000000000000000000',
+                '0000000000000000000000aaaaaaaaaaccccccccccc0000000000gggggg000000hhhhhhh0000000000000000000000000000',
+                '0000000000000000000000aaaaaaaaaccccccccccccc000000000gggggg000000hhhhhhh0000000000000000000000000000',
+                '00000000000000000000aaaaaaaaccccccccccccccccc00000000gggggg000000hhhhhhh0000hhhh00000000000000000000',
+                '00000000000000000000aaaaaaa0ccccccc00ccccccc000000000ggggg0000000hhhhhhhhhhhhhhhh0000000000000000000',
+                '00000000000000000000aaaaa0000ccc00000ccccccc000000000ggggg0000000hhhhhhhhhhhhhhhhh000000000000000000',
+                '00000000000000000000aaabb000000000000ccccccc000000000ggggg0000000hhhhhhhhhhhhhhhhhh00000000000000000',
+                '00000000000000000000bbbbbb00000000000ccccccc000000000gggg00000000hhhhhhhhhhhhhhhhh000000000000000000',
+                '000000000000000000000bbbbb00000000000cccccc0000000000gggg000000000hhhhhhhhhhhhhhhh000000000000000000',
+                '000000000000000000000bbbbbddddddd0000cccccc000000000ggggg000000000hhhhhhhhhhhhhhh0000000000000000000',
+                '000000000000000000000bbbbbdddddddd000cccccc000000000gggg000000000000hhhhhhhhhh0000000000000000000000',
+                '000000000000000000000bbbbbdddddddd000cccccc00000000ggggg00000000000000000000000000000000000000000000',
+                '000000000000000000000bbbbbdddddddd000cccccc00000000gggg000000000000000000000000000000000000000000000',
+                '000000000000000000000bbbbbdddddddd000cccccc00000000ggg0000000000000000000000000000000000000000000000',
+                '000000000000000000000bbbbb0dddddddd00cccccc00000000gg00000000000000000000000000000000000000000000000',
+                '00000000000000000000bbbbbb0dddddddd00ccccccf00000000g00000000000000iiiiiiii0000000000000000000000000',
+                '00000000000000000000bbbbbb0dddddddd00ccccccf000000000000000000000iiiiiiiiiii000000000000000000000000',
+                '00000000000000000000bbbbbb00ddddddd00ccccccff000000000000000000iiiiiiiiiiiii000000000000000000000000',
+                '00000000000000000000bbbbb00000dddd00fccccccfff000000000000000iiiiiiiiiiiiiii000000000000000000000000',
+                '00000000000000000000bbbbb00000000dfffccccccffff00000000000iiiiiiiiiiiiiiiii0000000000000000000000000',
+                '00000000000000000000bbbbb0000000fffffccccccfffff0000000iiiiiiiiiiiiiiiiiii00000000000000000000000000',
+                '00000000000000000000bbbbbbfffffffffffccccccffffffiiiiiiiiiiiiiiii000iiiii000000000000000000000000000',
+                '0000000000000000000fbbbbbbfffffffffffccccccfff00iiiiiiiiiiiiiii0000iiiiii000000000000000000000000000',
+                '0000000000000000ffffbbbbbbfffffffffffccccccf0000iiiiiiiiiiiii000000iiiii0000000000000000000000000000',
+                '0000000000000fffffffbbbbbbfffffffffffcccccc000000iiiiiiiiiij0000000iiiii0000000000000000000000000000',
+                '000000000ffffffffffbbbbbbbffffffff000cccccc0000000iiiiiiiijj000000iiiiii0000000000000000000000000000',
+                '000000fffffffffffffbbbbbbbffff0000000cccccc00000000iiiijjjjjj00000iiiiii0000000000000000000000000000',
+                '000000fffffffffffffbbbbbbb00000000000cccccc000000000ijjjjjjjjj000iiiiiii0000000000000000000000000000',
+                '000000fffffffffffffbbbbbb0eeeeee00000ccccccc000000000jjjjjjjjjj00iiiiii00000000000000000000000000000',
+                '000000fffffffffffffbbbbbbbeeeeeeee000ccccccc000000000jjjjjjjjjjjjiiiiii00000000000000000000000000000',
+                '0000000fffffffffff0bbbbbb0eeeeeeee000ccccccc000000000jjjjjjjjjjjjiiiii000000000000000000000000000000',
+                '0000000ffffffff0000bbbbb00eeeeeeee000ccccccc0000000000jjjjjjjjjjiiiiii000000000000000000000000000000',
+                '00000000fffffff0000bbbbb000eeeeeee000ccccccc00000000000jjjjjjjjjiiiii0000000000000000000000000000000',
+                '0000000000000000000bbbbb0000eeeeee000ccccccc000000000000jjjjjjjjiiiii0000000000000000000000000000000',
+                '0000000000000000000bbbbb0000eeeeee000ccccccc000000000000jjjjjjjiiiiii0000000000000000000000000000000',
+                '000000000000000000bbbbbb00000eeeee000ccccccc0000000000000jjjjjiiiiiiij000000000000000000000000000000',
+                '000000000000000000bbbbbb000000eeee000ccccccc00000000000000jjjiiiiiiijjj00000000000000000000000000000',
+                '000000000000000000bbbbb000000000ee000ccccccc000000000000000jiiiiiiiijjjj0000000000000000000000000000',
+                '00000000000000000bbbbbb00000000000000ccccccc000000000000000iiiiiiiijjjjjj000000000000000000000000000',
+                '00000000000000000bbbbbb00000000000000ccccccc00000000000000iiiiiiiijjjjjjjjj0000000000000000000000000',
+                '00000000000000000bbbbbb00000000000000ccccccc00000000000000iiiiiiijjjjjjjjjjjj00000000000000000000000',
+                '0000000000000000bbbbbb000000000000000ccccccc000000000000iiiiiiijjjjjjjjjjjjjjjjj00000000000000000000',
+                '0000000000000000bbbbbb000000000000000ccccccc00000000000iiiiiiii0jjjjjjjjjjjjjjjjjj000000000000000000',
+                '000000000000000bbbbbb000000000000000cccccccc0000000000iiiiiiii000jjjjjjjjjjjjjjjjjjj0000000000000000',
+                '000000000000000bbbbbb0000000000ccccccccccccc000000000iiiiiiii00000jjjjjjjjjjjjjjjjjjjjj0000000000000',
+                '000000000000000bbbbb00000000000ccccccccccccc000000000iiiiiii0000000jjjjjjjjjjjjjjjjjjjjjj00000000000',
+                '000000000000000bbbbb000000000000cccccccccccc00000000iiiiiii0000000000jjjjjjjjjjjjjjjjjjjjjj000000000',
+                '000000000000000bbbb00000000000000ccccccccccc0000000iiiiiii000000000000jjjjjjjjjjjjjjjjjjjjjjjjj00000',
+                '000000000000000bbb000000000000000ccccccccccc00000iiiiiiii00000000000000jjjjjjjjjjjjjjjjjjjjjjjjjjjj0',
+                '00000000000000bbbb0000000000000000cccccccccc000iiiiiiiii0000000000000000jjjjjjjjjjjjjjjjjjjjjjjjjjjj',
+                '00000000000000bbb00000000000000000ccccccccc000iiiiiiiii00000000000000000jjjjjjjjjjjjjjjjjjjjjjjjjjj0',
+                '00000000000000bb000000000000000000ccccccccc000iiiiiiii0000000000000000000jjjjjjjjjjjjjjjjjjjjjjj0000',
+                '0000000000000bb0000000000000000000cccccccc0000iiiii000000000000000000000000jjjjjjjjjjjjjjjjj00000000',
+                '00000000000000000000000000000000000ccccccc0000000000000000000000000000000000jjjjjjjjjjjjjj0000000000',
+                '000000000000000000000000000000000000ccccc0000000000000000000000000000000000000jjjjjjjjj0000000000000',
+                '000000000000000000000000000000000000cccc0000000000000000000000000000000000000000jjj00000000000000000',
+                '0000000000000000000000000000000000000cc0000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+        ];
+
+        let totalLetters = Array(26).fill(0);
+        let filledLetters = Array(26).fill(0);
+        let currentLetterIndex = 0; // 當前字母索引
+        let canPaint = true;
+        let completedLetters = new Set();
+
+        function initializeGrid() {
+            grid.innerHTML = '';
+            for (let i = 0; i < 100; i++) {
+                cells[i] = [];
+                for (let j = 0; j < 100; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    const letter = patternA[i][j];
+                    if (letter !== '0') {
+                        cell.classList.add(`letter${letter}`);
+                        if (letter === 'z') {
+                            cell.style.backgroundColor = '#191919';
+                        } else {
+                            totalLetters[letter.charCodeAt(0) - 97]++; // 計算每個字母的總數
+                        }
+                    }
+                    cells[i][j] = cell;
+                    grid.appendChild(cell);
+                }
+            }
+            updateCurrentLetterColor();
+        }
+
+        function updateCurrentLetterColor() {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
+                cell.classList.add('current');
+            });
+        }
+
+        function removeCurrentLetterColor() {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
+                cell.classList.remove('current');
+            });
+        }
+
+        grid.addEventListener('mousedown', handleMouse);
+        grid.addEventListener('mousemove', function(e) {
+            if (e.buttons === 1) {
+                handleMouse(e);
+            }
+        });
+
+        grid.addEventListener('touchstart', handleTouch, { passive: false });
+        grid.addEventListener('touchmove', handleTouch, { passive: false });
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = grid.getBoundingClientRect();
+            const x = Math.floor((touch.clientX - rect.left) / 3);
+            const y = Math.floor((touch.clientY - rect.top) / 3);
+            if (canPaint) {
+                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+            }
+        }
+
+        function handleMouse(e) {
+            const rect = grid.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / 3);
+            const y = Math.floor((e.clientY - rect.top) / 3);
+            if (canPaint) {
+                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+            }
+        }
+
+        function fillCircle(cx, cy, radius) {
+            let painted = false;
+            for (let i = -radius; i <= radius; i++) {
+                for (let j = -radius; j <= radius; j++) {
+                    if (i * i + j * j <= radius * radius) {
+                        const nx = cx + j;
+                        const ny = cy + i;
+                        if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
+                            const targetCell = cells[ny][nx];
+                            const letter = String.fromCharCode(97 + currentLetterIndex);
+                            if ((targetCell.classList.contains(`letter${letter}`) || completedLetters.has(targetCell.className.slice(-1))) && !targetCell.style.backgroundColor) {
+                                targetCell.style.backgroundColor = '#000000';
+                                if (targetCell.classList.contains(`letter${letter}`)) {
+                                    filledLetters[currentLetterIndex]++;
+                                    painted = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (painted) {
+                updatePercentage();
+            }
+        }
+
+        function updatePercentage() {
+            const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
+            percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
+            if (percentageColored >= 97 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
+                completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
+                if (currentLetterIndex === 9) { // 當前字母為 'j'
+                    setTimeout(() => {
+                        document.getElementById('nextButton').click();
+                    }, 1000); // 1秒後觸發
+                }
+                canPaint = true;
+                const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
+                document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
+                    cell.classList.add('current');
+                });
+                if (currentLetterIndex < 25) {
+                    document.addEventListener('mousedown', nextLetterHandler, { once: true });
+                    document.addEventListener('touchstart', nextLetterHandler, { once: true });
+                }
+            }
+        }
+
+        function nextLetterHandler() {
+            if (currentLetterIndex < 25) {
+                currentLetterIndex++;
+                updateCurrentLetterColor();
+                canPaint = true;
+            }
+        }
+
+        // 禁止滾動刷新頁面
+        document.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+        // 初始化遊戲
+        initializeGrid();
+    </script>
+</body>
+</html>
