@@ -120,14 +120,19 @@
         }
 
         function updateTextDisplay() {
-            const currentLine = Math.floor(currentPageIndex / (maxLines * charsPerLine));
+            document.getElementById('textDisplay').innerHTML = formatTextDisplay(textContent, maxLines);
+        }
+
+        function formatTextDisplay(text, maxLines) {
             let displayHTML = '';
             let lineCount = 0;
             let charCount = 0;
-            let totalCharCount = currentLine * maxLines * charsPerLine;
+            let totalCharCount = 0;
 
-            for (let i = currentLine * maxLines * charsPerLine; i < textContent.length && lineCount < maxLines; i++) {
-                const char = textContent[i];
+            // Calculate starting point based on lines
+            let start = currentPageIndex - (currentPageIndex % (maxLines * charsPerLine));
+            for (let i = start; i < text.length && lineCount < maxLines; i++) {
+                const char = text[i];
 
                 if (char === '\n') {
                     displayHTML += '<br>';
@@ -155,7 +160,7 @@
                 if (lineCount >= maxLines) break;
             }
 
-            document.getElementById('textDisplay').innerHTML = displayHTML;
+            return displayHTML;
         }
 
         function nextPage() {
@@ -181,36 +186,9 @@
         }
 
         function showFullText() {
-            let fullTextHTML = formatFullTextDisplay(textContent);
+            let fullTextHTML = formatTextDisplay(textContent, Infinity);
             document.getElementById('fullTextContent').innerHTML = fullTextHTML;
             document.getElementById('fullTextOverlay').style.display = 'block';
-        }
-
-        function formatFullTextDisplay(text) {
-            let displayHTML = '';
-            let charCount = 0;
-            let totalCharCount = 0;
-
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-
-                if (char === '\n' || charCount >= charsPerLine) {
-                    displayHTML += '<br>';
-                    charCount = 0;
-                }
-
-                let charClass = 'future';
-                if (totalCharCount < currentPageIndex) {
-                    charClass = 'past';
-                } else if (totalCharCount === currentPageIndex) {
-                    charClass = 'current';
-                }
-                displayHTML += `<span class="${charClass}">${char}</span>`;
-                charCount++;
-                totalCharCount++;
-            }
-
-            return displayHTML;
         }
 
         function closeFullText() {
