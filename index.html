@@ -12,8 +12,8 @@
             background-color: #F2F2F2;
         }
         #iframe-container {
-            width: 400px;
-            height: 400px;
+            width: 390px;
+            height: 390px;
             border: none; /* 移除框線 */
             margin-top: 100px;
             display: flex;
@@ -56,7 +56,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 370px;
+            width: 280px;
             height: 500px;
             background-color: white;
             border: 1px solid black;
@@ -115,7 +115,7 @@
 
         function initializePages() {
             const filteredTextContent = textContent.replace(/\n/g, '');
-            pages = filteredTextContent.split('').map(char => `0001/${char}.htm`);
+            pages = filteredTextContent.split('').map(char => `0001/${char}.txt`);
             currentPageIndex = 0;
             if (pages.length > 0) {
                 loadPage();
