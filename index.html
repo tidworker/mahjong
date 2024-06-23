@@ -12,8 +12,8 @@
             background-color: #F2F2F2;
         }
         #iframe-container {
-            width: 390px;
-            height: 350px;
+            width: 400px;
+            height: 400px;
             border: none; /* 移除框線 */
             margin-top: 100px;
             display: flex;
@@ -32,7 +32,7 @@
         }
         #buttonContainer {
             display: flex;
-            gap: 10px;
+            gap: 1px;
         }
         button {
             margin: 10px;
@@ -41,14 +41,14 @@
             font-size: 18px;
             margin-top: 10px;
             max-width: 390px; /* 限制最大寬度 */
-            white-space: pre-wrap; /* 保留空白字符 */
             word-wrap: break-word; /* 強制單詞換行 */
             text-align: center;
+            white-space: pre-wrap; /* 保留空白字符 */
         }
-        .current, .past {
+        .current {
             color: black;
         }
-        .future {
+        .future, .past {
             color: gray;
         }
         #fullTextOverlay {
@@ -74,7 +74,6 @@
         #fullTextContent {
             text-align: center;
             white-space: pre-wrap; /* 保留空白字符 */
-            word-wrap: break-word; /* 強制單詞換行 */
         }
     </style>
 </head>
@@ -99,12 +98,24 @@
     <script>
         let pages = [];
         let currentPageIndex = 0;
-        const textContent = "金剛般若波羅蜜經\n法會因由分第一\n如是我聞一時佛在舍衛國祇樹給孤獨園與大比丘眾千二百五十人俱爾時世尊食時著衣持缽入舍衛大城乞食於其城中次第乞已還至本處飯食訖收衣缽洗足已敷座而坐"; // 內建的文字訊息
-        const maxLines = 2;
+        let textContent = ""; // 內建的文字訊息
+        const maxLines = 2; // 主頁顯示兩行
         const charsPerLine = 10;
 
+        // Fetch text content from the 0001.txt file
+        async function fetchTextContent() {
+            try {
+                const response = await fetch('0001/0001.txt');
+                textContent = await response.text();
+                initializePages();
+            } catch (error) {
+                console.error('Error fetching text content:', error);
+            }
+        }
+
         function initializePages() {
-            pages = textContent.replace(/\n/g, '').split('').map(char => `0001/${char}.htm`);
+            const filteredTextContent = textContent.replace(/\n/g, '');
+            pages = filteredTextContent.split('').map(char => `0001/${char}.htm`);
             currentPageIndex = 0;
             if (pages.length > 0) {
                 loadPage();
@@ -120,14 +131,76 @@
         }
 
         function updateTextDisplay() {
-            document.getElementById('textDisplay').innerHTML = formatTextDisplay(textContent, maxLines);
+            const displayText = textContent.replace(/\n/g, '');
+            const startLine = Math.floor(currentPageIndex / (charsPerLine * maxLines));
+            const startCharIndex = startLine * charsPerLine * maxLines;
+            let displayHTML = '';
+            let charCount = 0;
+            let lineCount = 0;
+
+            for (let i = startCharIndex; i < displayText.length && lineCount < maxLines; i++) {
+                const char = displayText[i];
+
+                if (charCount >= charsPerLine) {
+                    displayHTML += '<br>';
+                    charCount = 0;
+                    lineCount++;
+                }
+
+                if (lineCount >= maxLines) break;
+
+                let charClass = 'future';
+                if (i < currentPageIndex) {
+                    charClass = 'past';
+                } else if (i === currentPageIndex) {
+                    charClass = 'current';
+                }
+                displayHTML += `<span class="${charClass}">${char}</span>`;
+                charCount++;
+            }
+
+            document.getElementById('textDisplay').innerHTML = displayHTML;
+        }
+
+        function nextPage() {
+            do {
+                currentPageIndex++;
+            } while (currentPageIndex < textContent.replace(/\n/g, '').length && (textContent.replace(/\n/g, '')[currentPageIndex] === '　'));
+
+            if (currentPageIndex < textContent.replace(/\n/g, '').length) {
+                loadPage();
+                updateTextDisplay();
+                updateFullTextDisplay();
+            }
+        }
+
+        function prevPage() {
+            do {
+                currentPageIndex--;
+            } while (currentPageIndex >= 0 && (textContent.replace(/\n/g, '')[currentPageIndex] === '　'));
+
+            if (currentPageIndex >= 0) {
+                loadPage();
+                updateTextDisplay();
+                updateFullTextDisplay();
+            }
+        }
+
+        function showFullText() {
+            let fullTextHTML = formatTextDisplay(textContent, Infinity);
+            document.getElementById('fullTextContent').innerHTML = fullTextHTML;
+            document.getElementById('fullTextOverlay').style.display = 'block';
+        }
+
+        function updateFullTextDisplay() {
+            let fullTextHTML = formatTextDisplay(textContent, Infinity);
+            document.getElementById('fullTextContent').innerHTML = fullTextHTML;
         }
 
         function formatTextDisplay(text, maxLines) {
             let displayHTML = '';
-            let lineCount = 0;
             let charCount = 0;
-            let totalCharCount = 0;
+            let lineCount = 0;
 
             // Calculate starting point based on lines
             let start = currentPageIndex - (currentPageIndex % (maxLines * charsPerLine));
@@ -148,47 +221,16 @@
                 }
 
                 let charClass = 'future';
-                if (totalCharCount < currentPageIndex) {
+                if (i < currentPageIndex) {
                     charClass = 'past';
-                } else if (totalCharCount === currentPageIndex) {
+                } else if (i === currentPageIndex) {
                     charClass = 'current';
                 }
                 displayHTML += `<span class="${charClass}">${char}</span>`;
                 charCount++;
-                totalCharCount++;
-
-                if (lineCount >= maxLines) break;
             }
 
             return displayHTML;
-        }
-
-        function nextPage() {
-            do {
-                currentPageIndex++;
-            } while (currentPageIndex < textContent.replace(/\n/g, '').length && (textContent.replace(/\n/g, '')[currentPageIndex] === '　'));
-
-            if (currentPageIndex < textContent.replace(/\n/g, '').length) {
-                loadPage();
-                updateTextDisplay();
-            }
-        }
-
-        function prevPage() {
-            do {
-                currentPageIndex--;
-            } while (currentPageIndex >= 0 && (textContent.replace(/\n/g, '')[currentPageIndex] === '　'));
-
-            if (currentPageIndex >= 0) {
-                loadPage();
-                updateTextDisplay();
-            }
-        }
-
-        function showFullText() {
-            let fullTextHTML = formatTextDisplay(textContent, Infinity);
-            document.getElementById('fullTextContent').innerHTML = fullTextHTML;
-            document.getElementById('fullTextOverlay').style.display = 'block';
         }
 
         function closeFullText() {
@@ -202,7 +244,7 @@
         });
 
         // 在頁面加載時初始化頁面
-        window.onload = initializePages;
+        window.onload = fetchTextContent;
     </script>
 </body>
 </html>
