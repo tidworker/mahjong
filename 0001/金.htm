@@ -34,8 +34,11 @@
         }
         .lettera, .letterb, .letterc, .letterd, .lettere, .letterf, .letterg, .letterh, .letteri, .letterj,
         .letterk, .letterl, .letterm, .lettern, .lettero, .letterp, .letterq, .letterr, .letters, .lettert,
-        .letteru, .letterv, .letterw, .letterx, .lettery, .letterz {
+        .letteru, .letterv, .letterw, .letterx, .lettery {
             background-color: #d3d3d3;
+        }
+        .letterz {
+            background-color: #191919;
         }
         .current {
             background-color: #808080;
@@ -60,6 +63,7 @@
         <div id="percentage">已塗色百分比：0%</div>
         <button id="nextButton" onclick="window.parent.postMessage('nextPage', '*')">Next</button>
     </div>
+
 
     <script>
         const grid = document.getElementById('grid');
@@ -124,7 +128,7 @@
                 '0000000000aaaaaaaaa00000000000000dddddddddddddddddddddddddddd000000000000000000000000000000000000000',
                 '000000000aaaaaaaaa0000000000ddddddddddddddddddddddd000000ddd0000000000000000000000000000000000000000',
                 '00000000aaaaaaaaa000000ddddddddddddddddddddddddee000000000000000000000000000000000000000000000000000',
-                '0000000aaaaaaaa0000000dddddddddddddddddddddeeeeee0000000gg000000000000000000000000000000000000000000',
+                '0000000aaaaaaaa0000000Dddddddddddddddddddddeeeeee0000000gg000000000000000000000000000000000000000000',
                 '000000aaaaaaaa000000000dddddddddddddd000eeeeeeeee00000ggggggg000000000000000000000000000000000000000',
                 '00000aaaaaaaa0000000000ddddddddddd0000000eeeeeeee00000gggggggg00000000000000000000000000000000000000',
                 '00000aaaaaaa00000000000dddddddd0000000000eeeeeeee00000ggggggggg0000000000000000000000000000000000000',
@@ -251,12 +255,10 @@
                         if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
                             const targetCell = cells[ny][nx];
                             const letter = String.fromCharCode(97 + currentLetterIndex);
-                            if ((targetCell.classList.contains(`letter${letter}`) || completedLetters.has(targetCell.className.slice(-1))) && !targetCell.style.backgroundColor) {
+                            if (targetCell.classList.contains(`letter${letter}`) && !targetCell.style.backgroundColor) {
                                 targetCell.style.backgroundColor = '#000000';
-                                if (targetCell.classList.contains(`letter${letter}`)) {
-                                    filledLetters[currentLetterIndex]++;
-                                    painted = true;
-                                }
+                                filledLetters[currentLetterIndex]++;
+                                painted = true;
                             }
                         }
                     }
@@ -270,7 +272,7 @@
         function updatePercentage() {
             const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
-            if (percentageColored >= 97 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
+            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
                 if (currentLetterIndex === 7) { // 當前字母為 'h'
                     setTimeout(() => {
