@@ -246,7 +246,7 @@
 
                 brushX = newBrushX;
                 brushY = newBrushY;
-                fillLetter();
+                fillCircle(brushX, brushY, 10);
             }
         }
 
@@ -256,20 +256,27 @@
             return cell.classList.contains(`letter${currentLetter}`) || cell.classList.contains(`letter${currentLetter.toUpperCase()}`);
         }
 
-        function fillLetter() {
-            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
-            for (let y = 0; y < 100; y++) {
-                for (let x = 0; x < 100; x++) {
-                    const cell = cells[y][x];
-                    if (cell.classList.contains(`letter${currentLetter}`) || cell.classList.contains(`letter${currentLetter.toUpperCase()}`)) {
-                        if (!cell.style.backgroundColor) {
-                            cell.style.backgroundColor = '#000000';
-                            filledLetters[currentLetterIndex]++;
-                            updatePercentage();
-                            return;
+        function fillCircle(cx, cy, radius) {
+            let painted = false;
+            for (let i = -radius; i <= radius; i++) {
+                for (let j = -radius; j <= radius; j++) {
+                    if (i * i + j * j <= radius * radius) {
+                        const nx = cx + j;
+                        const ny = cy + i;
+                        if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
+                            const targetCell = cells[ny][nx];
+                            const letter = String.fromCharCode(97 + currentLetterIndex);
+                            if ((targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toUpperCase()}`)) && !targetCell.style.backgroundColor) {
+                                targetCell.style.backgroundColor = '#000000';
+                                filledLetters[currentLetterIndex]++;
+                                painted = true;
+                            }
                         }
                     }
                 }
+            }
+            if (painted) {
+                updatePercentage();
             }
         }
 
