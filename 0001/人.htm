@@ -61,9 +61,9 @@
     <div id="container">
         <div id="grid"></div>
         <div id="percentage">已塗色百分比：0%</div>
+        001
         <button id="nextButton" onclick="window.parent.postMessage('nextPage', '*')">Next</button>
     </div>
-
 
     <script>
         const grid = document.getElementById('grid');
@@ -177,6 +177,7 @@
         let currentLetterIndex = 0; // 當前字母索引
         let canPaint = true;
         let completedLetters = new Set();
+        let allLetters = new Set();
 
         function initializeGrid() {
             grid.innerHTML = '';
@@ -193,6 +194,7 @@
                             cell.style.backgroundColor = '#191919';
                         } else {
                             totalLetters[letter.charCodeAt(0) - 97]++; // 計算每個字母的總數
+                            allLetters.add(letter); // 添加到出現的字母集合
                         }
                     }
                     cells[i][j] = cell;
@@ -286,6 +288,10 @@
                     document.addEventListener('mousedown', nextLetterHandler, { once: true });
                     document.addEventListener('touchstart', nextLetterHandler, { once: true });
                 }
+                // 如果所有出現的字母都完成塗色，觸發下一頁
+                if (completedLetters.size === allLetters.size) {
+                    document.getElementById('nextButton').click();
+                }
             }
         }
 
@@ -298,10 +304,6 @@
                 }
             });
             updatePercentage();
-            if (completedLetters.size === 26) {
-                // 當所有字母都填滿時，觸發下一頁
-                document.getElementById('nextButton').click();
-            }
         }
 
         function nextLetterHandler() {
