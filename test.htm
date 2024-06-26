@@ -62,9 +62,9 @@
             font-size: 16px;
             cursor: pointer;
             position: absolute;
-            top: 10px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
         }
     </style>
 </head>
@@ -264,7 +264,7 @@
                     brushX = newBrushX;
                     brushY = newBrushY;
                 }
-                fillCell(brushX, brushY);
+                fillLine(brushX, brushY, moveX, moveY);
             }
         }
 
@@ -290,6 +290,14 @@
                 }
             }
             return count >= 50; // 至少有一半以上的範圍內都是該字母，認為通道可以通過
+        }
+
+        function fillLine(x, y, moveX, moveY) {
+            while (isInLetterRange(x, y)) {
+                fillCell(x, y);
+                x = Math.max(0, Math.min(99, x + moveX));
+                y = Math.max(0, Math.min(99, y + moveY));
+            }
         }
 
         function fillCell(x, y) {
