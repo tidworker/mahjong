@@ -136,7 +136,7 @@
                 '0000000000000000000000000000dddddddddddddddddd000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000ddddddddddddddddddd00000000000000000000000000000000000000000000000000000000',
                 '000000000000000000000000dDdddddddddddddddddd00000000000000000000000000000000000000000000000000000000',
-                '000000000000000000000000000dddddddddd00eeEe000000000000000000000000000000000000000000000000000000000',
+                '000000000000000000000000000dddddddddd00eeee000000000000000000000000000000000000000000000000000000000',
                 '00000000000000000000000000000dddddd0000eeee000000000000000000000000000000000000000000000000000000000',
                 '000000000000000000000000000000000000000eeee000000000000000000000000000000000000000000000000000000000',
                 '000000000000000000000000000000000000000eeee000000gggGggg00000000000000000000000000000000000000000000',
@@ -181,7 +181,6 @@
         let lettersInPattern = new Set(); // 紀錄在矩陣中出現的字母
         let brushX = 0;
         let brushY = 0;
-        const originalBrushSize = 10;
 
         function initializeGrid() {
             grid.innerHTML = '';
@@ -247,7 +246,7 @@
 
                 brushX = newBrushX;
                 brushY = newBrushY;
-                fillBrush(brushX, brushY, originalBrushSize);
+                fillBrush(brushX, brushY);
             }
         }
 
@@ -257,40 +256,16 @@
             return cell.classList.contains(`letter${currentLetter}`) || cell.classList.contains(`letter${currentLetter.toUpperCase()}`);
         }
 
-        function fillBrush(cx, cy, radius) {
-            let painted = false;
-            for (let size = radius; size >= 1; size--) {
-                let successfulFill = tryFillBrush(cx, cy, size);
-                if (successfulFill) {
-                    painted = true;
-                    break;
+        function fillBrush(cx, cy) {
+            if (isInLetterRange(cx, cy)) {
+                const targetCell = cells[cy][cx];
+                const letter = String.fromCharCode(97 + currentLetterIndex);
+                if ((targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toUpperCase()}`)) && !targetCell.style.backgroundColor) {
+                    targetCell.style.backgroundColor = '#000000';
+                    filledLetters[currentLetterIndex]++;
+                    updatePercentage();
                 }
             }
-            if (painted) {
-                updatePercentage();
-            }
-        }
-
-        function tryFillBrush(cx, cy, radius) {
-            let painted = false;
-            for (let i = -radius; i <= radius; i++) {
-                for (let j = -radius; j <= radius; j++) {
-                    if (i * i + j * j <= radius * radius) {
-                        const nx = cx + j;
-                        const ny = cy + i;
-                        if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
-                            const targetCell = cells[ny][nx];
-                            const letter = String.fromCharCode(97 + currentLetterIndex);
-                            if ((targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toUpperCase()}`)) && !targetCell.style.backgroundColor) {
-                                targetCell.style.backgroundColor = '#000000';
-                                filledLetters[currentLetterIndex]++;
-                                painted = true;
-                            }
-                        }
-                    }
-                }
-            }
-            return painted;
         }
 
         function updatePercentage() {
