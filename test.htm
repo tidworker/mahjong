@@ -232,8 +232,8 @@
             if (Math.abs(beta) > 10 || Math.abs(gamma) > 10) {
                 let moveX = Math.sign(gamma);
                 let moveY = Math.sign(beta);
-                let newBrushX = Math.max(0, Math.min(99, brushX + moveX));
-                let newBrushY = Math.max(0, Math.min(99, brushY + moveY));
+                let newBrushX = Math.max(-1, Math.min(100, brushX + moveX));
+                let newBrushY = Math.max(-1, Math.min(100, brushY + moveY));
 
                 if (!isInLetterRange(newBrushX, newBrushY)) {
                     if (!isInLetterRange(newBrushX, brushY)) {
@@ -277,6 +277,7 @@
             }
             if (painted) {
                 updatePercentage();
+                setTimeout(() => fillCircle(cx, cy, radius), 500); // 0.5秒間隔
             }
         }
 
