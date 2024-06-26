@@ -181,6 +181,7 @@
         let lettersInPattern = new Set(); // 紀錄在矩陣中出現的字母
         let brushX = 0;
         let brushY = 0;
+        let brushRadius = 10;
 
         function initializeGrid() {
             grid.innerHTML = '';
@@ -232,9 +233,21 @@
             if (Math.abs(beta) > 10 || Math.abs(gamma) > 10) {
                 let moveX = Math.sign(gamma);
                 let moveY = Math.sign(beta);
-                fillLine(brushX, brushY, moveX, moveY);
-                brushX = Math.max(0, Math.min(99, brushX + moveX));
-                brushY = Math.max(0, Math.min(99, brushY + moveY));
+                let newBrushX = Math.max(0, Math.min(99, brushX + moveX));
+                let newBrushY = Math.max(0, Math.min(99, brushY + moveY));
+
+                if (!isInLetterRange(newBrushX, newBrushY) && !isNearWall(newBrushX, newBrushY)) {
+                    if (!isInLetterRange(newBrushX, brushY) && !isNearWall(newBrushX, brushY)) {
+                        newBrushX = brushX;
+                    }
+                    if (!isInLetterRange(brushX, newBrushY) && !isNearWall(brushX, newBrushY)) {
+                        newBrushY = brushY;
+                    }
+                }
+
+                brushX = newBrushX;
+                brushY = newBrushY;
+                fillCircle(brushX, brushY, brushRadius);
             }
         }
 
@@ -244,18 +257,43 @@
             return cell.classList.contains(`letter${currentLetter}`) || cell.classList.contains(`letter${currentLetter.toUpperCase()}`);
         }
 
-        function fillLine(cx, cy, dx, dy) {
-            while (isInLetterRange(cx, cy)) {
-                const targetCell = cells[cy][cx];
-                const letter = String.fromCharCode(97 + currentLetterIndex);
-                if ((targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toUpperCase()}`)) && !targetCell.style.backgroundColor) {
-                    targetCell.style.backgroundColor = '#000000';
-                    filledLetters[currentLetterIndex]++;
-                    updatePercentage();
+        function isNearWall(x, y) {
+            for (let i = -brushRadius; i <= brushRadius; i++) {
+                for (let j = -brushRadius; j <= brushRadius; j++) {
+                    const nx = x + j;
+                    const ny = y + i;
+                    if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
+                        const cell = cells[ny][nx];
+                        if (cell && cell.classList.contains('cell') && !cell.classList.contains(`letter${String.fromCharCode(97 + currentLetterIndex)}`)) {
+                            return true;
+                        }
+                    }
                 }
-                cx += dx;
-                cy += dy;
-                if (cx < 0 || cx >= 100 || cy < 0 || cy >= 100) break;
+            }
+            return false;
+        }
+
+        function fillCircle(cx, cy, radius) {
+            let painted = false;
+            for (let i = -radius; i <= radius; i++) {
+                for (let j = -radius; j <= radius; j++) {
+                    if (i * i + j * j <= radius * radius) {
+                        const nx = cx + j;
+                        const ny = cy + i;
+                        if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
+                            const targetCell = cells[ny][nx];
+                            const letter = String.fromCharCode(97 + currentLetterIndex);
+                            if ((targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toUpperCase()}`)) && !targetCell.style.backgroundColor) {
+                                targetCell.style.backgroundColor = '#000000';
+                                filledLetters[currentLetterIndex]++;
+                                painted = true;
+                            }
+                        }
+                    }
+                }
+            }
+            if (painted) {
+                updatePercentage();
             }
         }
 
