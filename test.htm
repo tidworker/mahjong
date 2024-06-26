@@ -181,7 +181,6 @@
         let lettersInPattern = new Set(); // 紀錄在矩陣中出現的字母
         let brushX = 0;
         let brushY = 0;
-        let brushRadius = 10;
 
         function initializeGrid() {
             grid.innerHTML = '';
@@ -236,18 +235,18 @@
                 let newBrushX = Math.max(0, Math.min(99, brushX + moveX));
                 let newBrushY = Math.max(0, Math.min(99, brushY + moveY));
 
-                if (!isInLetterRange(newBrushX, newBrushY) && !isNearWall(newBrushX, newBrushY)) {
-                    if (!isInLetterRange(newBrushX, brushY) && !isNearWall(newBrushX, brushY)) {
+                if (!isInLetterRange(newBrushX, newBrushY)) {
+                    if (!isInLetterRange(newBrushX, brushY)) {
                         newBrushX = brushX;
                     }
-                    if (!isInLetterRange(brushX, newBrushY) && !isNearWall(brushX, newBrushY)) {
+                    if (!isInLetterRange(brushX, newBrushY)) {
                         newBrushY = brushY;
                     }
                 }
 
                 brushX = newBrushX;
                 brushY = newBrushY;
-                fillCircle(brushX, brushY, brushRadius);
+                fillCircle(brushX, brushY, 10);
             }
         }
 
@@ -255,22 +254,6 @@
             const currentLetter = String.fromCharCode(97 + currentLetterIndex);
             const cell = cells[y][x];
             return cell.classList.contains(`letter${currentLetter}`) || cell.classList.contains(`letter${currentLetter.toUpperCase()}`);
-        }
-
-        function isNearWall(x, y) {
-            for (let i = -brushRadius; i <= brushRadius; i++) {
-                for (let j = -brushRadius; j <= brushRadius; j++) {
-                    const nx = x + j;
-                    const ny = y + i;
-                    if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
-                        const cell = cells[ny][nx];
-                        if (cell && cell.classList.contains('cell') && !cell.classList.contains(`letter${String.fromCharCode(97 + currentLetterIndex)}`)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
         }
 
         function fillCircle(cx, cy, radius) {
