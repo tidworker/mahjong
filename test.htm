@@ -50,6 +50,8 @@
             position: absolute;
             background-color: rgba(128, 128, 128, 0.5);
             pointer-events: none;
+            width: 40px;
+            height: 40px;
         }
         #percentage {
             margin-top: 0px;
@@ -220,8 +222,6 @@
         function createBrushElement() {
             brushElement = document.createElement('div');
             brushElement.className = 'brush';
-            brushElement.style.width = `${originalBrushSize * 4}px`;
-            brushElement.style.height = `${originalBrushSize * 4}px`;
             grid.appendChild(brushElement);
             updateBrushPosition();
         }
