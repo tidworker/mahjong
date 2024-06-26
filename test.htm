@@ -71,7 +71,7 @@
         const percentageDisplay = document.getElementById('percentage');
         const cells = [];
         const patternA = [
-                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+            '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
@@ -171,6 +171,7 @@
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+
         ];
 
         let totalLetters = Array(26).fill(0);
@@ -181,6 +182,7 @@
         let lettersInPattern = new Set(); // 紀錄在矩陣中出現的字母
         let brushX = 0;
         let brushY = 0;
+        let paintingInProgress = false; // 標記是否有塗寫正在進行
 
         function initializeGrid() {
             grid.innerHTML = '';
@@ -226,6 +228,8 @@
         }
 
         function handleOrientation(event) {
+            if (paintingInProgress) return; // 如果有塗寫正在進行，則不處理新的事件
+
             const beta = event.beta; // X 軸傾斜 (-180, 180)
             const gamma = event.gamma; // Y 軸傾斜 (-90, 90)
 
@@ -258,6 +262,7 @@
 
         function fillCircle(cx, cy, radius) {
             let painted = false;
+            paintingInProgress = true; // 開始塗寫
             for (let i = -radius; i <= radius; i++) {
                 for (let j = -radius; j <= radius; j++) {
                     if (i * i + j * j <= radius * radius) {
@@ -277,8 +282,8 @@
             }
             if (painted) {
                 updatePercentage();
-                setTimeout(() => fillCircle(cx, cy, radius), 500); // 0.5秒間隔
             }
+            setTimeout(() => { paintingInProgress = false; }, 500); // 延遲0.5秒再開始下一次塗寫
         }
 
         function updatePercentage() {
