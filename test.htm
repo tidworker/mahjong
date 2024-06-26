@@ -230,8 +230,8 @@
             const gamma = event.gamma; // Y 軸傾斜 (-90, 90)
 
             if (Math.abs(beta) > 10 || Math.abs(gamma) > 10) {
-                const moveX = Math.sign(gamma) * 10;
-                const moveY = Math.sign(beta) * 10;
+                const moveX = Math.sign(gamma);
+                const moveY = Math.sign(beta);
                 brushX = Math.max(0, Math.min(99, brushX + moveX));
                 brushY = Math.max(0, Math.min(99, brushY + moveY));
                 fillCircle(brushX, brushY, 10);
