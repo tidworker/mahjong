@@ -25,7 +25,6 @@
             display: grid;
             grid-template-columns: repeat(100, 4px);
             grid-template-rows: repeat(100, 4px);
-            position: relative;
         }
         .cell {
             width: 4px;
@@ -45,13 +44,6 @@
         }
         .current {
             background-color: #808080;
-        }
-        .brush {
-            position: absolute;
-            background-color: rgba(128, 128, 128, 0.5);
-            pointer-events: none;
-            width: 40px;
-            height: 40px;
         }
         #percentage {
             margin-top: 0px;
@@ -190,7 +182,6 @@
         let brushX = 0;
         let brushY = 0;
         const originalBrushSize = 10;
-        let brushElement;
 
         function initializeGrid() {
             grid.innerHTML = '';
@@ -215,20 +206,7 @@
             }
             updateCurrentLetterColor();
             setBrushStartPosition();
-            createBrushElement();
             window.addEventListener('deviceorientation', handleOrientation);
-        }
-
-        function createBrushElement() {
-            brushElement = document.createElement('div');
-            brushElement.className = 'brush';
-            grid.appendChild(brushElement);
-            updateBrushPosition();
-        }
-
-        function updateBrushPosition() {
-            brushElement.style.left = `${brushX * 4}px`;
-            brushElement.style.top = `${brushY * 4}px`;
         }
 
         function updateCurrentLetterColor() {
@@ -245,7 +223,6 @@
                 const rect = cell.getBoundingClientRect();
                 brushX = Math.floor((rect.left - grid.getBoundingClientRect().left) / 4);
                 brushY = Math.floor((rect.top - grid.getBoundingClientRect().top) / 4);
-                updateBrushPosition();
             }
         }
 
@@ -270,7 +247,6 @@
 
                 brushX = newBrushX;
                 brushY = newBrushY;
-                updateBrushPosition();
                 fillBrush(brushX, brushY, originalBrushSize);
             }
         }
