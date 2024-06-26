@@ -259,7 +259,7 @@
 
         function fillBrush(cx, cy, radius) {
             let painted = false;
-            for (let size = radius; size > 0; size--) {
+            for (let size = radius; size >= 1; size--) {
                 let successfulFill = tryFillBrush(cx, cy, size);
                 if (successfulFill) {
                     painted = true;
