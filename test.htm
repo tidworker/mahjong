@@ -57,27 +57,18 @@
         #nextButton {
             display: none; /* 隐藏按钮 */
         }
-        #startButton {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
     <div id="container">
-        <button id="startButton">Start</button>
-        <div id="grid" style="display:none;"></div>
-        <div id="percentage" style="display:none;">已塗色百分比：0%</div>
-        <button id="nextButton" onclick="window.parent.postMessage('nextPage', '*')" style="display:none;">Next</button>
+        <div id="grid"></div>
+        <div id="percentage">已塗色百分比：0%</div>
+        <button id="nextButton" onclick="window.parent.postMessage('nextPage', '*')">Next</button>
     </div>
 
     <script>
-        const startButton = document.getElementById('startButton');
         const grid = document.getElementById('grid');
         const percentageDisplay = document.getElementById('percentage');
-        const nextButton = document.getElementById('nextButton');
-
         const cells = [];
         const patternA = [
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
@@ -145,7 +136,7 @@
                 '0000000000000000000000000000dddddddddddddddddd000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000ddddddddddddddddddd00000000000000000000000000000000000000000000000000000000',
                 '000000000000000000000000dDdddddddddddddddddd00000000000000000000000000000000000000000000000000000000',
-                '000000000000000000000000000dddddddddd00eeEe000000000000000000000000000000000000000000000000000000000',
+                '000000000000000000000000000dddddddddd00eEee000000000000000000000000000000000000000000000000000000000',
                 '00000000000000000000000000000dddddd0000eeee000000000000000000000000000000000000000000000000000000000',
                 '000000000000000000000000000000000000000eeee000000000000000000000000000000000000000000000000000000000',
                 '000000000000000000000000000000000000000eeee000000gggGggg00000000000000000000000000000000000000000000',
@@ -191,15 +182,6 @@
         let brushX = 0;
         let brushY = 0;
 
-        startButton.addEventListener('click', () => {
-            startButton.style.display = 'none';
-            grid.style.display = 'grid';
-            percentageDisplay.style.display = 'block';
-            nextButton.style.display = 'block';
-            initializeGrid();
-            window.addEventListener('deviceorientation', handleOrientation);
-        });
-
         function initializeGrid() {
             grid.innerHTML = '';
             for (let i = 0; i < 100; i++) {
@@ -223,6 +205,7 @@
             }
             updateCurrentLetterColor();
             setBrushStartPosition();
+            window.addEventListener('deviceorientation', handleOrientation);
         }
 
         function updateCurrentLetterColor() {
@@ -259,10 +242,10 @@
                     if (!isInLetterRange(brushX, newBrushY)) {
                         newBrushY = brushY;
                     }
-                } else {
-                    brushX = newBrushX;
-                    brushY = newBrushY;
                 }
+
+                brushX = newBrushX;
+                brushY = newBrushY;
                 fillCircle(brushX, brushY, 10);
             }
         }
@@ -270,25 +253,7 @@
         function isInLetterRange(x, y) {
             const currentLetter = String.fromCharCode(97 + currentLetterIndex);
             const cell = cells[y][x];
-            return cell.classList.contains(`letter${currentLetter}`) || cell.classList.contains(`letter${currentLetter.toUpperCase()}`) || checkSmallPassage(x, y);
-        }
-
-        function checkSmallPassage(x, y) {
-            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
-            let count = 0;
-            for (let i = -5; i <= 5; i++) {
-                for (let j = -5; j <= 5; j++) {
-                    const nx = x + i;
-                    const ny = y + j;
-                    if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
-                        const cell = cells[ny][nx];
-                        if (cell.classList.contains(`letter${currentLetter}`) || cell.classList.contains(`letter${currentLetter.toUpperCase()}`)) {
-                            count++;
-                        }
-                    }
-                }
-            }
-            return count >= 50; // 至少有一半以上的範圍內都是該字母，認為通道可以通過
+            return cell.classList.contains(`letter${currentLetter}`) || cell.classList.contains(`letter${currentLetter.toUpperCase()}`);
         }
 
         function fillCircle(cx, cy, radius) {
@@ -354,6 +319,9 @@
         document.addEventListener('touchmove', function(event) {
             event.preventDefault();
         }, { passive: false });
+
+        // 初始化遊戲
+        initializeGrid();
     </script>
 </body>
 </html>
