@@ -285,9 +285,6 @@
                 if (currentLetterIndex < 25) {
                     document.addEventListener('mousedown', nextLetterHandler, { once: true });
                     document.addEventListener('touchstart', nextLetterHandler, { once: true });
-                } else {
-                    // 當所有字母都填滿時，觸發下一頁
-                    document.getElementById('nextButton').click();
                 }
             }
         }
@@ -301,6 +298,10 @@
                 }
             });
             updatePercentage();
+            if (completedLetters.size === 26) {
+                // 當所有字母都填滿時，觸發下一頁
+                document.getElementById('nextButton').click();
+            }
         }
 
         function nextLetterHandler() {
