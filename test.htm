@@ -71,6 +71,79 @@
         const percentageDisplay = document.getElementById('percentage');
         const cells = [];
         const patternA = [
+            <!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's Write</title>
+    <style>
+        body, html {
+            flex-direction: column;
+            background-color: #F2F2F2;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(100, 4px);
+            grid-template-rows: repeat(100, 4px);
+        }
+        .cell {
+            width: 4px;
+            height: 4px;
+            background-color: transparent;
+            box-sizing: border-box;
+        }
+        .lettera, .letterA, .letterb, .letterB, .letterc, .letterC, .letterd, .letterD, .lettere, .letterE,
+        .letterf, .letterF, .letterg, .letterG, .letterh, .letterH, .letteri, .letterI, .letterj, .letterJ,
+        .letterk, .letterK, .letterl, .letterL, .letterm, .letterM, .lettern, .letterN, .lettero, .letterO,
+        .letterp, .letterP, .letterq, .letterQ, .letterr, .letterR, .letters, .letterS, .lettert, .letterT,
+        .letteru, .letterU, .letterv, .letterV, .letterw, .letterW, .letterx, .letterX, .lettery, .letterY {
+            background-color: #d3d3d3;
+        }
+        .letterz, .letterZ {
+            background-color: #191919;
+        }
+        .current {
+            background-color: #808080;
+        }
+        #percentage {
+            margin-top: 0px;
+            font-size: 5px;
+            color: #F2F2F2;
+        }
+        #buttons img {
+            cursor: pointer;
+            margin: 12px;
+        }
+        #nextButton {
+            display: none; /* 隐藏按钮 */
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="grid"></div>
+        <div id="percentage">已塗色百分比：0%</div>
+        <button id="nextButton" onclick="window.parent.postMessage('nextPage', '*')">Next</button>
+    </div>
+
+    <script>
+        const grid = document.getElementById('grid');
+        const percentageDisplay = document.getElementById('percentage');
+        const cells = [];
+        const patternA = [
             '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
@@ -301,6 +374,163 @@
                     setBrushStartPosition();
                     canPaint = true;
                 }
+            }
+        }
+
+        function fillCurrentLetter() {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            document.querySelectorAll(`.letter${currentLetter}, .letter${currentLetter.toUpperCase()}`).forEach(cell => {
+                if (!cell.style.backgroundColor) {
+                    cell.style.backgroundColor = '#000000';
+                    filledLetters[currentLetterIndex]++;
+                }
+            });
+            updatePercentage();
+            if (Array.from(lettersInPattern).every(letter => completedLetters.has(letter))) {
+                // 當所有出現的字母都填滿時，延遲一秒後觸發下一頁
+                setTimeout(() => {
+                    document.getElementById('nextButton').click();
+                }, 1000);
+            }
+        }
+
+        // 禁止滾動刷新頁面
+        document.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+        // 初始化遊戲
+        initializeGrid();
+    </script>
+</body>
+</html>
+
+        ];
+
+        let totalLetters = Array(26).fill(0);
+        let filledLetters = Array(26).fill(0);
+        let currentLetterIndex = 0; // 當前字母索引
+        let canPaint = true;
+        let completedLetters = new Set();
+        let lettersInPattern = new Set(); // 紀錄在矩陣中出現的字母
+        let brushX = 0;
+        let brushY = 0;
+
+        function initializeGrid() {
+            grid.innerHTML = '';
+            for (let i = 0; i < 100; i++) {
+                cells[i] = [];
+                for (let j = 0; j < 100; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    const letter = patternA[i][j];
+                    if (letter !== '0') {
+                        cell.classList.add(`letter${letter}`);
+                        if (letter.toLowerCase() === 'z') {
+                            cell.style.backgroundColor = '#191919';
+                        } else {
+                            totalLetters[letter.toLowerCase().charCodeAt(0) - 97]++;
+                            lettersInPattern.add(letter.toLowerCase());
+                        }
+                    }
+                    cells[i][j] = cell;
+                    grid.appendChild(cell);
+                }
+            }
+            updateCurrentLetterColor();
+            setBrushStartPosition();
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
+
+        function updateCurrentLetterColor() {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            document.querySelectorAll(`.letter${currentLetter}, .letter${currentLetter.toUpperCase()}`).forEach(cell => {
+                cell.classList.add('current');
+            });
+        }
+
+        function setBrushStartPosition() {
+            const currentLetter = String.fromCharCode(65 + currentLetterIndex); // 大寫字母
+            const cell = document.querySelector(`.letter${currentLetter}`);
+            if (cell) {
+                const rect = cell.getBoundingClientRect();
+                brushX = Math.floor((rect.left - grid.getBoundingClientRect().left) / 4);
+                brushY = Math.floor((rect.top - grid.getBoundingClientRect().top) / 4);
+            }
+        }
+
+        function handleOrientation(event) {
+            const beta = event.beta; // X 軸傾斜 (-180, 180)
+            const gamma = event.gamma; // Y 軸傾斜 (-90, 90)
+
+            if (Math.abs(beta) > 10 || Math.abs(gamma) > 10) {
+                let moveX = Math.sign(gamma);
+                let moveY = Math.sign(beta);
+                let newBrushX = Math.max(0, Math.min(99, brushX + moveX));
+                let newBrushY = Math.max(0, Math.min(99, brushY + moveY));
+
+                if (!isInLetterRange(newBrushX, newBrushY)) {
+                    if (!isInLetterRange(newBrushX, brushY)) {
+                        newBrushX = brushX;
+                    }
+                    if (!isInLetterRange(brushX, newBrushY)) {
+                        newBrushY = brushY;
+                    }
+                }
+
+                brushX = newBrushX;
+                brushY = newBrushY;
+                fillCircle(brushX, brushY, 10);
+            }
+        }
+
+        function isInLetterRange(x, y) {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            const cell = cells[y][x];
+            return cell.classList.contains(`letter${currentLetter}`) || cell.classList.contains(`letter${currentLetter.toUpperCase()}`);
+        }
+
+        function fillCircle(cx, cy, radius) {
+            let painted = false;
+            for (let i = -radius; i <= radius; i++) {
+                for (let j = -radius; j <= radius; j++) {
+                    if (i * i + j * j <= radius * radius) {
+                        const nx = cx + j;
+                        const ny = cy + i;
+                        if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
+                            const targetCell = cells[ny][nx];
+                            const letter = String.fromCharCode(97 + currentLetterIndex);
+                            if ((targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toUpperCase()}`)) && !targetCell.style.backgroundColor) {
+                                targetCell.style.backgroundColor = '#000000';
+                                filledLetters[currentLetterIndex]++;
+                                painted = true;
+                            }
+                        }
+                    }
+                }
+            }
+            if (painted) {
+                updatePercentage();
+            }
+        }
+
+        function updatePercentage() {
+            const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
+            percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
+            if (percentageColored >= 99 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
+                completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
+                fillCurrentLetter();
+                setTimeout(() => {
+                    const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
+                    document.querySelectorAll(`.letter${nextLetter}, .letter${nextLetter.toUpperCase()}`).forEach(cell => {
+                        cell.classList.add('current');
+                    });
+                    if (currentLetterIndex < 25) {
+                        currentLetterIndex++;
+                        setBrushStartPosition();
+                        canPaint = true;
+                    }
+                }, 500);
             }
         }
 
