@@ -136,7 +136,7 @@
                 '0000000000000000000000000000dddddddddddddddddd000000000000000000000000000000000000000000000000000000',
                 '0000000000000000000000000ddddddddddddddddddd00000000000000000000000000000000000000000000000000000000',
                 '000000000000000000000000dDdddddddddddddddddd00000000000000000000000000000000000000000000000000000000',
-                '000000000000000000000000000dddddddddd00eEee000000000000000000000000000000000000000000000000000000000',
+                '000000000000000000000000000dddddddddd00eeee000000000000000000000000000000000000000000000000000000000',
                 '00000000000000000000000000000dddddd0000eeee000000000000000000000000000000000000000000000000000000000',
                 '000000000000000000000000000000000000000eeee000000000000000000000000000000000000000000000000000000000',
                 '000000000000000000000000000000000000000eeee000000gggGggg00000000000000000000000000000000000000000000',
@@ -246,7 +246,7 @@
 
                 brushX = newBrushX;
                 brushY = newBrushY;
-                fillCircle(brushX, brushY, 10);
+                fillNextAvailableCell();
             }
         }
 
@@ -256,27 +256,20 @@
             return cell.classList.contains(`letter${currentLetter}`) || cell.classList.contains(`letter${currentLetter.toUpperCase()}`);
         }
 
-        function fillCircle(cx, cy, radius) {
-            let painted = false;
-            for (let i = -radius; i <= radius; i++) {
-                for (let j = -radius; j <= radius; j++) {
-                    if (i * i + j * j <= radius * radius) {
-                        const nx = cx + j;
-                        const ny = cy + i;
-                        if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
-                            const targetCell = cells[ny][nx];
-                            const letter = String.fromCharCode(97 + currentLetterIndex);
-                            if ((targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toUpperCase()}`)) && !targetCell.style.backgroundColor) {
-                                targetCell.style.backgroundColor = '#000000';
-                                filledLetters[currentLetterIndex]++;
-                                painted = true;
-                            }
+        function fillNextAvailableCell() {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            for (let y = 0; y < 100; y++) {
+                for (let x = 0; x < 100; x++) {
+                    const cell = cells[y][x];
+                    if (cell.classList.contains(`letter${currentLetter}`) || cell.classList.contains(`letter${currentLetter.toUpperCase()}`)) {
+                        if (!cell.style.backgroundColor) {
+                            cell.style.backgroundColor = '#000000';
+                            filledLetters[currentLetterIndex]++;
+                            updatePercentage();
+                            return;
                         }
                     }
                 }
-            }
-            if (painted) {
-                updatePercentage();
             }
         }
 
