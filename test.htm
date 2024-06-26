@@ -246,7 +246,7 @@
 
                 brushX = newBrushX;
                 brushY = newBrushY;
-                fillNextAvailableCell();
+                fillLetter();
             }
         }
 
@@ -256,7 +256,7 @@
             return cell.classList.contains(`letter${currentLetter}`) || cell.classList.contains(`letter${currentLetter.toUpperCase()}`);
         }
 
-        function fillNextAvailableCell() {
+        function fillLetter() {
             const currentLetter = String.fromCharCode(97 + currentLetterIndex);
             for (let y = 0; y < 100; y++) {
                 for (let x = 0; x < 100; x++) {
