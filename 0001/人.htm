@@ -58,7 +58,7 @@
     </style>
 </head>
 <body>    
-    001
+    002
     <div id="container">
         <div id="grid"></div>
         <div id="percentage">已塗色百分比：0%</div>
@@ -290,7 +290,9 @@
                 }
                 // 如果所有出現的字母都完成塗色，觸發下一頁
                 if (completedLetters.size === allLetters.size) {
+                    setTimeout(() => {
                     document.getElementById('nextButton').click();
+                    }, 1000); // 1秒後觸發
                 }
             }
         }
