@@ -181,6 +181,7 @@
         let lettersInPattern = new Set(); // 紀錄在矩陣中出現的字母
         let brushX = 0;
         let brushY = 0;
+        const originalBrushSize = 10;
 
         function initializeGrid() {
             grid.innerHTML = '';
@@ -246,7 +247,7 @@
 
                 brushX = newBrushX;
                 brushY = newBrushY;
-                fillBrush(brushX, brushY, 10);
+                fillBrush(brushX, brushY, originalBrushSize);
             }
         }
 
@@ -258,25 +259,38 @@
 
         function fillBrush(cx, cy, radius) {
             let painted = false;
-            const brushSize = 5; // 畫筆尺寸設為5x5
-            for (let i = -brushSize; i <= brushSize; i++) {
-                for (let j = -brushSize; j <= brushSize; j++) {
-                    const nx = cx + j;
-                    const ny = cy + i;
-                    if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
-                        const targetCell = cells[ny][nx];
-                        const letter = String.fromCharCode(97 + currentLetterIndex);
-                        if ((targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toUpperCase()}`)) && !targetCell.style.backgroundColor) {
-                            targetCell.style.backgroundColor = '#000000';
-                            filledLetters[currentLetterIndex]++;
-                            painted = true;
-                        }
-                    }
+            for (let size = radius; size > 0; size--) {
+                let successfulFill = tryFillBrush(cx, cy, size);
+                if (successfulFill) {
+                    painted = true;
+                    break;
                 }
             }
             if (painted) {
                 updatePercentage();
             }
+        }
+
+        function tryFillBrush(cx, cy, radius) {
+            let painted = false;
+            for (let i = -radius; i <= radius; i++) {
+                for (let j = -radius; j <= radius; j++) {
+                    if (i * i + j * j <= radius * radius) {
+                        const nx = cx + j;
+                        const ny = cy + i;
+                        if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
+                            const targetCell = cells[ny][nx];
+                            const letter = String.fromCharCode(97 + currentLetterIndex);
+                            if ((targetCell.classList.contains(`letter${letter}`) || targetCell.classList.contains(`letter${letter.toUpperCase()}`)) && !targetCell.style.backgroundColor) {
+                                targetCell.style.backgroundColor = '#000000';
+                                filledLetters[currentLetterIndex]++;
+                                painted = true;
+                            }
+                        }
+                    }
+                }
+            }
+            return painted;
         }
 
         function updatePercentage() {
