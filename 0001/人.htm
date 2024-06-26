@@ -180,6 +180,7 @@
 
         function initializeGrid() {
             grid.innerHTML = '';
+            // 這裡加載完整矩陣
             for (let i = 0; i < 100; i++) {
                 cells[i] = [];
                 for (let j = 0; j < 100; j++) {
@@ -274,11 +275,8 @@
             percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
             if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
                 completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
-                if (currentLetterIndex === 1) { // 當前字母為 'b'
-                    setTimeout(() => {
-                        document.getElementById('nextButton').click();
-                    }, 1000); // 1秒後觸發
-                }
+                // 填滿當前字母
+                fillCurrentLetter();
                 canPaint = true;
                 const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
                 document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
@@ -287,12 +285,27 @@
                 if (currentLetterIndex < 25) {
                     document.addEventListener('mousedown', nextLetterHandler, { once: true });
                     document.addEventListener('touchstart', nextLetterHandler, { once: true });
+                } else {
+                    // 當所有字母都填滿時，觸發下一頁
+                    document.getElementById('nextButton').click();
                 }
             }
         }
 
+        function fillCurrentLetter() {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
+                if (!cell.style.backgroundColor) {
+                    cell.style.backgroundColor = '#000000';
+                    filledLetters[currentLetterIndex]++;
+                }
+            });
+            updatePercentage();
+        }
+
         function nextLetterHandler() {
             if (currentLetterIndex < 25) {
+                removeCurrentLetterColor();
                 currentLetterIndex++;
                 updateCurrentLetterColor();
                 canPaint = true;
