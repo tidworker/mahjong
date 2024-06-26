@@ -25,6 +25,7 @@
             display: grid;
             grid-template-columns: repeat(100, 4px);
             grid-template-rows: repeat(100, 4px);
+            position: relative;
         }
         .cell {
             width: 4px;
@@ -44,6 +45,11 @@
         }
         .current {
             background-color: #808080;
+        }
+        .brush {
+            position: absolute;
+            background-color: rgba(128, 128, 128, 0.5);
+            pointer-events: none;
         }
         #percentage {
             margin-top: 0px;
@@ -146,8 +152,8 @@
                 '000000000000000000000000000000000000000eeee000000ggggggg00000000000000000000000000000000000000000000',
                 '00000000000000000000000Fff0000000000000eeee00000gggggg0000000000000000000000000000000000000000000000',
                 '00000000000000000000000fffff0ff00000000eeee00000gg00000000000000000000000000000000000000000000000000',
-                '000000000000000000000000fffffff0000000eeeee000000000000000000000000000000000000000000000000000000000',
-                '000000000000000000000000fffffff00000eeeeeee000000000000000000000000000000000000000000000000000000000',
+                '000000000000000000000000fffffff0000000eeee0000000000000000000000000000000000000000000000000000000000',
+                '000000000000000000000000fffffff00000eeeeee0000000000000000000000000000000000000000000000000000000000',
                 '00000000000000000000000000fffff00000eeeeee0000000000000000000000000000000000000000000000000000000000',
                 '000000000000000000000000000fff0000000eeeee0000000000000000000000000000000000000000000000000000000000',
                 '00000000000000000000000000000000000000eeee0000000000000000000000000000000000000000000000000000000000',
@@ -182,6 +188,7 @@
         let brushX = 0;
         let brushY = 0;
         const originalBrushSize = 10;
+        let brushElement;
 
         function initializeGrid() {
             grid.innerHTML = '';
@@ -206,7 +213,22 @@
             }
             updateCurrentLetterColor();
             setBrushStartPosition();
+            createBrushElement();
             window.addEventListener('deviceorientation', handleOrientation);
+        }
+
+        function createBrushElement() {
+            brushElement = document.createElement('div');
+            brushElement.className = 'brush';
+            brushElement.style.width = `${originalBrushSize * 4}px`;
+            brushElement.style.height = `${originalBrushSize * 4}px`;
+            grid.appendChild(brushElement);
+            updateBrushPosition();
+        }
+
+        function updateBrushPosition() {
+            brushElement.style.left = `${brushX * 4}px`;
+            brushElement.style.top = `${brushY * 4}px`;
         }
 
         function updateCurrentLetterColor() {
@@ -223,6 +245,7 @@
                 const rect = cell.getBoundingClientRect();
                 brushX = Math.floor((rect.left - grid.getBoundingClientRect().left) / 4);
                 brushY = Math.floor((rect.top - grid.getBoundingClientRect().top) / 4);
+                updateBrushPosition();
             }
         }
 
@@ -247,6 +270,7 @@
 
                 brushX = newBrushX;
                 brushY = newBrushY;
+                updateBrushPosition();
                 fillBrush(brushX, brushY, originalBrushSize);
             }
         }
