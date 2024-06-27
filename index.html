@@ -42,7 +42,7 @@
         }
         button {
             padding: 10px;
-            font-size: 12px;
+            font-size: 16px;
         }
         #textDisplay {
             font-size: 30px; /* 調整文字大小 */
@@ -55,8 +55,11 @@
         .current {
             color: black;
         }
-        .future, .past {
+        .future {
             color: #BEBEBE;
+        }
+        .past {
+            color: black;
         }
         #fullTextOverlay {
             position: fixed;
@@ -112,6 +115,7 @@
         let textContent = ""; // 內建的文字訊息
         const maxLines = 2; // 主頁顯示兩行
         const charsPerLine = 10;
+        let completedCount = 0;
 
         // Fetch text content from the 0001.txt file
         async function fetchTextContent() {
@@ -127,11 +131,13 @@
         function initializePages() {
             const filteredTextContent = textContent.replace(/\n/g, '');
             pages = filteredTextContent.split('').map(char => `0001/${char}.txt`);
-            currentPageIndex = 0;
+            currentPageIndex = parseInt(localStorage.getItem('currentPageIndex')) || 0;
+            completedCount = parseInt(localStorage.getItem('completedCount')) || 0;
             if (pages.length > 0) {
                 loadPage();
             }
             updateTextDisplay();
+            updateFullTextDisplay();
         }
 
         function loadPage() {
@@ -178,6 +184,7 @@
             loadPage();
             updateTextDisplay();
             updateFullTextDisplay();
+            saveState();
         }
 
         function nextPage() {
@@ -189,6 +196,8 @@
                 loadPage();
                 updateTextDisplay();
                 updateFullTextDisplay();
+                completedCount++;
+                saveState();
             }
         }
 
@@ -201,6 +210,7 @@
                 loadPage();
                 updateTextDisplay();
                 updateFullTextDisplay();
+                saveState();
             }
         }
 
@@ -253,6 +263,11 @@
 
         function closeFullText() {
             document.getElementById('fullTextOverlay').style.display = 'none';
+        }
+
+        function saveState() {
+            localStorage.setItem('currentPageIndex', currentPageIndex);
+            localStorage.setItem('completedCount', completedCount);
         }
 
         window.addEventListener('message', function(event) {
