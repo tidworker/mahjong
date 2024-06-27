@@ -166,11 +166,18 @@
                 } else if (i === currentPageIndex) {
                     charClass = 'current';
                 }
-                displayHTML += `<span class="${charClass}">${char}</span>`;
+                displayHTML += `<span class="${charClass}" onclick="goToPage(${i})">${char}</span>`;
                 charCount++;
             }
 
             document.getElementById('textDisplay').innerHTML = displayHTML;
+        }
+
+        function goToPage(index) {
+            currentPageIndex = index;
+            loadPage();
+            updateTextDisplay();
+            updateFullTextDisplay();
         }
 
         function nextPage() {
@@ -237,7 +244,7 @@
                 } else if (i === currentPageIndex) {
                     charClass = 'current';
                 }
-                displayHTML += `<span class="${charClass}">${char}</span>`;
+                displayHTML += `<span class="${charClass}" onclick="goToPage(${i})">${char}</span>`;
                 charCount++;
             }
 
