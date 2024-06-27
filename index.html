@@ -132,7 +132,7 @@
         <div id="recordCloseButton" onclick="closeRecord()">X</div>
         <div id="recordContent"></div>
         <br>
-        <button class="recordButton" onclick="resetCount()">回向</button>
+        <button class="recordButton" onclick="resetCount()">Reset Count</button>
         <br>
     </div>
     <br>
@@ -298,7 +298,7 @@
         }
 
         function showRecord() {
-            const recordContent = `功德值: ${completedCount}`;
+            const recordContent = `已完成字數: ${completedCount}`;
             document.getElementById('recordContent').innerText = recordContent;
             document.getElementById('recordOverlay').style.display = 'block';
         }
