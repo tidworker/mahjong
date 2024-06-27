@@ -59,23 +59,32 @@
             color: #BEBEBE;
         }
         .past {
+            color: #BEBEBE;
+        }
+        .full-past {
             color: black;
         }
-        #fullTextOverlay {
+        #fullTextOverlay, #recordOverlay {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 280px;
-            height: 500px;
             background-color: white;
             border: 1px solid black;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
             display: none;
-            overflow-y: scroll;
+            overflow-y: auto;
             padding: 10px;
         }
-        #closeButton {
+        #fullTextOverlay {
+            height: 500px;
+        }
+        #recordOverlay {
+            height: 100px;
+            text-align: center;
+        }
+        #closeButton, #recordCloseButton {
             position: absolute;
             top: 10px;
             right: 10px;
@@ -96,6 +105,7 @@
         <div id="buttonContainer">
             <button onclick="prevPage()">Prev</button>
             <button onclick="showFullText()">Full Text</button>
+            <button onclick="showRecord()">Record</button>
             <button id="nextButton" onclick="nextPage()">Next</button>
         </div>
         <div id="textDisplay"></div>
@@ -104,6 +114,11 @@
     <div id="fullTextOverlay">
         <div id="closeButton" onclick="closeFullText()">X</div>
         <div id="fullTextContent"></div>
+    </div>
+
+    <div id="recordOverlay">
+        <div id="recordCloseButton" onclick="closeRecord()">X</div>
+        <div id="recordContent"></div>
     </div>
     <br>
     <br>
@@ -215,17 +230,17 @@
         }
 
         function showFullText() {
-            let fullTextHTML = formatTextDisplay(textContent, Infinity);
+            let fullTextHTML = formatTextDisplay(textContent, Infinity, true);
             document.getElementById('fullTextContent').innerHTML = fullTextHTML;
             document.getElementById('fullTextOverlay').style.display = 'block';
         }
 
         function updateFullTextDisplay() {
-            let fullTextHTML = formatTextDisplay(textContent, Infinity);
+            let fullTextHTML = formatTextDisplay(textContent, Infinity, true);
             document.getElementById('fullTextContent').innerHTML = fullTextHTML;
         }
 
-        function formatTextDisplay(text, maxLines) {
+        function formatTextDisplay(text, maxLines, isFullText) {
             let displayHTML = '';
             let charCount = 0;
             let lineCount = 0;
@@ -250,7 +265,7 @@
 
                 let charClass = 'future';
                 if (i < currentPageIndex) {
-                    charClass = 'past';
+                    charClass = isFullText ? 'full-past' : 'past';
                 } else if (i === currentPageIndex) {
                     charClass = 'current';
                 }
@@ -263,6 +278,16 @@
 
         function closeFullText() {
             document.getElementById('fullTextOverlay').style.display = 'none';
+        }
+
+        function showRecord() {
+            const recordContent = `已完成的字數: ${completedCount}`;
+            document.getElementById('recordContent').innerText = recordContent;
+            document.getElementById('recordOverlay').style.display = 'block';
+        }
+
+        function closeRecord() {
+            document.getElementById('recordOverlay').style.display = 'none';
         }
 
         function saveState() {
