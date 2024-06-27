@@ -81,7 +81,7 @@
             height: 500px;
         }
         #recordOverlay {
-            height: 100px;
+            height: 150px;
             text-align: center;
         }
         #closeButton, #recordCloseButton {
@@ -95,6 +95,10 @@
             text-align: center;
             white-space: pre-wrap; /* 保留空白字符 */
         }
+        #recordContent {
+            margin-top: 30px;
+            font-size: 23px;
+        }
     </style>
 </head>
 <body>
@@ -106,7 +110,7 @@
             <button onclick="prevPage()">Prev</button>
             <button onclick="showFullText()">Full Text</button>
             <button onclick="showRecord()">Record</button>
-            <button id="nextButton" onclick="nextPage()">Next</button>
+            <button id="nextButton" onclick="nextPage(false)">Next</button>
         </div>
         <div id="textDisplay"></div>
     </div>
@@ -119,6 +123,7 @@
     <div id="recordOverlay">
         <div id="recordCloseButton" onclick="closeRecord()">X</div>
         <div id="recordContent"></div>
+        <button onclick="resetCount()">Reset Count</button>
     </div>
     <br>
     <br>
@@ -202,7 +207,7 @@
             saveState();
         }
 
-        function nextPage() {
+        function nextPage(isIframeTriggered = false) {
             do {
                 currentPageIndex++;
             } while (currentPageIndex < textContent.replace(/\n/g, '').length && (textContent.replace(/\n/g, '')[currentPageIndex] === '　'));
@@ -211,7 +216,9 @@
                 loadPage();
                 updateTextDisplay();
                 updateFullTextDisplay();
-                completedCount++;
+                if (isIframeTriggered) {
+                    completedCount++;
+                }
                 saveState();
             }
         }
@@ -290,6 +297,12 @@
             document.getElementById('recordOverlay').style.display = 'none';
         }
 
+        function resetCount() {
+            completedCount = 0;
+            saveState();
+            showRecord();
+        }
+
         function saveState() {
             localStorage.setItem('currentPageIndex', currentPageIndex);
             localStorage.setItem('completedCount', completedCount);
@@ -297,7 +310,7 @@
 
         window.addEventListener('message', function(event) {
             if (event.data === 'nextPage') {
-                nextPage();
+                nextPage(true);
             }
         });
 
