@@ -125,7 +125,7 @@
 
         function initializePages() {
             const filteredTextContent = textContent.replace(/\n/g, '');
-            pages = filteredTextContent.split('').map(char => `0001/${char}.txt`);
+            pages = filteredTextContent.split('').map(char => `0002/${char}.txt`);
             currentPageIndex = 0;
             if (pages.length > 0) {
                 loadPage();
