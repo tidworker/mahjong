@@ -41,8 +41,8 @@
             gap: 5px;
         }
         button {
-            padding: 10px;
-            font-size: 16px;
+            padding: 5px; /* 調整按鈕大小 */
+            font-size: 14px; /* 調整按鈕字體大小 */
         }
         #textDisplay {
             font-size: 30px; /* 調整文字大小 */
@@ -110,6 +110,11 @@
             justify-content: space-between;
             padding: 10px;
         }
+        #pageInfo {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -126,6 +131,7 @@
         </div>
         <br>
         <div id="textDisplay"></div>
+        <div id="pageInfo"></div>
     </div>
 
     <div id="fullTextOverlay">
@@ -136,6 +142,7 @@
             <button onclick="closeFullText()">Close</button>
             <button onclick="nextOverlayPage()">Next</button>
         </div>
+        <div id="overlayPageInfo"></div>
     </div>
 
     <div id="recordOverlay">
@@ -180,6 +187,7 @@
             }
             updateTextDisplay();
             updateFullTextDisplay();
+            updatePageInfo();
         }
 
         function loadPage() {
@@ -234,6 +242,7 @@
             updateTextDisplay();
             updateFullTextDisplay();
             saveState();
+            updatePageInfo();
         }
 
         function nextPage(isIframeTriggered = false) {
@@ -249,6 +258,7 @@
                     completedCount++;
                 }
                 saveState();
+                updatePageInfo();
             }
         }
 
@@ -262,6 +272,7 @@
                 updateTextDisplay();
                 updateFullTextDisplay();
                 saveState();
+                updatePageInfo();
             }
         }
 
@@ -269,6 +280,7 @@
             currentOverlayPageIndex = 0;
             updateFullTextDisplay();
             document.getElementById('fullTextOverlay').style.display = 'block';
+            updateOverlayPageInfo();
         }
 
         function updateFullTextDisplay() {
@@ -298,6 +310,8 @@
                     charCount = 0;
                 }
 
+                if (lineCount >= maxLines) break;
+
                 let charClass = 'future';
                 if (i < currentPageIndex) {
                     charClass = isFullText ? 'full-past' : 'past';
@@ -314,12 +328,14 @@
         function nextOverlayPage() {
             currentOverlayPageIndex++;
             updateFullTextDisplay();
+            updateOverlayPageInfo();
         }
 
         function prevOverlayPage() {
             if (currentOverlayPageIndex > 0) {
                 currentOverlayPageIndex--;
                 updateFullTextDisplay();
+                updateOverlayPageInfo();
             }
         }
 
@@ -346,6 +362,18 @@
         function saveState() {
             localStorage.setItem('currentPageIndex', currentPageIndex);
             localStorage.setItem('completedCount', completedCount);
+        }
+
+        function updatePageInfo() {
+            const totalPages = Math.ceil(textContent.replace(/\n/g, '').length / (charsPerLine * maxLines));
+            const currentPage = Math.floor(currentPageIndex / (charsPerLine * maxLines)) + 1;
+            document.getElementById('pageInfo').innerText = `頁數: ${currentPage}/${totalPages}`;
+        }
+
+        function updateOverlayPageInfo() {
+            const totalOverlayPages = Math.ceil(textContent.replace(/\n/g, '').length / (charsPerLine * linesPerOverlayPage));
+            const currentOverlayPage = currentOverlayPageIndex + 1;
+            document.getElementById('overlayPageInfo').innerText = `頁數: ${currentOverlayPage}/${totalOverlayPages}`;
         }
 
         window.addEventListener('message', function(event) {
