@@ -110,11 +110,6 @@
             justify-content: space-between;
             padding: 10px;
         }
-        #pageInfo {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 16px;
-        }
     </style>
 </head>
 <body>
@@ -131,7 +126,6 @@
         </div>
         <br>
         <div id="textDisplay"></div>
-        <div id="pageInfo"></div>
     </div>
 
     <div id="fullTextOverlay">
@@ -142,7 +136,6 @@
             <button onclick="closeFullText()">Close</button>
             <button onclick="nextOverlayPage()">Next</button>
         </div>
-        <div id="overlayPageInfo"></div>
     </div>
 
     <div id="recordOverlay">
@@ -187,7 +180,6 @@
             }
             updateTextDisplay();
             updateFullTextDisplay();
-            updatePageInfo();
         }
 
         function loadPage() {
@@ -198,7 +190,7 @@
         }
 
         function updateTextDisplay() {
-            const displayText = textContent.replace(/\n/g, '');
+            const displayText = textContent.replace(/\n/g, '').replace(/b/g, ''); // 移除所有換行字符b
             const startCharIndex = currentPageIndex - (currentPageIndex % (charsPerLine * maxLines));
             let displayHTML = '';
             let charCount = 0;
@@ -206,13 +198,6 @@
 
             for (let i = startCharIndex; i < displayText.length && lineCount < maxLines; i++) {
                 const char = displayText[i];
-
-                if (char === 'b') { // 當遇到換行字符b時換行
-                    displayHTML += '<br>';
-                    charCount = 0;
-                    lineCount++;
-                    continue;
-                }
 
                 if (charCount >= charsPerLine) {
                     displayHTML += '<br>';
@@ -241,15 +226,14 @@
             updateTextDisplay();
             updateFullTextDisplay();
             saveState();
-            updatePageInfo();
         }
 
         function nextPage(isIframeTriggered = false) {
             do {
                 currentPageIndex++;
-            } while (currentPageIndex < textContent.replace(/\n/g, '').length && textContent.replace(/\n/g, '')[currentPageIndex] === 'b');
+            } while (currentPageIndex < pages.length && pages[currentPageIndex].includes('b'));
 
-            if (currentPageIndex < textContent.replace(/\n/g, '').length) {
+            if (currentPageIndex < pages.length) {
                 loadPage();
                 updateTextDisplay();
                 updateFullTextDisplay();
@@ -257,21 +241,19 @@
                     completedCount++;
                 }
                 saveState();
-                updatePageInfo();
             }
         }
 
         function prevPage() {
             do {
                 currentPageIndex--;
-            } while (currentPageIndex >= 0 && textContent.replace(/\n/g, '')[currentPageIndex] === 'b');
+            } while (currentPageIndex >= 0 && pages[currentPageIndex].includes('b'));
 
             if (currentPageIndex >= 0) {
                 loadPage();
                 updateTextDisplay();
                 updateFullTextDisplay();
                 saveState();
-                updatePageInfo();
             }
         }
 
@@ -361,12 +343,6 @@
         function saveState() {
             localStorage.setItem('currentPageIndex', currentPageIndex);
             localStorage.setItem('completedCount', completedCount);
-        }
-
-        function updatePageInfo() {
-            const totalPages = Math.ceil(textContent.replace(/\n/g, '').length / (charsPerLine * maxLines));
-            const currentPage = Math.floor(currentPageIndex / (charsPerLine * maxLines)) + 1;
-            document.getElementById('pageInfo').innerText = `頁數: ${currentPage}/${totalPages}`;
         }
 
         function updateOverlayPageInfo() {
