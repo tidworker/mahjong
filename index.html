@@ -41,8 +41,8 @@
             gap: 5px;
         }
         button {
-            padding: 10px;
-            font-size: 16px;
+            padding: 5px; /* 調整按鈕大小 */
+            font-size: 14px; /* 調整按鈕字體大小 */
         }
         #textDisplay {
             font-size: 30px; /* 調整文字大小 */
@@ -105,6 +105,16 @@
             padding: 10px;
             font-size: 16px;
         }
+        #paginationControls {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+        }
+        #pageInfo {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -121,11 +131,18 @@
         </div>
         <br>
         <div id="textDisplay"></div>
+        <div id="pageInfo"></div>
     </div>
 
     <div id="fullTextOverlay">
         <div id="closeButton" onclick="closeFullText()">X</div>
         <div id="fullTextContent"></div>
+        <div id="paginationControls">
+            <button onclick="prevOverlayPage()">Prev</button>
+            <button onclick="closeFullText()">Close</button>
+            <button onclick="nextOverlayPage()">Next</button>
+        </div>
+        <div id="overlayPageInfo"></div>
     </div>
 
     <div id="recordOverlay">
@@ -145,6 +162,8 @@
         let textContent = ""; // 內建的文字訊息
         const maxLines = 2; // 主頁顯示兩行
         const charsPerLine = 10;
+        const linesPerOverlayPage = 20;
+        let currentOverlayPageIndex = 0;
         let completedCount = 0;
 
         // Fetch text content from the 0001.txt file
@@ -168,6 +187,7 @@
             }
             updateTextDisplay();
             updateFullTextDisplay();
+            updatePageInfo();
         }
 
         function loadPage() {
@@ -222,6 +242,7 @@
             updateTextDisplay();
             updateFullTextDisplay();
             saveState();
+            updatePageInfo();
         }
 
         function nextPage(isIframeTriggered = false) {
@@ -237,6 +258,7 @@
                     completedCount++;
                 }
                 saveState();
+                updatePageInfo();
             }
         }
 
@@ -250,28 +272,29 @@
                 updateTextDisplay();
                 updateFullTextDisplay();
                 saveState();
+                updatePageInfo();
             }
         }
 
         function showFullText() {
-            let fullTextHTML = formatTextDisplay(textContent, Infinity, true);
-            document.getElementById('fullTextContent').innerHTML = fullTextHTML;
+            currentOverlayPageIndex = 0;
+            updateFullTextDisplay();
             document.getElementById('fullTextOverlay').style.display = 'block';
+            updateOverlayPageInfo();
         }
 
         function updateFullTextDisplay() {
-            let fullTextHTML = formatTextDisplay(textContent, Infinity, true);
+            let fullTextHTML = formatTextDisplay(textContent, linesPerOverlayPage, true, currentOverlayPageIndex);
             document.getElementById('fullTextContent').innerHTML = fullTextHTML;
         }
 
-        function formatTextDisplay(text, maxLines, isFullText) {
+        function formatTextDisplay(text, maxLines, isFullText, overlayPageIndex = 0) {
             let displayHTML = '';
             let charCount = 0;
             let lineCount = 0;
+            let startCharIndex = overlayPageIndex * charsPerLine * maxLines;
 
-            // Calculate starting point based on lines
-            let start = currentPageIndex - (currentPageIndex % (maxLines * charsPerLine));
-            for (let i = start; i < text.length && lineCount < maxLines; i++) {
+            for (let i = startCharIndex; i < text.length && lineCount < maxLines; i++) {
                 const char = text[i];
 
                 if (char === 'b') { // 當遇到換行字符b時換行
@@ -287,6 +310,8 @@
                     charCount = 0;
                 }
 
+                if (lineCount >= maxLines) break;
+
                 let charClass = 'future';
                 if (i < currentPageIndex) {
                     charClass = isFullText ? 'full-past' : 'past';
@@ -298,6 +323,20 @@
             }
 
             return displayHTML;
+        }
+
+        function nextOverlayPage() {
+            currentOverlayPageIndex++;
+            updateFullTextDisplay();
+            updateOverlayPageInfo();
+        }
+
+        function prevOverlayPage() {
+            if (currentOverlayPageIndex > 0) {
+                currentOverlayPageIndex--;
+                updateFullTextDisplay();
+                updateOverlayPageInfo();
+            }
         }
 
         function closeFullText() {
@@ -323,6 +362,18 @@
         function saveState() {
             localStorage.setItem('currentPageIndex', currentPageIndex);
             localStorage.setItem('completedCount', completedCount);
+        }
+
+        function updatePageInfo() {
+            const totalPages = Math.ceil(textContent.replace(/\n/g, '').length / (charsPerLine * maxLines));
+            const currentPage = Math.floor(currentPageIndex / (charsPerLine * maxLines)) + 1;
+            document.getElementById('pageInfo').innerText = `頁數: ${currentPage}/${totalPages}`;
+        }
+
+        function updateOverlayPageInfo() {
+            const totalOverlayPages = Math.ceil(textContent.replace(/\n/g, '').length / (charsPerLine * linesPerOverlayPage));
+            const currentOverlayPage = currentOverlayPageIndex + 1;
+            document.getElementById('overlayPageInfo').innerText = `頁數: ${currentOverlayPage}/${totalOverlayPages}`;
         }
 
         window.addEventListener('message', function(event) {
