@@ -188,6 +188,13 @@
             for (let i = startCharIndex; i < displayText.length && lineCount < maxLines; i++) {
                 const char = displayText[i];
 
+                if (char === 'b') { // 當遇到換行字符b時換行
+                    displayHTML += '<br>';
+                    charCount = 0;
+                    lineCount++;
+                    continue;
+                }
+
                 if (charCount >= charsPerLine) {
                     displayHTML += '<br>';
                     charCount = 0;
@@ -267,10 +274,10 @@
             for (let i = start; i < text.length && lineCount < maxLines; i++) {
                 const char = text[i];
 
-                if (char === '\n') {
+                if (char === 'b') { // 當遇到換行字符b時換行
                     displayHTML += '<br>';
-                    lineCount++;
                     charCount = 0;
+                    lineCount++;
                     continue;
                 }
 
