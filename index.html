@@ -189,7 +189,7 @@
             }
             updateTextDisplay();
             updateFullTextDisplay();
-            updatePageInfo();
+            updateOverlayPageInfo(); // 更新浮動頁框頁數信息
         }
 
         function loadPage() {
@@ -201,8 +201,7 @@
 
         function updateTextDisplay() {
             const displayText = textContent.replace(/\n/g, '');
-            const startLine = Math.floor(currentPageIndex / (charsPerLine * maxLines));
-            const startCharIndex = startLine * charsPerLine * maxLines;
+            const startCharIndex = currentPageIndex - (currentPageIndex % (charsPerLine * maxLines));
             let displayHTML = '';
             let charCount = 0;
             let lineCount = 0;
@@ -244,7 +243,7 @@
             updateTextDisplay();
             updateFullTextDisplay();
             saveState();
-            updatePageInfo();
+            updateOverlayPageInfo(); // 更新浮動頁框頁數信息
         }
 
         function nextPage(isIframeTriggered = false) {
@@ -260,7 +259,7 @@
                     completedCount++;
                 }
                 saveState();
-                updatePageInfo();
+                updateOverlayPageInfo(); // 更新浮動頁框頁數信息
             }
         }
 
@@ -274,12 +273,12 @@
                 updateTextDisplay();
                 updateFullTextDisplay();
                 saveState();
-                updatePageInfo();
+                updateOverlayPageInfo(); // 更新浮動頁框頁數信息
             }
         }
 
         function showFullText() {
-            currentOverlayPageIndex = 0;
+            currentOverlayPageIndex = Math.floor(currentPageIndex / (charsPerLine * linesPerOverlayPage));
             updateFullTextDisplay();
             document.getElementById('fullTextOverlay').style.display = 'block';
             updateOverlayPageInfo();
@@ -364,12 +363,6 @@
         function saveState() {
             localStorage.setItem('currentPageIndex', currentPageIndex);
             localStorage.setItem('completedCount', completedCount);
-        }
-
-        function updatePageInfo() {
-            const totalPages = Math.ceil(textContent.replace(/\n/g, '').length / (charsPerLine * maxLines));
-            const currentPage = Math.floor(currentPageIndex / (charsPerLine * maxLines)) + 1;
-            document.getElementById('pageInfo').innerText = `${currentPage}/${totalPages}`;
         }
 
         function updateOverlayPageInfo() {
