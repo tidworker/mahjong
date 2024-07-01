@@ -367,13 +367,13 @@
         function updatePageInfo() {
             const totalPages = Math.ceil(textContent.replace(/\n/g, '').length / (charsPerLine * maxLines));
             const currentPage = Math.floor(currentPageIndex / (charsPerLine * maxLines)) + 1;
-            document.getElementById('pageInfo').innerText = `頁數: ${currentPage}/${totalPages}`;
+            document.getElementById('pageInfo').innerText = `${currentPage}/${totalPages}`;
         }
 
         function updateOverlayPageInfo() {
             const totalOverlayPages = Math.ceil(textContent.replace(/\n/g, '').length / (charsPerLine * linesPerOverlayPage));
             const currentOverlayPage = currentOverlayPageIndex + 1;
-            document.getElementById('overlayPageInfo').innerText = `頁數: ${currentOverlayPage}/${totalOverlayPages}`;
+            document.getElementById('overlayPageInfo').innerText = `${currentOverlayPage}/${totalOverlayPages}`;
         }
 
         window.addEventListener('message', function(event) {
