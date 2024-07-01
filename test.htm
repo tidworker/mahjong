@@ -160,7 +160,7 @@
 
         function initializePages() {
             const filteredTextContent = textContent.replace(/\n/g, '');
-            pages = filteredTextContent.split('').map(char => `0001/${char}.txt`);
+            pages = filteredTextContent.split('').map(char => `0001/${char}.htm`);
             currentPageIndex = parseInt(localStorage.getItem('currentPageIndex')) || 0;
             completedCount = parseInt(localStorage.getItem('completedCount')) || 0;
             if (pages.length > 0) {
@@ -172,7 +172,7 @@
 
         function loadPage() {
             const currentChar = textContent.replace(/\n/g, '')[currentPageIndex];
-            if (currentChar !== '　') {
+            if (currentChar !== 'b') {
                 document.getElementById('pageFrame').src = `0001/${currentChar}.htm`;
             }
         }
@@ -227,7 +227,7 @@
         function nextPage(isIframeTriggered = false) {
             do {
                 currentPageIndex++;
-            } while (currentPageIndex < textContent.replace(/\n/g, '').length && (textContent.replace(/\n/g, '')[currentPageIndex] === '　'));
+            } while (currentPageIndex < textContent.replace(/\n/g, '').length && textContent.replace(/\n/g, '')[currentPageIndex] === 'b');
 
             if (currentPageIndex < textContent.replace(/\n/g, '').length) {
                 loadPage();
@@ -243,7 +243,7 @@
         function prevPage() {
             do {
                 currentPageIndex--;
-            } while (currentPageIndex >= 0 && (textContent.replace(/\n/g, '')[currentPageIndex] === '　'));
+            } while (currentPageIndex >= 0 && textContent.replace(/\n/g, '')[currentPageIndex] === 'b');
 
             if (currentPageIndex >= 0) {
                 loadPage();
