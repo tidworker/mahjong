@@ -105,6 +105,11 @@
             padding: 10px;
             font-size: 16px;
         }
+        #paginationControls {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
@@ -126,6 +131,11 @@
     <div id="fullTextOverlay">
         <div id="closeButton" onclick="closeFullText()">X</div>
         <div id="fullTextContent"></div>
+        <div id="paginationControls">
+            <button onclick="prevOverlayPage()">Prev</button>
+            <button onclick="closeFullText()">Close</button>
+            <button onclick="nextOverlayPage()">Next</button>
+        </div>
     </div>
 
     <div id="recordOverlay">
@@ -145,6 +155,8 @@
         let textContent = ""; // 內建的文字訊息
         const maxLines = 2; // 主頁顯示兩行
         const charsPerLine = 10;
+        const linesPerOverlayPage = 20;
+        let currentOverlayPageIndex = 0;
         let completedCount = 0;
 
         // Fetch text content from the 0001.txt file
@@ -254,24 +266,23 @@
         }
 
         function showFullText() {
-            let fullTextHTML = formatTextDisplay(textContent, Infinity, true);
-            document.getElementById('fullTextContent').innerHTML = fullTextHTML;
+            currentOverlayPageIndex = 0;
+            updateFullTextDisplay();
             document.getElementById('fullTextOverlay').style.display = 'block';
         }
 
         function updateFullTextDisplay() {
-            let fullTextHTML = formatTextDisplay(textContent, Infinity, true);
+            let fullTextHTML = formatTextDisplay(textContent, linesPerOverlayPage, true, currentOverlayPageIndex);
             document.getElementById('fullTextContent').innerHTML = fullTextHTML;
         }
 
-        function formatTextDisplay(text, maxLines, isFullText) {
+        function formatTextDisplay(text, maxLines, isFullText, overlayPageIndex = 0) {
             let displayHTML = '';
             let charCount = 0;
             let lineCount = 0;
+            let startCharIndex = overlayPageIndex * charsPerLine * maxLines;
 
-            // Calculate starting point based on lines
-            let start = currentPageIndex - (currentPageIndex % (maxLines * charsPerLine));
-            for (let i = start; i < text.length && lineCount < maxLines; i++) {
+            for (let i = startCharIndex; i < text.length && lineCount < maxLines; i++) {
                 const char = text[i];
 
                 if (char === 'b') { // 當遇到換行字符b時換行
@@ -298,6 +309,18 @@
             }
 
             return displayHTML;
+        }
+
+        function nextOverlayPage() {
+            currentOverlayPageIndex++;
+            updateFullTextDisplay();
+        }
+
+        function prevOverlayPage() {
+            if (currentOverlayPageIndex > 0) {
+                currentOverlayPageIndex--;
+                updateFullTextDisplay();
+            }
         }
 
         function closeFullText() {
