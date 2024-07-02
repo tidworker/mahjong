@@ -66,7 +66,7 @@
         }
         #fullTextOverlay, #recordOverlay {
             position: fixed;
-            top: 50%;
+            top: 40%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 300px;
@@ -78,10 +78,10 @@
             padding: 10px;
         }
         #fullTextOverlay {
-            height: 500px;
+            height: 550px;
         }
         #recordOverlay {
-            height: 150px;
+            height: 200px;
             text-align: center;
             font-family: 'Microsoft JhengHei', sans-serif;
         }
@@ -107,8 +107,14 @@
         }
         #paginationControls {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 5px;
             padding: 10px;
+        }
+        #pageInfo {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -126,9 +132,12 @@
         </div>
         <br>
         <div id="textDisplay"></div>
+        <div id="pageInfo"></div>
     </div>
 
     <div id="fullTextOverlay">
+        <div id="overlayPageInfo"></div>
+        <br>
         <div id="closeButton" onclick="closeFullText()">X</div>
         <div id="fullTextContent"></div>
         <div id="paginationControls">
@@ -144,6 +153,8 @@
         <br>
         <button class="recordButton" onclick="resetCount()">Reset Count</button>
         <br>
+        <div id="progressInfo"></div>
+        <div id="percentageInfo"></div>
     </div>
     <br>
     <br>
@@ -180,6 +191,8 @@
             }
             updateTextDisplay();
             updateFullTextDisplay();
+            updateProgressInfo();
+            updateOverlayPageInfo(); // 更新浮動頁框頁數信息
         }
 
         function loadPage() {
@@ -190,7 +203,7 @@
         }
 
         function updateTextDisplay() {
-            const displayText = textContent.replace(/\n/g, '').replace(/b/g, ''); // 移除所有換行字符b
+            const displayText = textContent.replace(/\n/g, '');
             const startCharIndex = currentPageIndex - (currentPageIndex % (charsPerLine * maxLines));
             let displayHTML = '';
             let charCount = 0;
@@ -198,6 +211,13 @@
 
             for (let i = startCharIndex; i < displayText.length && lineCount < maxLines; i++) {
                 const char = displayText[i];
+
+                if (char === 'b') { // 當遇到換行字符b時換行
+                    displayHTML += '<br>';
+                    charCount = 0;
+                    lineCount++;
+                    continue;
+                }
 
                 if (charCount >= charsPerLine) {
                     displayHTML += '<br>';
@@ -226,14 +246,16 @@
             updateTextDisplay();
             updateFullTextDisplay();
             saveState();
+            updateProgressInfo(); // 更新進度信息
+            updateOverlayPageInfo(); // 更新浮動頁框頁數信息
         }
 
         function nextPage(isIframeTriggered = false) {
             do {
                 currentPageIndex++;
-            } while (currentPageIndex < pages.length && pages[currentPageIndex].includes('b'));
+            } while (currentPageIndex < textContent.replace(/\n/g, '').length && textContent.replace(/\n/g, '')[currentPageIndex] === 'b');
 
-            if (currentPageIndex < pages.length) {
+            if (currentPageIndex < textContent.replace(/\n/g, '').length) {
                 loadPage();
                 updateTextDisplay();
                 updateFullTextDisplay();
@@ -241,24 +263,28 @@
                     completedCount++;
                 }
                 saveState();
+                updateProgressInfo(); // 更新進度信息
+                updateOverlayPageInfo(); // 更新浮動頁框頁數信息
             }
         }
 
         function prevPage() {
             do {
                 currentPageIndex--;
-            } while (currentPageIndex >= 0 && pages[currentPageIndex].includes('b'));
+            } while (currentPageIndex >= 0 && textContent.replace(/\n/g, '')[currentPageIndex] === 'b');
 
             if (currentPageIndex >= 0) {
                 loadPage();
                 updateTextDisplay();
                 updateFullTextDisplay();
                 saveState();
+                updateProgressInfo(); // 更新進度信息
+                updateOverlayPageInfo(); // 更新浮動頁框頁數信息
             }
         }
 
         function showFullText() {
-            currentOverlayPageIndex = 0;
+            currentOverlayPageIndex = Math.floor(currentPageIndex / (charsPerLine * linesPerOverlayPage));
             updateFullTextDisplay();
             document.getElementById('fullTextOverlay').style.display = 'block';
             updateOverlayPageInfo();
@@ -326,7 +352,11 @@
 
         function showRecord() {
             const recordContent = `已完成字數: ${completedCount}`;
+            const progressInfo = `當前進度: ${currentPageIndex + 1}/${textContent.length}`;
+            const percentageInfo = `百分比: ${(100 * (currentPageIndex + 1) / textContent.length).toFixed(2)}%`;
             document.getElementById('recordContent').innerText = recordContent;
+            document.getElementById('progressInfo').innerText = progressInfo;
+            document.getElementById('percentageInfo').innerText = percentageInfo;
             document.getElementById('recordOverlay').style.display = 'block';
         }
 
@@ -345,10 +375,17 @@
             localStorage.setItem('completedCount', completedCount);
         }
 
+        function updateProgressInfo() {
+            const progressInfo = `當前進度: ${currentPageIndex + 1}/${textContent.length}`;
+            const percentageInfo = `百分比: ${(100 * (currentPageIndex + 1) / textContent.length).toFixed(2)}%`;
+            document.getElementById('progressInfo').innerText = progressInfo;
+            document.getElementById('percentageInfo').innerText = percentageInfo;
+        }
+
         function updateOverlayPageInfo() {
             const totalOverlayPages = Math.ceil(textContent.replace(/\n/g, '').length / (charsPerLine * linesPerOverlayPage));
             const currentOverlayPage = currentOverlayPageIndex + 1;
-            document.getElementById('overlayPageInfo').innerText = `頁數: ${currentOverlayPage}/${totalOverlayPages}`;
+            document.getElementById('overlayPageInfo').innerText = `${currentOverlayPage}/${totalOverlayPages}`;
         }
 
         window.addEventListener('message', function(event) {
