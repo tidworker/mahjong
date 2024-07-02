@@ -81,7 +81,7 @@
             height: 550px;
         }
         #recordOverlay {
-            height: 160px;
+            height: 180px;
             width: 200px;
             text-align: center;
             font-family: 'Microsoft JhengHei', sans-serif;
@@ -156,9 +156,9 @@
         <div id="percentageInfo"></div>   
         <br>
         <div id="recordContent"></div>     
-    <div id="paginationControls">
+        <div id="paginationControls">
             <button onclick="resetCount()">Reset Count</button>
-            <Button onclick="closeRecord()">Close</button>
+            <button onclick="closeRecord()">Close</button>
         </div>
     </div>
     <br>
@@ -173,6 +173,7 @@
         const linesPerOverlayPage = 20;
         let currentOverlayPageIndex = 0;
         let completedCount = 0;
+        const maxOverlayPages = 26;
 
         // Fetch text content from the 0001.txt file
         async function fetchTextContent() {
@@ -337,17 +338,15 @@
         }
 
         function nextOverlayPage() {
-            currentOverlayPageIndex++;
+            currentOverlayPageIndex = (currentOverlayPageIndex + 1) % maxOverlayPages;
             updateFullTextDisplay();
             updateOverlayPageInfo();
         }
 
         function prevOverlayPage() {
-            if (currentOverlayPageIndex > 0) {
-                currentOverlayPageIndex--;
-                updateFullTextDisplay();
-                updateOverlayPageInfo();
-            }
+            currentOverlayPageIndex = (currentOverlayPageIndex - 1 + maxOverlayPages) % maxOverlayPages;
+            updateFullTextDisplay();
+            updateOverlayPageInfo();
         }
 
         function closeFullText() {
@@ -387,9 +386,8 @@
         }
 
         function updateOverlayPageInfo() {
-            const totalOverlayPages = Math.ceil(textContent.replace(/\n/g, '').length / (charsPerLine * linesPerOverlayPage));
-            const currentOverlayPage = currentOverlayPageIndex + 1;
-            document.getElementById('overlayPageInfo').innerText = `${currentOverlayPage}/${totalOverlayPages}`;
+            const currentOverlayPage = (currentOverlayPageIndex % maxOverlayPages) + 1;
+            document.getElementById('overlayPageInfo').innerText = `${currentOverlayPage}/${maxOverlayPages}`;
         }
 
         window.addEventListener('message', function(event) {
