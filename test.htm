@@ -174,6 +174,7 @@
         let currentOverlayPageIndex = 0;
         let completedCount = 0;
         const maxOverlayPages = 26;
+        let totalChars = 0;
 
         // Fetch text content from the 0001.txt file
         async function fetchTextContent() {
@@ -188,6 +189,7 @@
 
         function initializePages() {
             const filteredTextContent = textContent.replace(/\n/g, '');
+            totalChars = filteredTextContent.length;
             pages = filteredTextContent.split('').map(char => `0001/${char}.htm`);
             currentPageIndex = parseInt(localStorage.getItem('currentPageIndex')) || 0;
             completedCount = parseInt(localStorage.getItem('completedCount')) || 0;
@@ -355,8 +357,8 @@
 
         function showRecord() {
             const recordContent = `已完成字數: ${completedCount}`;
-            const progressInfo = `當前進度: ${currentPageIndex + 1}/${textContent.length}`;
-            const percentageInfo = `百分比: ${(100 * (currentPageIndex + 1) / textContent.length).toFixed(2)}%`;
+            const progressInfo = `當前進度: ${currentPageIndex + 1}/${totalChars}`;
+            const percentageInfo = `百分比: ${(100 * (currentPageIndex + 1) / totalChars).toFixed(2)}%`;
             document.getElementById('recordContent').innerText = recordContent;
             document.getElementById('progressInfo').innerText = progressInfo;
             document.getElementById('percentageInfo').innerText = percentageInfo;
@@ -384,8 +386,8 @@
         }
 
         function updateProgressInfo() {
-            const progressInfo = `當前進度: ${currentPageIndex + 1}/${textContent.length}`;
-            const percentageInfo = `百分比: ${(100 * (currentPageIndex + 1) / textContent.length).toFixed(2)}%`;
+            const progressInfo = `當前進度: ${currentPageIndex + 1}/${totalChars}`;
+            const percentageInfo = `百分比: ${(100 * (currentPageIndex + 1) / totalChars).toFixed(2)}%`;
             document.getElementById('progressInfo').innerText = progressInfo;
             document.getElementById('percentageInfo').innerText = percentageInfo;
         }
