@@ -46,7 +46,7 @@
         }
         #textDisplay {
             font-size: 30px; /* 調整文字大小 */
-            margin-top: 12px;
+            margin-top: 15px;
             max-width: 390px; /* 限制最大寬度 */
             word-wrap: break-word; /* 強制單詞換行 */
             text-align: center;
@@ -355,8 +355,8 @@
 
         function showRecord() {
             const recordContent = `已完成字數: ${completedCount}`;
-            const progressInfo = `當前進度: ${currentPageIndex}/${textContent.length}`;
-            const percentageInfo = `百分比: ${(100 * (currentPageIndex) / textContent.length).toFixed(2)}%`;
+            const progressInfo = `當前進度: ${currentPageIndex + 1}/${textContent.length}`;
+            const percentageInfo = `百分比: ${(100 * (currentPageIndex + 1) / textContent.length).toFixed(2)}%`;
             document.getElementById('recordContent').innerText = recordContent;
             document.getElementById('progressInfo').innerText = progressInfo;
             document.getElementById('percentageInfo').innerText = percentageInfo;
