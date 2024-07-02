@@ -355,8 +355,8 @@
 
         function showRecord() {
             const recordContent = `已完成字數: ${completedCount}`;
-            const progressInfo = `當前進度: ${currentPageIndex + 1}/${textContent.length}`;
-            const percentageInfo = `百分比: ${(100 * (currentPageIndex + 1) / textContent.length).toFixed(2)}%`;
+            const progressInfo = `當前進度: ${currentPageIndex}/${textContent.length}`;
+            const percentageInfo = `百分比: ${(100 * (currentPageIndex) / textContent.length).toFixed(2)}%`;
             document.getElementById('recordContent').innerText = recordContent;
             document.getElementById('progressInfo').innerText = progressInfo;
             document.getElementById('percentageInfo').innerText = percentageInfo;
