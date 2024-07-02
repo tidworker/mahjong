@@ -81,7 +81,8 @@
             height: 550px;
         }
         #recordOverlay {
-            height: 150px;
+            height: 180px;
+            width: 200px;
             text-align: center;
             font-family: 'Microsoft JhengHei', sans-serif;
         }
@@ -97,13 +98,14 @@
             white-space: pre-wrap; /* 保留空白字符 */
         }
         #recordContent {
-            margin-top: 20px;
-            font-size: 20px;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 16px;
         }
         .recordButton {
             margin-top: 10px;
             padding: 10px;
-            font-size: 16px;
+            font-size: 14px;
         }
         #paginationControls {
             display: flex;
@@ -135,7 +137,7 @@
         <div id="textDisplay"></div>
         <div id="pageInfo"></div>
     </div>
-    
+
     <div id="fullTextOverlay">
         <div id="overlayPageInfo"></div>
         <br>
@@ -149,14 +151,18 @@
     </div>
 
     <div id="recordOverlay">
-        <div id="recordCloseButton" onclick="closeRecord()">X</div>
-        <div id="recordContent"></div>
         <br>
-        <button class="recordButton" onclick="resetCount()">Reset Count</button>
+        <div id="progressInfo"></div>
+        <div id="percentageInfo"></div>   
         <br>
+        <div id="recordContent"></div>     
+        <div id="paginationControls">
+            <button onclick="resetCount()">Reset Count</button>
+            <button onclick="closeRecord()">Close</button>
+        </div>
     </div>
     <br>
-    <img src="mozen.png" alt="默禪">
+    <img src="mozen.png" alt="Mozen Image">
     
     <script>
         let pages = [];
@@ -167,6 +173,8 @@
         const linesPerOverlayPage = 20;
         let currentOverlayPageIndex = 0;
         let completedCount = 0;
+        const maxOverlayPages = 26;
+        let totalChars = 0;
 
         // Fetch text content from the 0001.txt file
         async function fetchTextContent() {
@@ -181,6 +189,7 @@
 
         function initializePages() {
             const filteredTextContent = textContent.replace(/\n/g, '');
+            totalChars = filteredTextContent.length;
             pages = filteredTextContent.split('').map(char => `0001/${char}.htm`);
             currentPageIndex = parseInt(localStorage.getItem('currentPageIndex')) || 0;
             completedCount = parseInt(localStorage.getItem('completedCount')) || 0;
@@ -189,6 +198,7 @@
             }
             updateTextDisplay();
             updateFullTextDisplay();
+            updateProgressInfo();
             updateOverlayPageInfo(); // 更新浮動頁框頁數信息
         }
 
@@ -243,6 +253,7 @@
             updateTextDisplay();
             updateFullTextDisplay();
             saveState();
+            updateProgressInfo(); // 更新進度信息
             updateOverlayPageInfo(); // 更新浮動頁框頁數信息
         }
 
@@ -259,6 +270,7 @@
                     completedCount++;
                 }
                 saveState();
+                updateProgressInfo(); // 更新進度信息
                 updateOverlayPageInfo(); // 更新浮動頁框頁數信息
             }
         }
@@ -273,6 +285,7 @@
                 updateTextDisplay();
                 updateFullTextDisplay();
                 saveState();
+                updateProgressInfo(); // 更新進度信息
                 updateOverlayPageInfo(); // 更新浮動頁框頁數信息
             }
         }
@@ -327,17 +340,15 @@
         }
 
         function nextOverlayPage() {
-            currentOverlayPageIndex++;
+            currentOverlayPageIndex = (currentOverlayPageIndex + 1) % maxOverlayPages;
             updateFullTextDisplay();
             updateOverlayPageInfo();
         }
 
         function prevOverlayPage() {
-            if (currentOverlayPageIndex > 0) {
-                currentOverlayPageIndex--;
-                updateFullTextDisplay();
-                updateOverlayPageInfo();
-            }
+            currentOverlayPageIndex = (currentOverlayPageIndex - 1 + maxOverlayPages) % maxOverlayPages;
+            updateFullTextDisplay();
+            updateOverlayPageInfo();
         }
 
         function closeFullText() {
@@ -346,7 +357,11 @@
 
         function showRecord() {
             const recordContent = `已完成字數: ${completedCount}`;
+            const progressInfo = `當前進度: ${currentPageIndex + 1}/${totalChars}`;
+            const percentageInfo = `百分比: ${(100 * (currentPageIndex + 1) / totalChars).toFixed(2)}%`;
             document.getElementById('recordContent').innerText = recordContent;
+            document.getElementById('progressInfo').innerText = progressInfo;
+            document.getElementById('percentageInfo').innerText = percentageInfo;
             document.getElementById('recordOverlay').style.display = 'block';
         }
 
@@ -356,7 +371,12 @@
 
         function resetCount() {
             completedCount = 0;
+            currentPageIndex = 0;
             saveState();
+            loadPage();
+            updateTextDisplay();
+            updateFullTextDisplay();
+            updateProgressInfo();
             showRecord();
         }
 
@@ -365,10 +385,16 @@
             localStorage.setItem('completedCount', completedCount);
         }
 
+        function updateProgressInfo() {
+            const progressInfo = `當前進度: ${currentPageIndex + 1}/${totalChars}`;
+            const percentageInfo = `百分比: ${(100 * (currentPageIndex + 1) / totalChars).toFixed(2)}%`;
+            document.getElementById('progressInfo').innerText = progressInfo;
+            document.getElementById('percentageInfo').innerText = percentageInfo;
+        }
+
         function updateOverlayPageInfo() {
-            const totalOverlayPages = Math.ceil(textContent.replace(/\n/g, '').length / (charsPerLine * linesPerOverlayPage));
-            const currentOverlayPage = currentOverlayPageIndex + 1;
-            document.getElementById('overlayPageInfo').innerText = `${currentOverlayPage}/${totalOverlayPages}`;
+            const currentOverlayPage = (currentOverlayPageIndex % maxOverlayPages) + 1;
+            document.getElementById('overlayPageInfo').innerText = `${currentOverlayPage}/${maxOverlayPages}`;
         }
 
         window.addEventListener('message', function(event) {
