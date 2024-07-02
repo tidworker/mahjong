@@ -369,7 +369,12 @@
 
         function resetCount() {
             completedCount = 0;
+            currentPageIndex = 0;
             saveState();
+            loadPage();
+            updateTextDisplay();
+            updateFullTextDisplay();
+            updateProgressInfo();
             showRecord();
         }
 
