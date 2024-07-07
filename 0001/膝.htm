@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's Write</title>
+    <style>
+        body, html {
+            flex-direction: column;
+            background-color: #F2F2F2;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(100, 4px);
+            grid-template-rows: repeat(100, 4px);
+        }
+        .cell {
+            width: 4px;
+            height: 4px;
+            background-color: transparent;
+            box-sizing: border-box;
+        }
+        .lettera, .letterb, .letterc, .letterd, .lettere, .letterf, .letterg, .letterh, .letteri, .letterj,
+        .letterk, .letterl, .letterm, .lettern, .lettero, .letterp, .letterq, .letterr, .letters, .lettert,
+        .letteru, .letterv, .letterw, .letterx, .lettery {
+            background-color: #d3d3d3;
+        }
+        .letterz {
+            background-color: #191919;
+        }
+        .current {
+            background-color: #808080;
+        }
+        #percentage {
+            margin-top: 0px;
+            font-size: 5px;
+            color: #F2F2F2;
+        }
+        #buttons img {
+            cursor: pointer;
+            margin: 12px;
+        }
+        #nextButton {
+            display: none; /* 隐藏按钮 */
+        }
+    </style>
+</head>
+<body>    
+    <div id="container">
+        <div id="grid"></div>
+        <div id="percentage">已塗色百分比：0%</div>
+        <button id="nextButton" onclick="window.parent.postMessage('nextPage', '*')">Next</button>
+    </div>
+
+    <script>
+        const grid = document.getElementById('grid');
+        const percentageDisplay = document.getElementById('percentage');
+        const cells = [];
+        const patternA = [
+                            '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '000000000000000000000000000000000000000000000000000000000000fff0000000000000000000000000000000000000',
+                '000000000000000000000000000000000000000000000000000000000000ffffff0000000000000000000000000000000000',
+                '0000000000000000000000000000000000000bbbbb000000000000000000fffffff000000000000000000000000000000000',
+                '00000000000000000000000000000000000bbbbbbbb00000000000000000fffffff000000000000000000000000000000000',
+                '000000000000000000000000000000000bbbbbbbbbbbb000000000000000ffffff000eeeeee0000000000000000000000000',
+                '0000000000000000000000000000bb0bbbbbbbbbbbbbbb00000000000000fffffff0eeeeeeee000000000000000000000000',
+                '0000000000000000000000000000bbbbbbbbbbbbbbbbbb00000000000000fffffffeeeeeeeee000000000000000000000000',
+                '000000000000000000000000000bbbbbbbbbbbbbbbbbb000000000000000feeeeeeeeeeeee00000000000000000000000000',
+                '000000000000000000000000000bbbbbbbbbbbbbbbbbb0000000000eeeeeeeeeeeeeeee00000000000000000000000000000',
+                '0000000000000000000000aaaaabbbbbb00bbbbbbbbb0000000000eeeeeeeeeeeeeee0000000000000000000000000000000',
+                '0000000000000000000000aaaaabbbb0000bbbbbbbb0000000000eeeeeeeeeeeeee000000000000000000000000000000000',
+                '0000000000000000000000aaaaabbb0000bbbbbbb0000000000eeeeeeeeeeeeeee0000000000000000000000000000000000',
+                '0000000000000000000000aaaaabbb0000bbbbbb00000000000eeeeeeeeeeeeeee0000000000000000000000000000000000',
+                '0000000000000000000000aaaaaabb0000bbbbbb00000000000000eeeeeggffffhh000000000000000000000000000000000',
+                '0000000000000000000000aaaaaab00000bbbbbb0000000000000000gggggffffhhh00000000000000000000000000000000',
+                '0000000000000000000000aaaaaa000000bbbbbb0000000000000000gggggffffhhhhh000000000000000000000000000000',
+                '00000000000000000000000aaaaa000000bbbbb00000000000000000gggg0ffffhhhhhh00000000000000000000000000000',
+                '00000000000000000000000aaaaa000000bbbbb0000000000000000ggggg0fff0hhhhhhh0000000000000000000000000000',
+                '00000000000000000000000aaaaa000000bbbbb0000000000000000ggggg0fff00hhhhhhhh00000000000000000000000000',
+                '00000000000000000000000aaaaa000000bbbbb000000000000000ggggg00fff000hhhhhhhhh000000000000000000000000',
+                '00000000000000000000000aaaaa000000bbbbb000000000000000ggggg00fff00000hhhhhhhhhh000000000000000000000',
+                '00000000000000000000000aaaaa00ccccbbbbb000000000000000gggg000fff000000hhhhhhhhhhh0000000000000000000',
+                '00000000000000000000000aaaaaccccccbbbb000000000000000ggggg000fff00000000hhhhhhhhhhhh0000000000000000',
+                '00000000000000000000000aaaaaccccccbbbb000000000000000gggg0000fff0000000000hhhhhhhhhhh000000000000000',
+                '00000000000000000000000aaaacccccccbbbb00000000000000ggggg000ffff000000000000hhhhhhhhhhh0000000000000',
+                '00000000000000000000000aaaacccccccbbbb0000000000000gggg00000ffff000000000000000hhhhhhhhhh00000000000',
+                '00000000000000000000000aaaaccc0000bbbb0000000000000ggg000ii0ffff000000000000000000hhhhhhh00000000000',
+                '00000000000000000000000aaaa0000000bbbb000000000000ggg0000iiiifff000000000000000000000hhhhh0000000000',
+                '00000000000000000000000aaaa0000000bbbb00000000000ggg00000iiiifff00000000000000000000000hhhh000000000',
+                '00000000000000000000000aaa00000000bbbb00000000000gg000000iiiifffjjj00000000000000000000000h000000000',
+                '00000000000000000000000aaa00000000bbbb0000000000g00000000iiiiffjjjjjj0000000000000000000000000000000',
+                '0000000000000000000000aaaa00000000bbbb000000000000000000iiiiiffjjjjjjjj00000000000000000000000000000',
+                '0000000000000000000000aaaa00000000bbbb000000000000000000iiiiiffjjjjjjjjj0000000000000000000000000000',
+                '0000000000000000000000aaaa00000d00bbbb000000000000000000iiiiiff00jjjjjjjj000000000000000000000000000',
+                '0000000000000000000000aaaa000dddd0bbbb00000000000000000iiiiii00000jjjjjjjjj0000000000000000000000000',
+                '0000000000000000000000aaaadddddd00bbbb00000000000000000iiiiii0000000jjjjjjjj000000000000000000000000',
+                '0000000000000000000000aaaaddddd000bbbb00000000000000000iiiii000000000jjjjjjjjj0000000000000000000000',
+                '0000000000000000000000aaadddddd000bbbb0000000000000000iiiiii00000000000jjjjjjjjj00000000000000000000',
+                '0000000000000000000000aaaddddd0000bbbb0000000000000000iiiii0000000000000jjjjjjjjjj000000000000000000',
+                '0000000000000000000000aaadddd00000bbbb000000000000000iiiiii00000000000000jjjjjjjjjjj0000000000000000',
+                '000000000000000000000aaaa0dd000000bbbb000000000000000iiiii000000kk000000000jjjjjjjjjjj00000000000000',
+                '000000000000000000000aaaa000000000bbbb00000000000000iiiiii00000kkkkk00000000jjjjjjjjjjjj000000000000',
+                '000000000000000000000aaaa0000000000bbb00000000000000iiiii000000kkkkkk000000000jjjjjjjjjjj00000000000',
+                '000000000000000000000aaaa0000000000bbb0000000000000iiiiii000000kkkkkk000000000000jjjjjjjjjj000000000',
+                '000000000000000000000aaa00000000000bbb000000000000iiiiii0000000kkkkk00000000000nn0jjjjjjjjjj00000000',
+                '000000000000000000000aaa00000000000bbb000000000000iiiii000000000kkkk000000000nnnnn000jjjjjjjj0000000',
+                '00000000000000000000aaaa00000000000bbb00000000000iiiiii000000000kkkk00000000nnnnnnn0000jjjjjj0000000',
+                '00000000000000000000aaaa00000000000bbbb0000000000iiiiil0000000000kkkk0000000nnnnnnnn000000jjjj000000',
+                '00000000000000000000aaaa00000000000bbbb000000000iiiii0lll00000000kkkk000000nnnnnnnnn0000000000000000',
+                '00000000000000000000aaaa00000000000bbbb00000000iiiii00lllll000000kkkk00000nnnnnnnn000000000000000000',
+                '00000000000000000000aaaa00000000000bbbb00000000iiii000llllll00000kkkk0000000nnn000000000000000000000',
+                '0000000000000000000aaaa000000000000bbbb0000000ii0000000lllll000000kkk0000000000000000000000000000000',
+                '0000000000000000000aaaa000000000000bbbb00000000000000000llll000000kkk0000000000000000000000000000000',
+                '0000000000000000000aaaa000000000000bbbb00000000000000000lll0000000kkk0000000000000000000000000000000',
+                '0000000000000000000aaaa000000000000bbbb000000000000000000000000000kkk0000000000000000000000000000000',
+                '000000000000000000aaaaa000000000000bbbb000000000000000000000000000kkk0000000000000000000000000000000',
+                '000000000000000000aaaaa000000000000bbbb000000000000000000000000000kkk0000000000000000000000000000000',
+                '000000000000000000aaaa00000000000000bbb000000000000000000000000000kkk0000000oo0000000000000000000000',
+                '000000000000000000aaaa00000000000000bbb000000000000000000000000000kkk0000000ooooo0000000000000000000',
+                '00000000000000000aaaaa00000000000000bbb00000000000000000000000000kkkk0000000ooooooo00000000000000000',
+                '00000000000000000aaaaa0000000000000bbbb000000000000000000000000000kkk00000000ooooooo0000000000000000',
+                '00000000000000000aaaa00000000000000bbbb00000000000000000mmm0000000kkk000000000oooooooo00000000000000',
+                '00000000000000000aaaa00000000000000bbbb00000000000000000mmm0000000kkk000000000ooooooooo0000000000000',
+                '0000000000000000aaaaa00000000000000bbbbb000000000000mmmmmmm0000000kkk0000000000ooooooooo000000000000',
+                '0000000000000000aaaaa0000000000000bbbbbb000000000000mmmmmmm000000kkkk00000000000ooooooooo00000000000',
+                '0000000000000000aaaa00000000000000bbbbbb0000000000000mmmmmmm00000kkkk0000000000000ooooooo00000000000',
+                '0000000000000000aaaa00000000000000bbbbbb0000000000000mmmmmmm00000kkkk00000000000000oooooo00000000000',
+                '0000000000000000aaaa00000000000000bbbbbb00000000000000mmmmmm000000kkk000000000000000oooooo0000000000',
+                '00000000000000000aa0000000000000000bbbbb000000000000000mmmm0000000kkk0000000000000000oooo00000000000',
+                '000000000000000000a0000000000000000bbbbb00000000000000000m000000000kk0000000000000000000000000000000',
+                '00000000000000000000000000000000000bbbbb000000000000000000000000000000000000000000000000000000000000',
+                '000000000000000000000000000000000000bbbb000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000bbb000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000bbb000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+        ];
+
+        let totalLetters = Array(26).fill(0);
+        let filledLetters = Array(26).fill(0);
+        let currentLetterIndex = 0; // 當前字母索引
+        let canPaint = true;
+        let completedLetters = new Set();
+        let allLetters = new Set();
+
+        function initializeGrid() {
+            grid.innerHTML = '';
+            // 這裡加載完整矩陣
+            for (let i = 0; i < 100; i++) {
+                cells[i] = [];
+                for (let j = 0; j < 100; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    const letter = patternA[i][j];
+                    if (letter !== '0') {
+                        cell.classList.add(`letter${letter}`);
+                        if (letter === 'z') {
+                            cell.style.backgroundColor = '#191919';
+                        } else {
+                            totalLetters[letter.charCodeAt(0) - 97]++; // 計算每個字母的總數
+                            allLetters.add(letter); // 添加到出現的字母集合
+                        }
+                    }
+                    cells[i][j] = cell;
+                    grid.appendChild(cell);
+                }
+            }
+            updateCurrentLetterColor();
+        }
+
+        function updateCurrentLetterColor() {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
+                cell.classList.add('current');
+            });
+        }
+
+        function removeCurrentLetterColor() {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
+                cell.classList.remove('current');
+            });
+        }
+
+        grid.addEventListener('mousedown', handleMouse);
+        grid.addEventListener('mousemove', function(e) {
+            if (e.buttons === 1) {
+                handleMouse(e);
+            }
+        });
+
+        grid.addEventListener('touchstart', handleTouch, { passive: false });
+        grid.addEventListener('touchmove', handleTouch, { passive: false });
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = grid.getBoundingClientRect();
+            const x = Math.floor((touch.clientX - rect.left) / 4);
+            const y = Math.floor((touch.clientY - rect.top) / 4);
+            if (canPaint) {
+                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+            }
+        }
+
+        function handleMouse(e) {
+            const rect = grid.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / 4);
+            const y = Math.floor((e.clientY - rect.top) / 4);
+            if (canPaint) {
+                fillCircle(x, y, 10); // 將半徑設置為10，增加筆刷大小
+            }
+        }
+
+        function fillCircle(cx, cy, radius) {
+            let painted = false;
+            for (let i = -radius; i <= radius; i++) {
+                for (let j = -radius; j <= radius; j++) {
+                    if (i * i + j * j <= radius * radius) {
+                        const nx = cx + j;
+                        const ny = cy + i;
+                        if (nx >= 0 && nx < 100 && ny >= 0 && ny < 100) {
+                            const targetCell = cells[ny][nx];
+                            const letter = String.fromCharCode(97 + currentLetterIndex);
+                            if (targetCell.classList.contains(`letter${letter}`) && !targetCell.style.backgroundColor) {
+                                targetCell.style.backgroundColor = '#000000';
+                                filledLetters[currentLetterIndex]++;
+                                painted = true;
+                            }
+                        }
+                    }
+                }
+            }
+            if (painted) {
+                updatePercentage();
+            }
+        }
+
+        function updatePercentage() {
+            const percentageColored = (filledLetters[currentLetterIndex] / totalLetters[currentLetterIndex]) * 100;
+            percentageDisplay.textContent = `已塗色百分比：${percentageColored.toFixed(2)}%`;
+            if (percentageColored >= 95 && !completedLetters.has(String.fromCharCode(97 + currentLetterIndex))) {
+                completedLetters.add(String.fromCharCode(97 + currentLetterIndex));
+                // 填滿當前字母
+                fillCurrentLetter();
+                canPaint = true;
+                const nextLetter = String.fromCharCode(97 + currentLetterIndex + 1);
+                document.querySelectorAll(`.letter${nextLetter}`).forEach(cell => {
+                    cell.classList.add('current');
+                });
+                if (currentLetterIndex < 25) {
+                    document.addEventListener('mousedown', nextLetterHandler, { once: true });
+                    document.addEventListener('touchstart', nextLetterHandler, { once: true });
+                }
+                // 如果所有出現的字母都完成塗色，觸發下一頁
+                if (completedLetters.size === allLetters.size) {
+                    setTimeout(() => {
+                    document.getElementById('nextButton').click();
+                    }, 1000); // 1秒後觸發
+                }
+            }
+        }
+
+        function fillCurrentLetter() {
+            const currentLetter = String.fromCharCode(97 + currentLetterIndex);
+            document.querySelectorAll(`.letter${currentLetter}`).forEach(cell => {
+                if (!cell.style.backgroundColor) {
+                    cell.style.backgroundColor = '#000000';
+                    filledLetters[currentLetterIndex]++;
+                }
+            });
+            updatePercentage();
+        }
+
+        function nextLetterHandler() {
+            if (currentLetterIndex < 25) {
+                removeCurrentLetterColor();
+                currentLetterIndex++;
+                updateCurrentLetterColor();
+                canPaint = true;
+            }
+        }
+
+        // 禁止滾動刷新頁面
+        document.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+        // 初始化遊戲
+        initializeGrid();
+    </script>
+</body>
+</html>
