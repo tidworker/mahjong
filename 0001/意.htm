@@ -309,4 +309,20 @@
 
         function nextLetterHandler() {
             if (currentLetterIndex < 25) {
-                removeCurrentLet
+                removeCurrentLetterColor();
+                currentLetterIndex++;
+                updateCurrentLetterColor();
+                canPaint = true;
+            }
+        }
+
+        // 禁止滾動刷新頁面
+        document.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+        // 初始化遊戲
+        initializeGrid();
+    </script>
+</body>
+</html>
